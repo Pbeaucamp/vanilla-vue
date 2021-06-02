@@ -1,3 +1,3 @@
 {
-	"baseURL": "http://localhost:8095"
+	"baseURL": "https://semaphore-gravitee-gateway.data4citizen.com/vanilla-api"
 }
