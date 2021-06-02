@@ -1,0 +1,187 @@
+<template>
+  <div class="utilisateurs">
+    <h1 class="subheading grey--text">Utilisateurs</h1>
+
+    <v-container class="my-5">
+
+        <v-row row wrap>        
+            <v-col xs="12" sm="12" md="12" lg="12">
+                
+                <v-data-table
+                :headers="headers"
+                :items="users.data"
+                class="elevation-1"
+                :hide-default-footer="users.data.length<10"
+                >
+
+                <template v-slot:top>                  
+                    <v-toolbar flat>
+                        <v-toolbar-title class=" grey--text display-1 text-decoration-underline">Liste des utilisateurs</v-toolbar-title>
+
+                        <v-spacer></v-spacer>
+
+                        <v-btn color="primary" dark class="mt-2" @click="dialogAdd=true">
+                            Ajouter un utilisateur 
+                        </v-btn>                        
+                    </v-toolbar>
+                </template>
+               
+                <template class="text-center" v-slot:[`item.actions`]="{ item }"> 
+                    <v-btn text color="grey" :to="`/user/${item.login}`">
+                        <v-icon left >mdi-account-cog</v-icon>
+                        <span>Configurer</span>
+                    </v-btn>       
+                </template>
+
+                </v-data-table>
+               
+
+            </v-col>
+        </v-row>              
+
+
+
+        <v-row justify="center">
+        <v-dialog
+            v-model="dialogAdd"
+            persistent
+            max-width="600px"
+        >
+            
+            <v-form ref="form" v-model="valid" lazy-validation >  
+            <v-card>
+            <v-card-title>
+                <h2 class="subheading grey--text">Ajouter un utilisateur</h2>
+            </v-card-title>
+            <v-card-text>
+                <v-container>
+                <v-row>
+              
+                    <v-col cols="12">
+                        <v-text-field v-model="name" :rules="nameRules" label="Nom" required> </v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                        <v-text-field v-model="login" :rules="loginRules" label="Login" required> </v-text-field>    
+                    </v-col>
+                    <v-col cols="12">
+                        <v-text-field v-model="password" :rules="passwordRules" label="Mot de passe" required :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" :type="showPassword ? 'text' : 'password'" @click:append="showPassword = !showPassword"> </v-text-field>       
+                    </v-col>
+
+                </v-row>
+                
+                </v-container>
+            </v-card-text>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="error" outlined class="mr-4" @click="reset">
+                    Annuler
+                </v-btn>            
+                <v-btn :disabled="!valid" :loading="loadingAddUser" outlined color="success" class="mr-4" @click="validate">Confirmer</v-btn>
+            </v-card-actions>
+            </v-card>
+            </v-form>
+        </v-dialog>
+        </v-row>
+
+
+
+
+
+
+    </v-container>
+  </div>
+
+</template>
+
+
+<script>
+import { mapState } from 'vuex'
+import axios from 'axios'
+import config from '../config.json'
+
+axios.defaults.baseURL=config.baseURL;
+
+export default {
+    name: 'Utilisateurs',
+    data() {
+        return {
+            loadingAddUser: false,
+            dialogAdd: false,
+            showPassword: false,
+            absoluteOverlay: true,
+            headers : [
+                {
+                    text: 'Login',
+                    align: 'start',
+                    value: 'login',
+                },
+                { text: 'Nom ', value: 'name' },
+                { text: 'Crée le ', value: 'creation' , align:'center'},
+                { text: '', value: 'actions', sortable: false, align:'end' }                
+            ],            
+            valid: true,
+            name: '',
+            login: '',
+            password: '',
+            nameRules: [
+                v => !!v || 'Le nom est requis',
+            ],
+            loginRules: [
+                v => !!v || 'Le login est requis',
+                v => (v && (this.$store.getters.users.find(user => user.login.toLowerCase() === v.toLowerCase()) === undefined) ) || 'Cet utilisateur existe déjà',
+            ],
+            passwordRules: [
+                v => !!v || 'Le mot de passe est requis',
+            ]                
+
+            }
+    }, 
+    computed: {
+        ...mapState(['users','groups','repositories'])
+    },
+    methods: {
+        createUser() {
+            this.loadingAddUser = true;
+            if ( this.name != "" && this.login != "" && this.password != "") {
+                var login = this.login;         
+                var data ={
+                    name: this.name,
+                    login: login,
+                    password: this.password,
+                };   
+                
+                axios.post("/user/create",data,{})
+                .then(response => {
+                    if (response.data.status == 'success') {
+                        this.$store.dispatch('loadData','users');        
+                    }
+                    var snackbar = { id: 0,  aff: true, text: `L'utilisateur ${login} a été crée.`, color: "success"};
+                    this.$store.dispatch('addSnackbar',snackbar);
+                    this.loadingAddUser = false;    
+                    this.dialogAdd = false;
+                    this.$refs.form.reset();
+                })
+                .catch( () => {
+                    this.loadingAddUser = false;    
+                    this.dialogAdd = false;
+                    this.$store.dispatch('addSnackbar',{ id: 0,  aff: true, text: `Erreur lors de la création de l'utilisateur ${login}.`, color: "success"});
+                    this.$refs.form.reset();
+                })
+            
+            }
+        },
+
+        validate () {
+            if (this.$refs.form.validate()) {
+                this.createUser();
+                
+            }
+        },
+        reset () {
+            this.$refs.form.reset();
+            this.dialogAdd = false;
+        },      
+    }
+
+}
+</script>
