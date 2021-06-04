@@ -90,7 +90,7 @@ export default {
     $route: {
       immediate: true,
       handler(to) {
-        document.title = to.name || 'Vanilla API';
+        document.title = (to.name+" | Vanilla User") || 'Vanilla API';
       }
     },
   }
