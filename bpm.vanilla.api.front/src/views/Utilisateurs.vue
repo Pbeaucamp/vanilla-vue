@@ -12,6 +12,13 @@
                 :items="users.data"
                 class="elevation-1"
                 :hide-default-footer="users.data.length<10"
+                :search="search"
+                :footer-props="{
+                    'items-per-page-text':'Utilisateurs par page',
+                    'page-text': '{0} à {1} sur {2}'
+                }"
+                no-results-text="Aucun résultat."
+
                 >
 
                 <template v-slot:top>                  
@@ -24,7 +31,9 @@
                             Ajouter un utilisateur 
                         </v-btn>                        
                     </v-toolbar>
+                    <v-text-field v-model="search" label="Rechercher un utilisateur" class="mx-4"></v-text-field>                    
                 </template>
+
                
                 <template class="text-center" v-slot:[`item.actions`]="{ item }"> 
                     <v-btn text color="grey" :to="`/user/${item.login}`">
@@ -105,6 +114,7 @@ export default {
     name: 'Utilisateurs',
     data() {
         return {
+            search : '',
             loadingAddUser: false,
             dialogAdd: false,
             showPassword: false,

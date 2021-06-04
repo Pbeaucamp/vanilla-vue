@@ -9,6 +9,10 @@
         :items="repositories.data"
         class="elevation-1"
         :hide-default-footer="repositories.data.length<10"
+        :footer-props="{
+          'items-per-page-text':'Référentiels par page',
+          'page-text': '{0} à {1} sur {2}'
+        }"
         >
         <template v-slot:top>
             <v-toolbar flat>

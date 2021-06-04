@@ -121,7 +121,7 @@ export default new Vuex.Store({
       data[`${dataType}Name`] = name;
 
       return new Promise( (resolve,reject) => {
-        axios.post(`/user/${dataType}/add`,data,{ timeout: 3000})
+        axios.post(`/user/${dataType}/add`,data,{})
         .then(response => {
           if (response.data.status === 'success') {
             switch(dataType) {

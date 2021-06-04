@@ -7,37 +7,45 @@
 
 
 
-      <v-data-table
-      :headers="headers"
-      :items="users.data"
-      class="elevation-1"
-      :hide-default-footer="users.data.length<10"
-      >
-      <template v-slot:top>
-          <v-toolbar flat>
-              <v-toolbar-title class=" grey--text display-1 text-decoration-underline">Liste des utilisateurs</v-toolbar-title>
-          </v-toolbar>
-      </template>
-  
-        <template v-slot:[`item.id`]="{ item }"> 
-                <v-icon color="success"  medium  v-if="group.contain.includes(item.login)"> mdi-checkbox-marked-circle-outline</v-icon>
-                <v-icon color="error" medium v-else>mdi-circle-off-outline </v-icon>  
-        </template>        
+        <v-data-table
+        :headers="headers"
+        :items="users.data"
+        class="elevation-1"
+        :hide-default-footer="users.data.length<10"
+        :search="search"
+        :footer-props="{
+            'items-per-page-text':'Utilisateurs par page',
+            'page-text': '{0} à {1} sur {2}'
+        }"
+        no-results-text="Aucun résultat."
+        >
 
-      <template class="text-center" v-slot:[`item.actions`]="{ item }"> 
-        <v-btn icon :loading="loading_add_btns.includes(item.login)" @click="addUserTo(item.login)" v-if="!group.contain.includes(item.login)">
-            <v-icon color="success" medium > 
-                mdi-account-plus
-            </v-icon>
-        </v-btn>
-        <v-btn icon :loading="loading_remove_btns.includes(item.login)" @click="removeUserFrom(item.login)" v-else>
-            <v-icon color="error" medium >
-                mdi-account-minus
-            </v-icon>  
-        </v-btn>  
-      </template>
+            <template v-slot:top>
+                <v-toolbar flat>
+                    <v-toolbar-title class=" grey--text display-1 text-decoration-underline">Liste des utilisateurs</v-toolbar-title>
+                </v-toolbar>
+                <v-text-field v-model="search" label="Rechercher un utilisateur" class="mx-4"></v-text-field>
+            </template>
 
-      </v-data-table>
+            <template v-slot:[`item.id`]="{ item }"> 
+                    <v-icon color="success"  medium  v-if="group.contain.includes(item.login)"> mdi-checkbox-marked-circle-outline</v-icon>
+                    <v-icon color="error" medium v-else>mdi-circle-off-outline </v-icon>  
+            </template>        
+
+            <template class="text-center" v-slot:[`item.actions`]="{ item }"> 
+            <v-btn icon :loading="loading_add_btns.includes(item.login)" @click="addUserTo(item.login)" v-if="!group.contain.includes(item.login)">
+                <v-icon color="success" medium > 
+                    mdi-account-plus
+                </v-icon>
+            </v-btn>
+            <v-btn icon :loading="loading_remove_btns.includes(item.login)" @click="removeUserFrom(item.login)" v-else>
+                <v-icon color="error" medium >
+                    mdi-account-minus
+                </v-icon>  
+            </v-btn>  
+            </template>
+
+        </v-data-table>
     
     </v-container>
   </div>
@@ -52,6 +60,7 @@ export default {
     name: 'Groupe',
     data() {
         return {
+            search :'',
             group : undefined,
             headers : [
                 {

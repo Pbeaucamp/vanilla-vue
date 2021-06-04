@@ -19,18 +19,14 @@
         </v-col>   
 
         <v-col class="text-center mb-sm-0 mb-5" cols="auto">
-          <v-btn icon color="primary" href="http://www.bpm-conseil.com/fr">
+          <v-btn icon color="primary" target="_blank" rel="noopener noreferrer" href="http://www.bpm-conseil.com/fr">
             <v-avatar size="24">
               <img src="@/assets/icon_vanilla.png"> 
             </v-avatar>
           </v-btn>
         </v-col>              
 
-        <v-col v-for="(link, i) in links" :key="i" class="text-center mb-sm-0 mb-5" cols="auto" >
-            <v-btn :href="link.href"  icon>
-              <v-icon size="24px">{{ link.icon }}</v-icon>
-            </v-btn>
-        </v-col>
+
 
         <v-spacer class="hidden-sm-and-down" />
 
@@ -50,19 +46,6 @@
 <script>
   export default {
     name: 'DashboardCoreFooter',
-
-    data: () => ({
-      links: [
-        {
-          href: 'https://twitter.com/vanillaosbi',
-          icon: 'mdi-twitter',
-        },
-        {
-          href: 'https://freeanalysis.wordpress.com/',
-          icon: 'mdi-wordpress',
-        }
-      ],
-    }),
 
   }
 </script>

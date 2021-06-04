@@ -5,6 +5,10 @@
     :items="data"
     class="elevation-1"
     :hide-default-footer="data.length<10"
+    :footer-props="{
+        'items-per-page-text':`${isRepo ? 'Référentiels' : 'Groupes'} par page`,
+        'page-text': '{0} à {1} sur {2}'
+    }"
     >
     <template v-slot:top>
         <v-toolbar flat>
@@ -17,9 +21,9 @@
             <v-icon color="error" medium v-else>mdi-circle-off-outline </v-icon>  
     </template>        
 
-    <template class="text-center" v-slot:[`item.actions`]="{ item }"> <!-- v-slot:[`item.actions`]="{ item }" -->
+    <template class="text-center" v-slot:[`item.actions`]="{ item }"> 
         <v-btn icon :loading="loading_add_btns.includes(item.name)" @click="addUserTo(item.name)" v-if="!item.contain.includes(user)"> <!--  :id="`add-btn-${item.id}`" -->
-            <v-icon color="success" medium > <!-- class="mr-2" -->
+            <v-icon color="success" medium > 
                 mdi-account-plus
             </v-icon>
         </v-btn>
