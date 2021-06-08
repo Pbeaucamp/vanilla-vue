@@ -31,7 +31,7 @@
                             Ajouter un utilisateur 
                         </v-btn>                        
                     </v-toolbar>
-                    <v-text-field v-model="search" label="Rechercher un utilisateur" class="mx-4"></v-text-field>                    
+                    <v-text-field v-model="search" label="Rechercher un utilisateur" class="mx-4" append-icon="mdi-magnify"></v-text-field>                    
                 </template>
 
                
@@ -75,6 +75,9 @@
                     <v-col cols="12">
                         <v-text-field v-model="password" :rules="passwordRules" label="Mot de passe" required :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" :type="showPassword ? 'text' : 'password'" @click:append="showPassword = !showPassword"> </v-text-field>       
                     </v-col>
+                    <v-col cols="12">
+                        <v-text-field v-model="email" :rules="emailRules" label="Email" required> </v-text-field>    
+                    </v-col>
 
                 </v-row>
                 
@@ -105,10 +108,6 @@
 
 <script>
 import { mapState } from 'vuex'
-import axios from 'axios'
-import config from '../config.json'
-
-axios.defaults.baseURL=config.baseURL;
 
 export default {
     name: 'Utilisateurs',
@@ -142,7 +141,12 @@ export default {
             ],
             passwordRules: [
                 v => !!v || 'Le mot de passe est requis',
-            ]                
+            ],
+            email: '',
+            emailRules: [
+                v => !!v || "L'e-mail est requis",
+                v => /.+@.+\..+/.test(v) || "L'e-mail doit être valide",
+            ],                
 
             }
     }, 
@@ -150,34 +154,31 @@ export default {
         ...mapState(['users','groups','repositories'])
     },
     methods: {
+
         createUser() {
             this.loadingAddUser = true;
-            if ( this.name != "" && this.login != "" && this.password != "") {
+            if ( this.name != "" && this.login != "" && this.password != "" && this.email != "") {
                 var login = this.login;         
                 var data ={
                     name: this.name,
                     login: login,
                     password: this.password,
-                };   
-                
-                axios.post("/user/create",data,{})
+                    mail: this.email,
+                };
+                this.$store.dispatch('addUser',data)
                 .then(response => {
-                    if (response.data.status == 'success') {
-                        this.$store.dispatch('loadData','users');        
-                    }
-                    var snackbar = { id: 0,  aff: true, text: `L'utilisateur ${login} a été crée.`, color: "success"};
+                    var snackbar = { id: 0,  aff: true, text: response, color: "success"};
                     this.$store.dispatch('addSnackbar',snackbar);
                     this.loadingAddUser = false;    
                     this.dialogAdd = false;
                     this.$refs.form.reset();
                 })
-                .catch( () => {
+                .catch( error => {
                     this.loadingAddUser = false;    
                     this.dialogAdd = false;
-                    this.$store.dispatch('addSnackbar',{ id: 0,  aff: true, text: `Erreur lors de la création de l'utilisateur ${login}.`, color: "success"});
+                    this.$store.dispatch('addSnackbar',{ id: 0,  aff: true, text: error, color: "error"});
                     this.$refs.form.reset();
                 })
-            
             }
         },
 

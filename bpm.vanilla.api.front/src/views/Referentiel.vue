@@ -21,7 +21,7 @@
             <v-toolbar flat>
                 <v-toolbar-title class=" grey--text display-1 text-decoration-underline">Liste des utilisateurs</v-toolbar-title>
             </v-toolbar>
-            <v-text-field v-model="search" label="Rechercher un utilisateur" class="mx-4"></v-text-field>
+            <v-text-field v-model="search" label="Rechercher un utilisateur" class="mx-4" append-icon="mdi-magnify"></v-text-field>
         </template>
 
         <template v-slot:[`item.id`]="{ item }"> 

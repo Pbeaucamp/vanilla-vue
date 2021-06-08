@@ -74,7 +74,6 @@ export default {
         },
 
         addUserTo(name) {
-            //var name = item.name;
             this.loading_add_btns.push(name);
             this.$store.dispatch('addUserTo', {
                 "dataType": this.dataType,
@@ -100,7 +99,6 @@ export default {
 
         removeUserFrom(name) {
             
-            //var name = item.name;
             this.loading_remove_btns.push(name);
             this.$store.dispatch('removeUserFrom', {
                 "dataType": this.dataType,
