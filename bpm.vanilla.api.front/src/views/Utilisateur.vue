@@ -7,7 +7,7 @@
 
         <v-row wrap>
 
-            <v-col xs="12" sm="12" md="4" lg="4" >
+            <v-col cols="12" xs="12" sm="12" md="12" lg="4" xl="4" >
                 <v-card class=" ma-3">
                     <v-card-title class="grey--text display-1 text-decoration-underline">Informations</v-card-title>                                  
                     <v-card-text class="ma-3">
@@ -19,20 +19,28 @@
 
                     </v-card-text>
                     <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn outlined color="orange darken-2" @click="dialogPassword=true">
-                            <v-icon left >mdi-shield-lock</v-icon>
-                            <span>Changer le mot de passe</span>
-                        </v-btn>
-                        <v-btn outlined color="error" @click="dialogDelete=true">
-                            <v-icon left >mdi-account-remove</v-icon>
-                            <span>Supprimer</span>
-                        </v-btn>                               
+                        <v-container>
+                        <v-row>
+                            <v-spacer></v-spacer>
+                            <v-col class="pt-0 pr-1 d-flex flex-row-reverse">
+                            <v-btn outlined color="orange darken-2" @click="dialogPassword=true">
+                                <v-icon left size="24">mdi-lock-reset</v-icon>
+                                <span>Mot de passe</span>
+                            </v-btn>
+                            </v-col>
+                            <v-col class="pt-0 pl-0 d-flex flex-row-reverse">
+                            <v-btn right outlined color="error" @click="dialogDelete=true">
+                                <v-icon left >mdi-account-remove</v-icon>
+                                <span>Supprimer</span>
+                            </v-btn>
+                            </v-col>
+                        </v-row>  
+                        </v-container>
                     </v-card-actions>
                 </v-card>
             </v-col>
             
-            <v-col xs="12" sm="12" md="4" lg="4" >
+            <v-col cols="12" xs="12" sm="12" md="12" lg="4" xl="4" >
                 <UserDatatable
                     title = "Groupes"
                     :user = "user.login"
@@ -41,7 +49,7 @@
                 />                
             </v-col>
 
-            <v-col xs="12" sm="12" md="4" lg="4" >
+            <v-col cols="12" xs="12" sm="12" md="12" lg="4" xl="4" >
                 <UserDatatable
                     title = "Référentiels"
                     :user = "user.login"                        
@@ -53,16 +61,21 @@
 
         </v-row>
 
+        
+
+    </v-container>
+
+    <div class="dialog">
         <v-dialog v-model="dialogDelete" persistent width="500">
-          <v-card>
+            <v-card>
             <v-card-title class="text-center headline card-title">Êtes-vous sûr de vouloir supprimer l'utilisateur {{user.login}} ?</v-card-title>
             <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" outlined @click="dialogDelete=false">Annuler</v-btn>
-              <v-btn color="error" outlined :loading="loading_remove_btns.includes(user.login)" @click="removeUser">Oui</v-btn>
-              <v-spacer></v-spacer>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" outlined @click="dialogDelete=false">Annuler</v-btn>
+                <v-btn color="error" outlined :loading="loading_remove_btns.includes(user.login)" @click="removeUser">Oui</v-btn>
+                <v-spacer></v-spacer>
             </v-card-actions>
-          </v-card>
+            </v-card>
         </v-dialog>
 
 
@@ -80,7 +93,7 @@
             <v-card-text>
                 <v-container>
                 <v-row>
-              
+                
                     <v-col cols="12">
                         <v-text-field v-model="password" :rules="passwordRules" label="Mot de passe" required :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" :type="showPassword ? 'text' : 'password'" @click:append="showPassword = !showPassword"> </v-text-field>
                     </v-col>
@@ -102,8 +115,8 @@
             </v-card>
             </v-form>
         </v-dialog>
+    </div>
 
-    </v-container>
   </div>
 
 </template>

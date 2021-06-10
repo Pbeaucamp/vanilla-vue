@@ -318,12 +318,17 @@ export default new Vuex.Store({
       })
     },
 
-    addGroup({dispatch},name) {
+    addGroup({dispatch,state},name) {
       return new Promise( (resolve,reject) => {
         axios.post(`/group/${name}/create`)
         .then(response => {
           if (response.data.status === "success") {
-            dispatch('loadData','groups');  
+            dispatch('loadData','groups').then( () => {
+              state.users.data.forEach(user => {
+                dispatch('getUserGroups',user.login);
+              });
+            });  
+
             resolve(`Le groupe ${name} a été crée.`) 
           }
         })
