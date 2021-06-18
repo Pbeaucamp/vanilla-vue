@@ -366,6 +366,98 @@ export default new Vuex.Store({
         commit("FETCH_GROUPS_CHART",groups);
     },
 
+
+    removeGroup({getters, commit},name) {
+      return new Promise( (resolve,reject) => {
+        axios.delete(`/group/${name}/remove`)
+        .then(response => { 
+          if (response.data.status === "success") { 
+            var groups = getters.groups;
+            var indexOfGroup = groups.indexOf(groups.find(gr => gr.name === name))
+            groups.splice(indexOfGroup, 1);
+            commit("FETCH_GROUPS",groups);
+            resolve(`Le groupe ${name} a été supprimé avec succès.`)
+          }
+        })
+        .catch( error => {
+          if (error.response) {
+            console.log(`Error deleting ${name} : ${error.response.data.message}`);
+          } else {
+            console.log(`Error deleting ${name} : ${error}`);
+          }
+          reject(`Erreur lors de la suppression du groupe ${name}.`);
+        })
+        
+      })
+    },
+
+    addGroup({dispatch,state},name) {
+      return new Promise( (resolve,reject) => {
+        axios.post(`/group/${name}/create`)
+        .then(response => {
+          if (response.data.status === "success") {
+            dispatch('loadData','groups').then( () => {
+              state.users.data.forEach(user => {
+                dispatch('getUserGroups',user.login);
+              });
+            });  
+
+            resolve(`Le groupe ${name} a été crée.`) 
+          }
+        })
+        .catch( error => {
+          if (error.response) {
+            console.log(`Error deleting ${name} : ${error.response.data.message}`);
+          } else {
+            console.log(`Error deleting ${name} : ${error}`);
+          }
+          reject(`Erreur lors de la création du groupe ${name}.`);
+        })
+      });
+    },
+
+    addUser({dispatch},data) {
+      return new Promise( (resolve,reject) => {
+
+        axios.post("/user/create",data,{})
+        .then(response => {
+          if (response.data.status === 'success') {
+            dispatch('loadData','users');
+            resolve(`L'utilisateur ${data.login} a été crée.`);
+          }
+        })
+        .catch( error => {
+          if (error.response) {
+            console.log(`Error deleting ${data.login} : ${error.response.data.message}`);
+          } else {
+            console.log(`Error deleting ${data.login} : ${error}`);
+          }
+          reject(`Erreur lors de la création de l'utilisateur ${data.login}.`);
+        })
+      })
+    },
+
+    changeUserPassword({dispatch},{login, password}) {
+      return new Promise( (resolve,reject) => {
+        
+        axios.put(`/user/${login}/password`, { password: password}, {})
+        .then( response => {
+          if (response.data.status === "success") {
+            dispatch('loadData','users');
+            resolve(`Le mot de passe de l'utilisateur ${login} a été mis à jour.`);
+          }
+        })
+        .catch( error => {
+          if (error.response) {
+            console.log(`Error updating ${login} password : ${error.response.data.message}`);
+          } else {
+            console.log(`Error updating ${login} password : ${error}`);
+          }
+          reject(`Erreur lors de la modification du mot de passe de l'utilisateur ${login}.`);
+        })
+      });
+    }
+
   
   },
   getters : {
