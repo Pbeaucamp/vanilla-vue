@@ -8,9 +8,9 @@ axios.defaults.baseURL=config.baseURL;
 axios.defaults.headers.common['X-Gravitee-Api-Key'] = "f3510842-ef9b-4ee7-8877-4d59b5d63907";
 //X-Gravitee-Api-Key
 
-console.log("Config baseURL = "+config.baseURL);
+//console.log("Config baseURL = "+config.baseURL);
 
-console.log("Axios default = "+ JSON.stringify(axios.defaults));
+//console.log("Axios default = "+ JSON.stringify(axios.defaults));
 
 Vue.use(Vuex)
 
@@ -27,6 +27,11 @@ export default new Vuex.Store({
       data: [],
       icon: 'mdi-account-group',
       path: '/groups'
+    },
+    groups_chart: {
+      name: 'Groupes_chart',
+      data: {},
+      icon: 'mdi-account-group'
     },
     repositories: {
       name: 'Référentiels',
@@ -50,6 +55,67 @@ export default new Vuex.Store({
     FETCH_GROUPS(state, groups) {
       state.groups.data = groups;
     },
+    FETCH_GROUPS_CHART(state, groups) {
+      var tab = {'id': '0', 'name' : 'Vanilla', 'children' :[]}
+      var tmp = []
+      for (var x in groups){
+        var tmp2 = []
+        for (let index = 0; index < groups[x].contain.length; index++) {
+          tmp2.push(
+            {'id' : "U/"+x+"/"+index,
+            'name' : groups[x].contain[index],
+            'title' : "user"}
+          )
+        }
+        if (groups[x].parentId != undefined){
+
+          var parent = tmp.find(y => y.id == groups[x].parentId)
+
+          if (parent.children != undefined) {
+
+            tmp[tmp.indexOf(parent)].children.push(
+              {'id' : groups[x].id,
+              'name' : groups[x].name,
+              'title' : groups[x].comment,
+              'children' : tmp2}
+            )
+          } else {
+            tmp[tmp.indexOf(parent)].children = []
+            tmp[tmp.indexOf(parent)].children.push(
+            {'id' : groups[x].id,
+            'name' : groups[x].name,
+            'title' : groups[x].comment,
+            'children' : tmp2}
+            )
+
+          }
+        } else {
+          if (tmp.children != undefined) {
+            tmp.push(
+              {'id' : groups[x].id,
+              'name' : groups[x].name,
+              'title' : groups[x].comment,
+              'children' : tmp2}
+            )
+          } else {
+            tmp.children = []
+            tmp.push(
+            {'id' : groups[x].id,
+            'name' : groups[x].name,
+            'title' : groups[x].comment,
+            'children' : tmp2}
+            )
+
+          }
+        }
+      }
+      tab.children = tmp
+      state.groups_chart.data = tab;
+    },
+    FETCH_GROUPSCHART_USER(state, groupschart){
+      state.groups_chart.data = groupschart;
+    },
+
     FETCH_REPOSITORIES(state, repositories) {
       state.repositories.data = repositories;
     },
@@ -99,6 +165,7 @@ export default new Vuex.Store({
             });
           }
           commit("FETCH_"+name.toUpperCase(),response.data.result);
+
           resolve(name+" fetched");
         })
         .catch(error => {
@@ -121,7 +188,7 @@ export default new Vuex.Store({
       data[`${dataType}Name`] = name;
 
       return new Promise( (resolve,reject) => {
-        axios.post(`/user/${dataType}/add`,data,{ timeout: 3000})
+        axios.post(`/user/${dataType}/add`,data,{})
         .then(response => {
           if (response.data.status === 'success') {
             switch(dataType) {
@@ -130,6 +197,7 @@ export default new Vuex.Store({
                 if(groups.find(group => group.name === name).contain.indexOf(userLogin) === -1) { // Si l'utilisateur n'est pas déjà dans contain
                   groups.find(group => group.name === name).contain.push(userLogin);
                   commit("FETCH_GROUPS",groups);
+                  commit("FETCH_GROUPS_CHART",groups);
                 }
                 resolve (`L'utilisateur ${userLogin} a été ajouté au groupe ${name}.`);
                 break;
@@ -172,6 +240,7 @@ export default new Vuex.Store({
                 if ( indexOfUser != -1) { // Si l'utilisateur est dans le groupe 
                   groups.find(group =>  group.name === name).contain.splice(indexOfUser,1);
                   commit("FETCH_GROUPS",groups);
+                  commit("FETCH_GROUPS_CHART",groups);
                 }
                 resolve (`L'utilisateur ${userLogin} a été retiré du groupe ${name}.`);
                 break;
@@ -192,14 +261,14 @@ export default new Vuex.Store({
       });
     },    
 
-    getUserGroups({commit,getters},login) {
-      axios.get(`/user/${login}/groups`)
+    async getUserGroups({commit,getters},login) {
+      await axios.get(`/user/${login}/groups`)
       .then( response => {
         var groups = getters.groups;
         groups.forEach( group => { // Pour chaque groupe dans le data store 
           if (response.data.result.find(gr => gr.id === group.id) != undefined) { // Si l'utilisateur login appartient au groupe : group 
             if (group.contain.indexOf(login) === -1 ) { // Si l'utilisatteur n'est pas dans contain on l'ajoute
-              group.contain.push(login) 
+              group.contain.push(login)
             }
           } else { // Sinon 
             var indexOfLogin = group.contain.indexOf(login);
@@ -292,6 +361,101 @@ export default new Vuex.Store({
 
       })
 
+    },    
+    groupsChartUser({commit}, groups) {
+        commit("FETCH_GROUPS_CHART",groups);
+    },
+
+
+    removeGroup({getters, commit},name) {
+      return new Promise( (resolve,reject) => {
+        axios.delete(`/group/${name}/remove`)
+        .then(response => { 
+          if (response.data.status === "success") { 
+            var groups = getters.groups;
+            var indexOfGroup = groups.indexOf(groups.find(gr => gr.name === name))
+            groups.splice(indexOfGroup, 1);
+            commit("FETCH_GROUPS",groups);
+            resolve(`Le groupe ${name} a été supprimé avec succès.`)
+          }
+        })
+        .catch( error => {
+          if (error.response) {
+            console.log(`Error deleting ${name} : ${error.response.data.message}`);
+          } else {
+            console.log(`Error deleting ${name} : ${error}`);
+          }
+          reject(`Erreur lors de la suppression du groupe ${name}.`);
+        })
+        
+      })
+    },
+
+    addGroup({dispatch,state},name) {
+      return new Promise( (resolve,reject) => {
+        axios.post(`/group/${name}/create`)
+        .then(response => {
+          if (response.data.status === "success") {
+            dispatch('loadData','groups').then( () => {
+              state.users.data.forEach(user => {
+                dispatch('getUserGroups',user.login);
+              });
+            });  
+
+            resolve(`Le groupe ${name} a été crée.`) 
+          }
+        })
+        .catch( error => {
+          if (error.response) {
+            console.log(`Error deleting ${name} : ${error.response.data.message}`);
+          } else {
+            console.log(`Error deleting ${name} : ${error}`);
+          }
+          reject(`Erreur lors de la création du groupe ${name}.`);
+        })
+      });
+    },
+
+    addUser({dispatch},data) {
+      return new Promise( (resolve,reject) => {
+
+        axios.post("/user/create",data,{})
+        .then(response => {
+          if (response.data.status === 'success') {
+            dispatch('loadData','users');
+            resolve(`L'utilisateur ${data.login} a été crée.`);
+          }
+        })
+        .catch( error => {
+          if (error.response) {
+            console.log(`Error deleting ${data.login} : ${error.response.data.message}`);
+          } else {
+            console.log(`Error deleting ${data.login} : ${error}`);
+          }
+          reject(`Erreur lors de la création de l'utilisateur ${data.login}.`);
+        })
+      })
+    },
+
+    changeUserPassword({dispatch},{login, password}) {
+      return new Promise( (resolve,reject) => {
+        
+        axios.put(`/user/${login}/password`, { password: password}, {})
+        .then( response => {
+          if (response.data.status === "success") {
+            dispatch('loadData','users');
+            resolve(`Le mot de passe de l'utilisateur ${login} a été mis à jour.`);
+          }
+        })
+        .catch( error => {
+          if (error.response) {
+            console.log(`Error updating ${login} password : ${error.response.data.message}`);
+          } else {
+            console.log(`Error updating ${login} password : ${error}`);
+          }
+          reject(`Erreur lors de la modification du mot de passe de l'utilisateur ${login}.`);
+        })
+      });
     }
 
   
@@ -302,6 +466,9 @@ export default new Vuex.Store({
     },
     groups: state => {
       return state.groups.data;
+    },
+    groupschart: state => {
+      return state.groups_chart.data;
     },
     repositories: state => {
       return state.repositories.data;

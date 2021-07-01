@@ -72,11 +72,17 @@ export default {
       this.$store.dispatch('loadData','users').then(() => {
         this.$store.dispatch('loadData','groups').then( () => {
           this.$store.dispatch('loadData','repositories').then( () => {
-            this.loaded = true;
+            var promiseArray = [];
             this.$store.state.users.data.forEach(user => {
-              this.$store.dispatch('getUserGroups',user.login);
-              this.$store.dispatch('getUserRepositories',user.login);
+              promiseArray.push(this.$store.dispatch('getUserGroups',user.login));
+              promiseArray.push(this.$store.dispatch('getUserRepositories',user.login));
             });
+
+            Promise.all(promiseArray).then( () => {
+              this.$store.dispatch('groupsChartUser', this.$store.state.groups.data);
+              this.loaded = true;
+            })
+
           });    
         } );
       })
@@ -85,7 +91,16 @@ export default {
         this.loadingCircular = false;
       });
     }
+  },
+  watch: {
+    $route: {
+      immediate: true,
+      handler(to) {
+        document.title = (to.name+" | Vanilla User") || 'Vanilla API';
+      }
+    },
   }
+  
 };
 </script>
 

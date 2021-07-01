@@ -6,7 +6,12 @@
         <span class="font-weight-light">VANILLA</span>
         <span> USER</span>
       </v-toolbar-title>
-
+      <v-spacer></v-spacer>
+      <v-btn class="mx-3" text rounded target="_blank" rel="noopener noreferrer" href="https://semaphore-vanilla.data4citizen.com/vanilla">
+      
+      <v-img contain max-height="100" max-width="120" src="@/assets/vanilla_white.png"></v-img>
+      <v-icon class="ml-1 mt-1" medium color="white">mdi-open-in-new</v-icon>
+      </v-btn>
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" app class="indigo" temporary>

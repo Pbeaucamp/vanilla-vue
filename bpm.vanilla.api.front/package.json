@@ -14,6 +14,7 @@
     "query-string": "^7.0.0",
     "vue": "^2.6.11",
     "vue-chartjs": "^3.5.1",
+    "vue-organization-chart": "^1.1.6",
     "vue-router": "^3.2.0",
     "vuetify": "^2.4.0",
     "vuex": "^3.4.0"

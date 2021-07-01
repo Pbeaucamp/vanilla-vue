@@ -40,7 +40,16 @@
                 </v-card>            
             </v-col>
         </v-row>        
-        
+        <v-row align="center" justify="center">
+            <v-col xs="12" sm="12" md="12" lg="12">
+                <v-card class="text-center ma-3">
+                    <v-card-text>
+                        <h4 class="display-1 grey--text">Groupes et sous groupes</h4>
+                        <OrganizationChart/>                   
+                    </v-card-text>
+                </v-card>            
+            </v-col>
+        </v-row>  
 
     </v-container>    
   </div>
@@ -49,11 +58,11 @@
 <script>
 import {mapState} from 'vuex'
 import GroupChart from '@/components/GroupChart'
-
+import OrganizationChart from '@/components/OrganizationChart'
 
 export default {
     name: 'Dashboard',
-    components: { GroupChart },
+    components: { GroupChart, OrganizationChart  },
     computed: {
         ...mapState({
             apiData (state) {

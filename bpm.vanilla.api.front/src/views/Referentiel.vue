@@ -4,16 +4,24 @@
 
     <v-container class="my-5">
 
-      <v-data-table
-      :headers="headers"
-      :items="users.data"
-      class="elevation-1"
-      :hide-default-footer="users.data.length<10"
-      >
+        <v-data-table
+        :headers="headers"
+        :items="users.data"
+        class="elevation-1"
+        :hide-default-footer="users.data.length<10"
+        :search="search"
+        :footer-props="{
+            'items-per-page-text':'Utilisateurs par page',
+            'page-text': '{0} à {1} sur {2}'
+        }"
+        no-results-text="Aucun résultat."
+        >
+
         <template v-slot:top>
             <v-toolbar flat>
                 <v-toolbar-title class=" grey--text display-1 text-decoration-underline">Liste des utilisateurs</v-toolbar-title>
             </v-toolbar>
+            <v-text-field v-model="search" label="Rechercher un utilisateur" class="mx-4" append-icon="mdi-magnify"></v-text-field>
         </template>
 
         <template v-slot:[`item.id`]="{ item }"> 
@@ -52,6 +60,7 @@ export default {
     name: 'Repository',
     data() {
         return {
+            search :'',
             repo : undefined,
             headers : [
                 {
