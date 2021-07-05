@@ -68,30 +68,11 @@ export default {
       this.$store.dispatch('removeSnackbar',snackbar);
     }, 
     appLoadData() {
-      //this.loaded = true;
-      /*
-      var repositoryName = "Vanilla";
-      var groupName = "system";
-      
-      axios.get(`/repository/${repositoryName}/group/${groupName}/metadatas`).then( response => {
-        console.log("The respoense : " + response.data.result);
-      }).catch( error => {
-        if (error.reponse.data.message) {
-          console.log("Unable to retrieve metadatas : " + error.response.data.message)
-        } else {
-          console.log("Unable to retrieve metadatas : " + error);
-        }
-      })
-      */
+
 
       this.$store.commit("SET_REPOSITORYNAME","Vanilla");
       this.$store.commit("SET_GROUPNAME","system");
-      /*
-      var data = {
-        repositoryName : "Vanilla",
-        groupName : "system"
-      };
-      */
+
       this.$store.dispatch('getMetadata').then(() => {
         this.loaded = true;
       }).catch( error => {

@@ -7,8 +7,10 @@
     <v-card
       class="mx-auto"
       max-width="500"
+      :disabled="tablesLoaded"
+      :loading="tablesLoading"
     >
-      <v-sheet class="pa-4 primary lighten-2">
+      <v-sheet class="pa-4 primary lighten-1">
         <v-text-field
           v-model="search"
           label="Rechercher une table ou une colonne"
@@ -77,6 +79,8 @@ export default {
       files: {
         txt: 'mdi-file-document-outline',
       },
+      tablesLoaded : true,
+      tablesLoading : false,
     }),
     computed: {
       ...mapState(["metadatas","models","packages","tables"]),
@@ -97,17 +101,27 @@ export default {
     watch: {
       packages : {
         handler : function () {
+          
           console.log("this.packages.selected : " + this.packages.selected);
           if (this.packages.selected != "") {
+            this.tablesLoading = true;
             this.getTables( {metadataName : this.metadatas.selected ,modelName : this.models.selected ,packageName : this.packages.selected})
             .then( () => {
+              var promiseArray = [];
               this.tables.data.forEach(element => {
                 console.log("Table : "  + element.name);
-                this.getColumns({metadataName : this.metadatas.selected ,modelName : this.models.selected ,packageName : this.packages.selected, tableName : element.name})
-                .then( () => {
-                  console.log("New element : "  + JSON.stringify(element) );
-                });
+                promiseArray.push(
+                  this.getColumns({metadataName : this.metadatas.selected ,modelName : this.models.selected ,packageName : this.packages.selected, tableName : element.name})
+                );
               });
+              Promise.all(promiseArray).then( () => {
+                
+                this.tablesLoaded = false;
+                this.tablesLoading = false;
+                console.log("Tables loaded : " + this.tablesLoaded);
+                console.log("Tables : " + JSON.stringify(this.tables.data));
+              })
+              
             })
           }
 

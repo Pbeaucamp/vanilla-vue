@@ -141,7 +141,6 @@ export default new Vuex.Store({
     },
 
     getBusinessModels({commit,getters} , metadataName) {
-      //console.log("Here's the metadat11a : " + metadataName);
       return new Promise( (resolve, reject) => {
         axios.get(`/repository/${getters.repositoryName}/group/${getters.groupName}/metadata/${metadataName}/models`)
         .then(response => {
@@ -189,7 +188,9 @@ export default new Vuex.Store({
           if (response.data.status == "success") {
             var tables = []
             response.data.result.forEach(element => {
-              tables.push({id: dispatch("getTableNewID"),name : element, children : []})
+              dispatch("getTableNewID").then( id => {
+                tables.push({id: id,name : element, children : []})
+              });
             });
             commit("SET_TABLES", tables);
           }
@@ -216,8 +217,10 @@ export default new Vuex.Store({
             var table = tables.find(table => table.name == tableName);
             
             response.data.result.forEach(element => {
-              //result.push({name : element, file : "txt"});
-              table.children.push({id: dispatch("getTableNewID"),name : element, file : "txt"})
+              dispatch("getTableNewID").then( id => {
+                table.children.push({id: id,name : element, file : "txt"})
+              });
+
             });
             
             //tables.find(table => table.name == tableName).children.push(result);
@@ -240,7 +243,7 @@ export default new Vuex.Store({
     getTableNewID({state,commit}) {
       var id = state.tables.idCount;
       commit("INC_ID");
-      return id;
+      return new Promise( (resolve)=> { resolve(id)});
     }
 
 
