@@ -44,27 +44,49 @@ export default {
       var dataset = []
 
       console.log(this.axisvalues.data);
+      var dernierlabel = " "
+      var valeur = 0
       this.axisvalues.data.forEach(element => {
-        Adata = [],
-        console.log(element.axis[0].label)
-        if (!labele.includes(element.axis[0].label)){
-          labele.push(element.axis[0].label)
+        console.log(element.axis[1].label)
+        Adata = []
+        if (dernierlabel == " "){
+          dernierlabel = element.axis[0].label
+          console.log("PREMIER NOM");
         }
-        Adata.push(element.value)
-        var datas =
-        {
-          label : labele,
-          data : Adata,
-          backgroundColor : '#'+(Math.random()*0xFFFFFF<<0).toString(16)
+        if (element.axis[0].label != dernierlabel){
+          labele.push(dernierlabel)
+          console.log("CHANGEMENT NOM");
+          dernierlabel = element.axis[0].label
+          Adata.push(valeur)
+          var datas =
+          {
+            label : labele,
+            data : Adata,
+            backgroundColor : '#'+(Math.random()*0xFFFFFF<<0).toString(16)
+          }
+          dataset.push(datas)
+          labele = []
+          valeur = 0
+        } else {
+          console.log("MEME NOM");
+          valeur = valeur + element.value
+          console.log(valeur);
         }
-        dataset.push(datas)
-      });
-
+      })
+      labele.push(dernierlabel)
+      Adata.push(valeur)
+      var datas = 
+      {
+        label : labele,
+        data : Adata,
+        backgroundColor : '#'+(Math.random()*0xFFFFFF<<0).toString(16)
+      }
+      dataset.push(datas)
+      console.log(dataset);
       return {
         labels : labels,
         datasets:
           dataset
-
       };
     }
   },
