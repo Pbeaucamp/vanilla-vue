@@ -16,7 +16,17 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    repositories : {
+      name : "Référentiels",
+      data : [],
+      selected : "",
+    },
     repositoryName : "",
+    groups : {
+      name : "Groupes",
+      data : [],
+      selected : "",
+    },
     groupName : "",
     metadatas : {
       name : "Metadatas",
@@ -62,8 +72,8 @@ export default new Vuex.Store({
     SET_REPOSITORYNAME(state,name) {
       state.repositoryName = name;
     },
-    SET_GROUPNAME(state, name) {
-      state.groupName = name;
+    SET_GROUPS(state, groups) {
+      state.groups.data = groups;
     },
     SET_METADATAS(state,metadatas) {
       state.metadatas.data = metadatas;
@@ -76,6 +86,12 @@ export default new Vuex.Store({
     },
     SET_TABLES(state, tables) {
       state.tables.data = tables;
+    },
+    SELECT_REPOSITORY(state,name) {
+      state.repositories.selected = name;
+    },
+    SELECT_GROUP(state, name) {
+      state.groups.selected = name;
     },
     SELECT_METADATA(state, name) {
        state.metadatas.selected = name;
@@ -115,15 +131,32 @@ export default new Vuex.Store({
       }   
     },
 
+    getGroups({commit}) {
+      return new Promise( (resolve, reject) => {
+        axios.get("/groups")
+        .then(response => {
+          if (response.data.status == "success") {
+            commit("SET_METADATAS", response.data.result);
+          }
+          resolve();
+        })
+        .catch( error => {
+          if (error.reponse) {
+            console.log("Unable to retrieve groups message : " + error.response.data.message)
+          } else {
+            console.log("Unable to retrieve groups : " + error);
+          }
+          reject(error);
+        })
+
+      });
+    },
+
 
     getMetadata({commit,getters}) {
       return new Promise( (resolve, reject) => {
         axios.get(`/repository/${getters.repositoryName}/group/${getters.groupName}/metadatas`)
         .then(response => {
-          /*console.log("The response : " + response.data.result);
-          console.log("The response data : " + JSON.stringify(response.data));
-          console.log("The response data status : " + response.data.status);
-          console.log("The if : " + (response.data.status == "success"));*/
           if (response.data.status == "success") {
             commit("SET_METADATAS", response.data.result);
           }
@@ -253,10 +286,10 @@ export default new Vuex.Store({
   },
   getters : {
     repositoryName: state => {
-      return state.repositoryName;
+      return state.repositories.selected;
     },
     groupName: state => {
-      return state.groupName;
+      return state.groups.selected;
     },
     tables : state => {
       return state.tables.data;
