@@ -136,7 +136,9 @@ export default new Vuex.Store({
         axios.get("/groups")
         .then(response => {
           if (response.data.status == "success") {
-            commit("SET_METADATAS", response.data.result);
+            var groups = [];
+            response.data.result.forEach(el => groups.push(el.name));
+            commit("SET_GROUPS", groups);
           }
           resolve();
         })
@@ -153,9 +155,9 @@ export default new Vuex.Store({
     },
 
 
-    getMetadata({commit,getters}) {
+    getMetadata({commit,getters,dispatch}) {
       return new Promise( (resolve, reject) => {
-        axios.get(`/repository/${getters.repositoryName}/group/${getters.groupName}/metadatas`)
+        axios.get(`/repository/${encodeURIComponent(getters.repositoryName)}/group/${encodeURIComponent(getters.groupName)}/metadatas`)
         .then(response => {
           if (response.data.status == "success") {
             commit("SET_METADATAS", response.data.result);
@@ -168,12 +170,13 @@ export default new Vuex.Store({
           } else {
             console.log("Unable to retrieve metadatas : " + error);
           }
+          dispatch("addSnackbar", { id: 0,  aff: true, text: "Erreur lors de la récupération des Metadatas.", color: "error"});
           reject(error);
         })
       })
     },
 
-    getBusinessModels({commit,getters} , metadataName) {
+    getBusinessModels({commit,getters,dispatch} , metadataName) {
       return new Promise( (resolve, reject) => {
         axios.get(`/repository/${getters.repositoryName}/group/${getters.groupName}/metadata/${metadataName}/models`)
         .then(response => {
@@ -188,12 +191,13 @@ export default new Vuex.Store({
           } else {
             console.log("Unable to retrieve metadatas : " + error);
           }
+          dispatch("addSnackbar", { id: 0,  aff: true, text: "Erreur lors de la récupération des Business Models.", color: "error"});
           reject(error);
         })
       })
     },
 
-    getBusinessPackages({commit,getters} , {metadataName,modelName}) {
+    getBusinessPackages({commit,getters,dispatch} , {metadataName,modelName}) {
       return new Promise( (resolve, reject) => {
         axios.get(`/repository/${getters.repositoryName}/group/${getters.groupName}/metadata/${metadataName}/model/${modelName}/packages`)
         .then(response => {
@@ -208,6 +212,7 @@ export default new Vuex.Store({
           } else {
             console.log("Unable to retrieve metadatas : " + error);
           }
+          dispatch("addSnackbar", { id: 0,  aff: true, text: "Erreur lors de la récupération des Business Packages.", color: "error"});
           reject(error);
         })
       })
@@ -235,6 +240,7 @@ export default new Vuex.Store({
           } else {
             console.log("Unable to retrieve metadatas : " + error);
           }
+          dispatch("addSnackbar", { id: 0,  aff: true, text: "Erreur lors de la récupération des Tables.", color: "error"});
           reject(error);
         })
       })
@@ -242,7 +248,7 @@ export default new Vuex.Store({
 
     getColumns({commit,getters,dispatch} , {metadataName,modelName,packageName,tableName}) {
       return new Promise( (resolve, reject) => {
-        axios.get(`/repository/${getters.repositoryName}/group/${getters.groupName}/metadata/${metadataName}/model/${modelName}/package/${packageName}/table/${tableName}/columns`)
+        axios.get(`/repository/${encodeURIComponent(getters.repositoryName)}/group/${encodeURIComponent(getters.groupName)}/metadata/${encodeURIComponent(metadataName)}/model/${encodeURIComponent(modelName)}/package/${encodeURIComponent(packageName)}/table/${encodeURIComponent(tableName)}/columns`)
         .then(response => {
           if (response.data.status == "success") {
             //var result = [];
@@ -267,6 +273,7 @@ export default new Vuex.Store({
           } else {
             console.log("Unable to retrieve metadatas : " + error);
           }
+          dispatch("addSnackbar", { id: 0,  aff: true, text: "Erreur lors de la récupération des colonnes.", color: "error"});
           reject(error);
         })
       })

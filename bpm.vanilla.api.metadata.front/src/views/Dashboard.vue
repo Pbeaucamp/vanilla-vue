@@ -7,7 +7,7 @@
     <v-card
       class="mx-auto"
       max-width="500"
-      :disabled="tablesLoaded"
+      :disabled="!tablesLoaded"
       :loading="tablesLoading"
     >
       <v-sheet class="pa-4 primary lighten-1">
@@ -79,7 +79,7 @@ export default {
       files: {
         txt: 'mdi-file-document-outline',
       },
-      tablesLoaded : true,
+      tablesLoaded : false,
       tablesLoading : false,
     }),
     computed: {
@@ -102,27 +102,30 @@ export default {
       packages : {
         handler : function () {
           
-          console.log("this.packages.selected : " + this.packages.selected);
+          //console.log("this.packages.selected : " + this.packages.selected);
+          //console.log("this.packages.selected != '' : " + (this.packages.selected != ""));
           if (this.packages.selected != "") {
             this.tablesLoading = true;
             this.getTables( {metadataName : this.metadatas.selected ,modelName : this.models.selected ,packageName : this.packages.selected})
             .then( () => {
               var promiseArray = [];
               this.tables.data.forEach(element => {
-                console.log("Table : "  + element.name);
+                //console.log("Table : "  + element.name);
                 promiseArray.push(
                   this.getColumns({metadataName : this.metadatas.selected ,modelName : this.models.selected ,packageName : this.packages.selected, tableName : element.name})
                 );
               });
               Promise.all(promiseArray).then( () => {
                 
-                this.tablesLoaded = false;
+                this.tablesLoaded = true;
                 this.tablesLoading = false;
-                console.log("Tables loaded : " + this.tablesLoaded);
-                console.log("Tables : " + JSON.stringify(this.tables.data));
+                //console.log("Tables loaded : " + this.tablesLoaded);
+                //console.log("Tables : " + JSON.stringify(this.tables.data));
               })
               
-            })
+            }) 
+          } else {
+            this.tablesLoaded = false;
           }
 
         },

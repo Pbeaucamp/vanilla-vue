@@ -52,12 +52,21 @@ export default {
   },
   methods : {
     ...mapActions(["getBusinessModels","getBusinessPackages"]),
-    ...mapMutations(["SELECT_METADATA","SELECT_MODEL","SELECT_PACKAGE"]),
+    ...mapMutations(["SELECT_METADATA","SELECT_MODEL","SELECT_PACKAGE","SET_MODELS","SET_PACKAGES","SET_TABLES"]),
     
     getModels() {
       this.loadModel = true;
+      this.model = "";
+      this.bPackage = "";
+
+
+
       //this.$store.dispatch("getBusinessModels",this.metadata)
       this.SELECT_METADATA(this.metadata);
+      this.SELECT_MODEL("");
+      this.SELECT_PACKAGE("");
+      this.SET_PACKAGES([]);
+      this.SET_TABLES([]);
       this.getBusinessModels(this.metadata)
       .then( () => {
         this.loadModel = false;
@@ -69,6 +78,9 @@ export default {
     getPackages() {
       this.loadPackages = true;
       this.SELECT_MODEL(this.model);
+      this.SELECT_PACKAGE("");
+      this.SET_PACKAGES([]);
+      this.SET_TABLES([]);
       this.getBusinessPackages({metadataName : this.metadata ,modelName : this.model})
       .then( () => {
         this.loadPackages = false;

@@ -7,39 +7,7 @@
       </v-main>
 
 
-    <v-dialog
-          v-model="dialogGroup"
-          persistent
-          max-width="600px"
-      >
-          <v-card>
-          <v-card-title>
-              <h2 class="subheading grey--text">Choisir un groupe</h2>
-          </v-card-title>
-          <v-card-text>
-              <v-container>
-              <v-row>
-            
-              <v-select
-                v-model="group"
-                :items="this.groups.data"
-                label="Groupes"
-                outlined
-                class="mx-2"
-                
-              ></v-select>                  
 
-              </v-row>
-              
-              </v-container>
-          </v-card-text>
-          <v-card-actions>
-              <v-spacer></v-spacer>          
-              <v-btn  outlined color="success" class="mr-4" @click="selectGroup">Confirmer</v-btn>
-          </v-card-actions>
-          </v-card>
-
-      </v-dialog>
       
 
       <v-snackbar v-for="(snackbar,index) in snackbars.data" :key="snackbar.id" v-model="snackbar.aff" :style="`bottom: ${(index *4) + 1}em`" right rounded="pill" :color="snackbar.color" timeout="5000">
@@ -55,7 +23,7 @@
       <Footer/>
     </div>
 
-    <div v-else >
+    <div v-if="!loaded && !(groups.selected == '')" >
       <v-overlay
         opacity="1"
         value="true"
@@ -70,6 +38,39 @@
       </v-overlay>
     </div>
 
+
+    <v-dialog
+    v-model="dialogGroup"
+    persistent
+    max-width="600px" v-else>
+      <v-card>
+      <v-card-title>
+        <h2 class="subheading grey--text">Choisir un groupe</h2>
+      </v-card-title>
+      <v-card-text>
+        <v-container>
+        <v-row>
+      
+        <v-select
+          v-model="group"
+          :items="this.groups.data"
+          label="Groupes"
+          outlined
+          class="mx-2"
+          
+        ></v-select>                  
+
+        </v-row>
+        
+        </v-container>
+      </v-card-text>
+      <v-card-actions>
+          <v-spacer></v-spacer>          
+          <v-btn  outlined color="success" class="mr-4" @click="selectGroup">Confirmer</v-btn>
+      </v-card-actions>
+      </v-card>
+
+    </v-dialog>
 
   </v-app>
 
@@ -90,59 +91,39 @@ export default {
     loadingMsg: 'Loading...',
     loadingCircular: true,
     group : "",
-    dialogGroup : false,
+    dialogGroup : true,
   }),
   computed : {
     ...mapState(['snackbars','groups'])
   },
 
   beforeMount() {
-    this.appLoadData();
-    setInterval(this.appLoadData,1000*60*5); // Rafraichissement des données toutes les 5 minutes.    
+    //this.appLoadData();
+    this.$store.dispatch('getGroups');
+    //console.log("weird condition  !loaded && !(groups.selected == '') : " + (!this.loaded && !(this.groups.selected == '') ));
+    //console.log("weird condition  !(groups.selected == '') : " + (this.groups.selected == '') );
   }, 
   methods : {
     removeSnackbar(snackbar) {
       this.$store.dispatch('removeSnackbar',snackbar);
     }, 
     selectGroup() {
-
+      if (this.group != "") {
+        this.$store.commit("SELECT_GROUP",this.group);
+        this.dialogGroup = false;
+        this.loadMetadatas();
+      }
     },
-    appLoadData() {
-
-
+    loadMetadatas() {
       this.$store.commit("SELECT_REPOSITORY","Vanilla");
-      this.$store.commit("SELECT_GROUP","system");
+      //this.$store.commit("SELECT_GROUP","system");
 
       this.$store.dispatch('getMetadata').then(() => {
         this.loaded = true;
       }).catch( error => {
-        console.log("error here : " + error);
+        console.log("error getting metadatas : " + error);
       })
-      
-      /*
-      this.$store.dispatch('loadData','users').then(() => {
-        this.$store.dispatch('loadData','groups').then( () => {
-          this.$store.dispatch('loadData','repositories').then( () => {
-            var promiseArray = [];
-            this.$store.state.users.data.forEach(user => {
-              promiseArray.push(this.$store.dispatch('getUserGroups',user.login));
-              promiseArray.push(this.$store.dispatch('getUserRepositories',user.login));
-            });
-
-            Promise.all(promiseArray).then( () => {
-              this.$store.dispatch('groupsChartUser', this.$store.state.groups.data);
-              this.loaded = true;
-            })
-
-          });    
-        } );
-      })
-      .catch( () => {
-        this.loadingMsg = "Impossible d'établir la connexion au serveur, veuillez rafraichir la page ou contacter l'administrateur.";
-        this.loadingCircular = false;
-      });
-      */
-    }
+    },
   },
   watch: {
     $route: {
