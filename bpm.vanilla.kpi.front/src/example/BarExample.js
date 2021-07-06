@@ -6,7 +6,9 @@ export default {
   name: "Bar",
   computed: {
     ...mapState(['kpi']),
+    ...mapState(['axis']),
     ...mapState(['axisvalues']),
+    ...mapState(['childrenid']),
     chartData() {
       var labels = []
       var Adata = []
@@ -42,21 +44,39 @@ export default {
       var labels = []
       var Adata = []
       var dataset = []
+      var i = 0
+      console.log("coucou ", this.axis.data);
+      console.log(this.axisvalues);
+      console.log(this.childrenid.data);
+      this.axis.data.forEach(element => {
+        var id = element.children[0].id
+        var compteur = 0
+        console.log(id);
+        element.children.forEach(el => {
+          console.log(el);
+          if (el.id == this.childrenid.data){
+            console.log("CA FONCTIONNE REELLEMENT ");
+            i = compteur
+          }
+          compteur = compteur +1
+        })
+      });
+      
 
-      console.log(this.axisvalues.data);
+      // console.log(this.axisvalues.data);
       var dernierlabel = " "
       var valeur = 0
       this.axisvalues.data.forEach(element => {
-        console.log(element.axis[1].label)
+        // console.log(element.axis[i].label)
         Adata = []
         if (dernierlabel == " "){
-          dernierlabel = element.axis[0].label
-          console.log("PREMIER NOM");
+          dernierlabel = element.axis[i].label
+          // console.log("PREMIER NOM");
         }
-        if (element.axis[0].label != dernierlabel){
+        if (element.axis[i].label != dernierlabel){
           labele.push(dernierlabel)
-          console.log("CHANGEMENT NOM");
-          dernierlabel = element.axis[0].label
+          // console.log("CHANGEMENT NOM");
+          dernierlabel = element.axis[i].label
           Adata.push(valeur)
           var datas =
           {
@@ -68,9 +88,9 @@ export default {
           labele = []
           valeur = 0
         } else {
-          console.log("MEME NOM");
+          // console.log("MEME NOM");
           valeur = valeur + element.value
-          console.log(valeur);
+          // console.log(valeur);
         }
       })
       labele.push(dernierlabel)
@@ -82,7 +102,7 @@ export default {
         backgroundColor : '#'+(Math.random()*0xFFFFFF<<0).toString(16)
       }
       dataset.push(datas)
-      console.log(dataset);
+      // console.log(dataset);
       return {
         labels : labels,
         datasets:
@@ -102,7 +122,7 @@ export default {
     },
     axisvalues : {
       handler :function () {
-        this.renderChart( this.chartDataAxis,{ responsive: true, maintainAspectRatio: false });
+        this.renderChart(this.chartDataAxis,{ responsive: true, maintainAspectRatio: false });
     },
     deep: true
     }

@@ -42,6 +42,10 @@ export default new Vuex.Store({
     temp:{
       name: "temporaire",
       data: []
+    },
+    childrenid:{
+      name: "childrenID",
+      data: []
     }
   },
   mutations: {
@@ -68,7 +72,10 @@ export default new Vuex.Store({
     },
     FETCH_TEMP(state, temp){
       state.temp.data = temp;
-    }
+    },
+    FETCH_CHILDRENID(state, childrenid){
+      state.childrenid.data = childrenid;
+    },
   },
   actions: {
     getObservatories({commit}, group) {
@@ -288,8 +295,9 @@ export default new Vuex.Store({
           console.log(`Error retrieving axis : ` + error.response.data.message);
       })
     },
-    getAxisValue({getters}, {kpiID, childrenID, date}){
+    getAxisValue({commit, getters}, {kpiID, childrenID, date}){
       var temp = getters.temp;
+      commit("FETCH_CHILDRENID", childrenID)
       var parsedate = date.split("-")
       var newdate = parsedate[2] + "-" + parsedate[1] + "-" + parsedate[0]
       var axistemp = getters.axis;
@@ -334,6 +342,9 @@ export default new Vuex.Store({
     },
     temp: state => {
       return state.temp.data;
+    },
+    childrenid: state => {
+      return state.childrenid.data;
     }
   },
   modules: {

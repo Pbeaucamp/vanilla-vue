@@ -16,6 +16,9 @@
             <v-btn v-on="on" v-bind="attrs">
                     Choisir la date
               </v-btn>
+            <v-btn @click="reset()" class="mx-2">
+                    Date d'aujourd'hui
+              </v-btn>
             </template>
               <v-date-picker
                     @click:date="loaddatadate()"
@@ -58,8 +61,14 @@
                 transition
               >
                 <template v-slot:prepend="{ item }">
-                  <v-icon v-if="!item.children">
-                    mdi-account
+                    <v-icon v-if="item.id == 'Rien'">
+                    mdi-cancel
+                  </v-icon>
+                  <v-icon v-else-if="!item.children">
+                    mdi-file
+                  </v-icon>
+                  <v-icon v-else-if="item.id != 'Rien'">
+                    mdi-axis-arrow
                   </v-icon>
                 </template>
                 <template slot="label" slot-scope="{ item }">
@@ -161,23 +170,22 @@ data () {
       },
       teste(item) {
         if (typeof item.children == "object"){
-        console.log('Not a leaf', item.name)
+          console.log('Not a leaf', item)
         } else {
-        console.log('A LEAF', item.name)
-        console.log("ID KPI : ", this.kpi.data[0].kpiID, ", NAME + ID AXIS :", item.name, " + ", item.id );
-        var data = {
-          kpiID : this.kpi.data[0].kpiID,
-          childrenID : item.id,
-          date : this.picker
-        }
-        this.$store.dispatch('getAxisValue', data).then(
-          console.log(this.$store.state.axisvalues.data)
-        )
+          console.log('A LEAF', item.name)
+          console.log("ID KPI : ", this.kpi.data[0].kpiID, ", NAME + ID AXIS :", item.name, " + ", item.id );
+          var data = {
+            kpiID : this.kpi.data[0].kpiID,
+            childrenID : item.id,
+            date : this.picker
+          }
+          this.$store.dispatch('getAxisValue', data).then(
+            console.log(this.$store.state.axisvalues.data)
+          )
           }
         },
       KPIdata() {
         if (typeof this.axis.data[0] == "object"){
-          console.log(this.axis.data);
           return this.axis.data
 
         } else {
@@ -186,6 +194,10 @@ data () {
             id : "Rien"
             }]
         } 
+      },
+      reset(){
+        this.picker = new Date().toISOString().split('T')[0]
+        this.$store.dispatch('resetKPI')
       }
     }
 }
