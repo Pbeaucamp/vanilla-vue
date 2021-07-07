@@ -9,6 +9,7 @@ export default {
     ...mapState(['axis']),
     ...mapState(['axisvalues']),
     ...mapState(['childrenid']),
+    ...mapState(['kpioraxis']),
     chartData() {
       var labels = []
       var Adata = []
@@ -45,9 +46,9 @@ export default {
       var Adata = []
       var dataset = []
       var i = 0
-      console.log("coucou ", this.axis.data);
-      console.log(this.axisvalues);
-      console.log(this.childrenid.data);
+      // console.log("coucou ", this.axis.data);
+      // console.log(this.axisvalues);
+      // console.log(this.childrenid.data);
       this.axis.data.forEach(element => {
         var id = element.children[0].id
         var compteur = 0
@@ -64,12 +65,12 @@ export default {
       
 
       // console.log(this.axisvalues.data);
-      var dernierlabel = " "
+      var dernierlabel = ""
       var valeur = 0
       this.axisvalues.data.forEach(element => {
         // console.log(element.axis[i].label)
         Adata = []
-        if (dernierlabel == " "){
+        if (dernierlabel == ""){
           dernierlabel = element.axis[i].label
           // console.log("PREMIER NOM");
         }
@@ -86,7 +87,8 @@ export default {
           }
           dataset.push(datas)
           labele = []
-          valeur = 0
+          Adata = []
+          valeur = element.value
         } else {
           // console.log("MEME NOM");
           valeur = valeur + element.value
@@ -95,6 +97,7 @@ export default {
       })
       labele.push(dernierlabel)
       Adata.push(valeur)
+
       var datas = 
       {
         label : labele,
@@ -102,26 +105,34 @@ export default {
         backgroundColor : '#'+(Math.random()*0xFFFFFF<<0).toString(16)
       }
       dataset.push(datas)
-      // console.log(dataset);
       return {
         labels : labels,
         datasets:
           dataset
       };
+    },
+    choixKPIorAxis(){
+      if (this.kpioraxis.data == "AXIS"){
+        return this.chartDataAxis
+      } else {
+        return this.chartData
+      }
     }
   },
   mounted () {
-    this.renderChart(this.chartData, {responsive: true, maintainAspectRatio: false, align : "center"})
+    this.renderChart(this.choixKPIorAxis, {responsive: true, maintainAspectRatio: false, align : "center"})
   },
   watch : {
     kpi :{
         handler :function () {
+            console.log(this.kpioraxis.data);
             this.renderChart( this.chartData,{ responsive: true, maintainAspectRatio: false });
         },
         deep: true
     },
     axisvalues : {
       handler :function () {
+        console.log(this.kpioraxis.data);
         this.renderChart(this.chartDataAxis,{ responsive: true, maintainAspectRatio: false });
     },
     deep: true

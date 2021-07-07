@@ -9,6 +9,7 @@ export default {
     ...mapState(['axis']),
     ...mapState(['axisvalues']),
     ...mapState(['childrenid']),
+    ...mapState(['kpioraxis']),
     chartData() {
       var labels = []
       var Adata = []
@@ -64,12 +65,12 @@ export default {
       
 
       // console.log(this.axisvalues.data);
-      var dernierlabel = " "
+      var dernierlabel = ""
       var valeur = 0
       this.axisvalues.data.forEach(element => {
         // console.log(element.axis[i].label)
         Adata = []
-        if (dernierlabel == " "){
+        if (dernierlabel == ""){
           dernierlabel = element.axis[i].label
           // console.log("PREMIER NOM");
         }
@@ -86,7 +87,8 @@ export default {
           }
           dataset.push(datas)
           labele = []
-          valeur = 0
+          Adata = []
+          valeur = element.value
         } else {
           // console.log("MEME NOM");
           valeur = valeur + element.value
@@ -95,6 +97,8 @@ export default {
       })
       labele.push(dernierlabel)
       Adata.push(valeur)
+      console.log(Adata);
+
       var datas = 
       {
         label : labele,
@@ -102,16 +106,23 @@ export default {
         backgroundColor : '#'+(Math.random()*0xFFFFFF<<0).toString(16)
       }
       dataset.push(datas)
-      // console.log(dataset);
+      console.log(dataset);
       return {
         labels : labels,
         datasets:
           dataset
       };
+    },
+    choixKPIorAxis(){
+      if (this.kpioraxis.data == "AXIS"){
+        return this.chartDataAxis
+      } else {
+        return this.chartData
+      }
     }
   },
   mounted () {
-    this.renderChart(this.chartData, {responsive: true, maintainAspectRatio: false, align : "center"})
+    this.renderChart(this.choixKPIorAxis, {responsive: true, maintainAspectRatio: false, align : "center"})
   },
   watch : {
     kpi :{

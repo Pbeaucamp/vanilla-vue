@@ -4,7 +4,7 @@
         <v-layout row wrap>
             <v-layout column wrap>
                 <v-flex xs1 sm1 md1 lg1 v-for="item in TabType" :key="item.name">
-                    <v-btn dark text class="my-2 indigo" @click="changeType(item.Type)"><v-icon>{{item.Icon}}</v-icon></v-btn>
+                    <v-btn dark text class="my-3 indigo" @click="changeType(item.Type)"><v-icon>{{item.Icon}}</v-icon></v-btn>
                 </v-flex>
             </v-layout>
             <v-flex xs10 sm10 md10 lg10>
@@ -91,14 +91,14 @@
             Icon : "mdi-chart-donut"},
             {Type : "Piechart",
             Icon : "mdi-chart-pie"},
-            {Type : "Radarchart",
-            Icon : "mdi-graphql"},
-            {Type : "Polarareachart",
-            Icon : "mdi-chart-donut-variant"},
-            {Type : "Bubblechart",
-            Icon : "mdi-chart-bubble"},
-            {Type : "Scatterchart",
-            Icon : "mdi-chart-scatter-plot"},
+            // {Type : "Radarchart",
+            // Icon : "mdi-graphql"},
+            // {Type : "Polarareachart",
+            // Icon : "mdi-chart-donut-variant"},
+            // {Type : "Bubblechart",
+            // Icon : "mdi-chart-bubble"},
+            // {Type : "Scatterchart",
+            // Icon : "mdi-chart-scatter-plot"},
             {Type : "Horizontal Barchart",
             Icon : "mdi-align-horizontal-left"},
             ],

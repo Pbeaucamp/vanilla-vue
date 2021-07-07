@@ -46,6 +46,10 @@ export default new Vuex.Store({
     childrenid:{
       name: "childrenID",
       data: []
+    }, 
+    kpioraxis:{
+      name: "KPI or axis",
+      data: "KPI"
     }
   },
   mutations: {
@@ -75,6 +79,9 @@ export default new Vuex.Store({
     },
     FETCH_CHILDRENID(state, childrenid){
       state.childrenid.data = childrenid;
+    },
+    FETCH_KPI_OR_AXIS(state, kpioraxis){
+      state.kpioraxis.data = kpioraxis;
     },
   },
   actions: {
@@ -173,8 +180,11 @@ export default new Vuex.Store({
             return new Date(b.date) - new Date(a.date)
           })
         });
+
+        
         console.log(KPIdata);
         commit("FETCH_KPI",KPIdata);
+        commit("FETCH_KPI_OR_AXIS","KPI")
         commit("FETCH_AXIS", [])
         resolve()
       }).catch( () => { reject() })
@@ -217,6 +227,7 @@ export default new Vuex.Store({
         });
         console.log(KPIdata);
         commit("FETCH_KPI",KPIdata);
+        commit("FETCH_KPI_OR_AXIS","KPI")
         resolve()
       }).catch( () => { reject() })
       })
@@ -238,7 +249,27 @@ export default new Vuex.Store({
 
     getKPIDate({commit, getters},date) {
       var parsedate = date.split("-")
-      var newdate = parsedate[2] + "-" + parsedate[1] + "-" + parsedate[0]
+      // var newdate0 = ""
+      // var newdate2 = ""
+      // if (parsedate[1] == "01"){
+      //   newdate0 = parsedate[2] + "-" + "12" + "-" + (parseInt(parsedate[0])-1)      
+      // } else if (parseInt(parsedate[1]) <= 10){
+      //   newdate0 = parsedate[2] + "-" + 0+(parseInt(parsedate[1])-1) + "-" + parsedate[0]
+      // } else {
+      //   newdate0 = parsedate[2] + "-" + (parseInt(parsedate[1])-1) + "-" + parsedate[0]
+      // }
+
+      // if (parsedate[1] == "12"){
+      //   newdate2 = parsedate[2] + "-" + "01" + "-" + (parseInt(parsedate[0])+1)      
+      // } else if (parseInt(parsedate[1]) < 9) {
+      //   newdate2 = parsedate[2] + "-" + 0+(parseInt(parsedate[1])+1) + "-" + parsedate[0]
+      // } else {
+      //   newdate2 = parsedate[2] + "-" + (parseInt(parsedate[1])+1) + "-" + parsedate[0]
+      // }
+
+      var newdate1 = parsedate[2] + "-" + parsedate[1] + "-" + parsedate[0]
+
+      // console.log(newdate0, newdate1, newdate2);
       var temp = getters.temp;
 
       return new Promise( (resolve,reject) => {
@@ -257,7 +288,7 @@ export default new Vuex.Store({
 
       KPIdata.forEach(el => {
         el.result = []
-        promiseArray.push(axios.get(`/group/${temp.group}/kpi/${el.kpiID}/value?date=${newdate}`)      
+        promiseArray.push(axios.get(`/group/${temp.group}/kpi/${el.kpiID}/value?date=${newdate1}`)      
           .then(response => {
           el.result.push(response.data.result)
         }).catch(error => {
@@ -272,6 +303,7 @@ export default new Vuex.Store({
           e.result[0].push(tem);
           })
         commit("FETCH_KPI",KPIdata);
+        commit("FETCH_KPI_OR_AXIS","KPI")
         commit("FETCH_AXIS", [])
         resolve()
       }).catch( () => { reject() })
@@ -312,6 +344,7 @@ export default new Vuex.Store({
       axios.get(`/group/${temp.group}/kpi/${kpiID}/axis/${parentID}/value?date=${newdate}`)
       .then( response => {
         this.commit("FETCH_AXIS_VALUES", response.data.result);
+        commit("FETCH_KPI_OR_AXIS","AXIS")
       }).catch(error => {
         console.log(`Error retrieving axis values : ` + error.response.data.message);
       })
@@ -345,6 +378,9 @@ export default new Vuex.Store({
     },
     childrenid: state => {
       return state.childrenid.data;
+    },
+    kpioraxis: state => {
+      return state.kpioraxis.data;
     }
   },
   modules: {
