@@ -12,7 +12,7 @@
           
         ></v-select>
         <v-select
-          :disabled="metadata == ''"
+          :disabled="metadata == '' && !loadModel"
           v-model="model"
           :items="this.models.data"
           label="Business model"
@@ -65,6 +65,7 @@ export default {
       this.SELECT_METADATA(this.metadata);
       this.SELECT_MODEL("");
       this.SELECT_PACKAGE("");
+      this.SET_MODELS([]);
       this.SET_PACKAGES([]);
       this.SET_TABLES([]);
       this.getBusinessModels(this.metadata)
@@ -89,13 +90,20 @@ export default {
   },
   watch: {
     metadata: function () {
-      this.getModels();
+      if (this.metadata != "") {
+        this.getModels();
+      }
     },
     model: function() {
-      this.getPackages();
+      if (this.model != "") {
+        this.getPackages();
+      }
     },
     bPackage : function() {
-      this.SELECT_PACKAGE(this.bPackage);
+      if (this.bPackage != "") {
+        this.SELECT_PACKAGE(this.bPackage);
+      }
+
     }  
   },
 

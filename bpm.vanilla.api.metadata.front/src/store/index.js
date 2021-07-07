@@ -157,7 +157,7 @@ export default new Vuex.Store({
 
     getMetadata({commit,getters,dispatch}) {
       return new Promise( (resolve, reject) => {
-        axios.get(`/repository/${encodeURIComponent(getters.repositoryName)}/group/${encodeURIComponent(getters.groupName)}/metadatas`)
+        axios.get(`/metadatas`, { params : { repositoryName : getters.repositoryName, groupName : getters.groupName} })
         .then(response => {
           if (response.data.status == "success") {
             commit("SET_METADATAS", response.data.result);
@@ -178,7 +178,7 @@ export default new Vuex.Store({
 
     getBusinessModels({commit,getters,dispatch} , metadataName) {
       return new Promise( (resolve, reject) => {
-        axios.get(`/repository/${getters.repositoryName}/group/${getters.groupName}/metadata/${metadataName}/models`)
+        axios.get(`/models`,{ params : { repositoryName : getters.repositoryName, groupName : getters.groupName, metadataName : metadataName } })
         .then(response => {
           if (response.data.status == "success") {
             commit("SET_MODELS", response.data.result);
@@ -187,9 +187,9 @@ export default new Vuex.Store({
         })
         .catch( error => {
           if (error.reponse) {
-            console.log("Unable to retrieve metadatas message : " + error.response.data.message)
+            console.log("Unable to retrieve models message : " + error.response.data.message)
           } else {
-            console.log("Unable to retrieve metadatas : " + error);
+            console.log("Unable to retrieve models : " + error);
           }
           dispatch("addSnackbar", { id: 0,  aff: true, text: "Erreur lors de la récupération des Business Models.", color: "error"});
           reject(error);
@@ -199,7 +199,7 @@ export default new Vuex.Store({
 
     getBusinessPackages({commit,getters,dispatch} , {metadataName,modelName}) {
       return new Promise( (resolve, reject) => {
-        axios.get(`/repository/${getters.repositoryName}/group/${getters.groupName}/metadata/${metadataName}/model/${modelName}/packages`)
+        axios.get(`/packages`,{ params : { repositoryName : getters.repositoryName, groupName : getters.groupName, metadataName : metadataName, modelName : modelName } })
         .then(response => {
           if (response.data.status == "success") {
             commit("SET_PACKAGES", response.data.result);
@@ -208,9 +208,9 @@ export default new Vuex.Store({
         })
         .catch( error => {
           if (error.reponse) {
-            console.log("Unable to retrieve metadatas message : " + error.response.data.message)
+            console.log("Unable to retrieve packages message : " + error.response.data.message)
           } else {
-            console.log("Unable to retrieve metadatas : " + error);
+            console.log("Unable to retrieve packages : " + error);
           }
           dispatch("addSnackbar", { id: 0,  aff: true, text: "Erreur lors de la récupération des Business Packages.", color: "error"});
           reject(error);
@@ -221,7 +221,7 @@ export default new Vuex.Store({
 
     getTables({commit,getters,dispatch} , {metadataName,modelName,packageName}) {
       return new Promise( (resolve, reject) => {
-        axios.get(`/repository/${getters.repositoryName}/group/${getters.groupName}/metadata/${metadataName}/model/${modelName}/package/${packageName}/tables`)
+        axios.get(`/tables`,{ params : { repositoryName : getters.repositoryName, groupName : getters.groupName, metadataName : metadataName, modelName : modelName, packageName : packageName } })
         .then(response => {
           if (response.data.status == "success") {
             var tables = []
@@ -236,9 +236,9 @@ export default new Vuex.Store({
         })
         .catch( error => {
           if (error.reponse) {
-            console.log("Unable to retrieve metadatas message : " + error.response.data.message)
+            console.log("Unable to retrieve tables message : " + error.response.data.message)
           } else {
-            console.log("Unable to retrieve metadatas : " + error);
+            console.log("Unable to retrieve tables : " + error);
           }
           dispatch("addSnackbar", { id: 0,  aff: true, text: "Erreur lors de la récupération des Tables.", color: "error"});
           reject(error);
@@ -248,7 +248,7 @@ export default new Vuex.Store({
 
     getColumns({commit,getters,dispatch} , {metadataName,modelName,packageName,tableName}) {
       return new Promise( (resolve, reject) => {
-        axios.get(`/repository/${encodeURIComponent(getters.repositoryName)}/group/${encodeURIComponent(getters.groupName)}/metadata/${encodeURIComponent(metadataName)}/model/${encodeURIComponent(modelName)}/package/${encodeURIComponent(packageName)}/table/${encodeURIComponent(tableName)}/columns`)
+        axios.get(`/columns`,{ params : { repositoryName : getters.repositoryName, groupName : getters.groupName, metadataName : metadataName, modelName : modelName, packageName : packageName, tableName : tableName } })
         .then(response => {
           if (response.data.status == "success") {
             //var result = [];
@@ -269,9 +269,9 @@ export default new Vuex.Store({
         })
         .catch( error => {
           if (error.reponse) {
-            console.log("Unable to retrieve metadatas message : " + error.response.data.message)
+            console.log("Unable to retrieve columns message : " + error.response.data.message)
           } else {
-            console.log("Unable to retrieve metadatas : " + error);
+            console.log("Unable to retrieve columns : " + error);
           }
           dispatch("addSnackbar", { id: 0,  aff: true, text: "Erreur lors de la récupération des colonnes.", color: "error"});
           reject(error);
