@@ -87,6 +87,16 @@ export default {
       Adata.push(valeur)
       background.push('#'+(Math.random()*0xFFFFFF<<0).toString(16))
       // console.log(dataset);
+      Adata.forEach(el => {
+        if (Adata.length > 10 & el == 0){
+          Adata.splice(Adata.indexOf(el),1)
+          labele.splice(Adata.indexOf(el),1)
+        }
+      })
+      if(Adata.length > 15) {
+        Adata.splice(15, Adata.length)
+        labele.splice(15, labele.length)
+      }
       return {
         labels : labele,
         datasets:[

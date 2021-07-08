@@ -5,7 +5,10 @@
         <list />
         <v-row cols="2">
           <datatable />
-          <group-chart />
+          <v-col>
+            <group-chart />
+            <group-chart />
+          </v-col>
         </v-row>
       </v-col>
     </v-layout>
@@ -23,7 +26,8 @@ import List from '../components/List.vue'
     components: {
         GroupChart,
         Datatable,
-        List},
+        List
+      },
   }
 </script>
 <style>

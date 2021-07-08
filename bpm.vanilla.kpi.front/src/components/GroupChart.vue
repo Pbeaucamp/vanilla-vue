@@ -32,7 +32,7 @@
                 <h1 style="text-align:center;">Piechart</h1>
                 <pie-example/>
                 </div>
-
+<!-- 
                 <div class="Chart" v-if="ChartType == 'Radarchart'">
                 <h1 style="text-align:center;">Radarchart</h1>
                 <radar-example/>
@@ -51,6 +51,10 @@
                 <div class="Chart" v-if="ChartType == 'Scatterchart'">
                 <h1 style="text-align:center;">Scatter Chart</h1>
                 <scatter-example />
+                </div> -->
+                <div class="Chart" v-if="ChartType == 'Gauge'">
+                <h1 style="text-align:center;">Jauge</h1>
+                <gauge />
                 </div>
             </v-flex>
             </v-layout>
@@ -63,22 +67,24 @@
   import LineExample from '../example/LineExample'
   import DoughnutExample from '../example/DoughnutExample'
   import PieExample from '../example/PieExample'
-  import RadarExample from '../example/RadarExample'
-  import PolarAreaExample from '../example/PolarAreaExample'
-  import BubbleExample from '../example/BubbleExample'
-  import ScatterExample from '../example/ScatterExample'
+  // import RadarExample from '../example/RadarExample'
+  // import PolarAreaExample from '../example/PolarAreaExample'
+  // import BubbleExample from '../example/BubbleExample'
+  // import ScatterExample from '../example/ScatterExample'
   import HorizontalBarExample from '../example/HorizontalBarExample'
+  import Gauge from './Gauge.vue'
   export default {
     components: {
       BarExample,
       LineExample,
       DoughnutExample,
       PieExample,
-      RadarExample,
-      PolarAreaExample,
-      BubbleExample,
-      ScatterExample,
-      HorizontalBarExample
+      // RadarExample,
+      // PolarAreaExample,
+      // BubbleExample,
+      // ScatterExample,
+      HorizontalBarExample,
+      Gauge
     },
     data() {
         return {
@@ -101,6 +107,8 @@
             // Icon : "mdi-chart-scatter-plot"},
             {Type : "Horizontal Barchart",
             Icon : "mdi-align-horizontal-left"},
+            {Type : "Gauge",
+            Icon : "mdi-gauge"},
             ],
             ChartType : "Barchart"
         }
