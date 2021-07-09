@@ -249,27 +249,9 @@ export default new Vuex.Store({
 
     getKPIDate({commit, getters},date) {
       var parsedate = date.split("-")
-      // var newdate0 = ""
-      // var newdate2 = ""
-      // if (parsedate[1] == "01"){
-      //   newdate0 = parsedate[2] + "-" + "12" + "-" + (parseInt(parsedate[0])-1)      
-      // } else if (parseInt(parsedate[1]) <= 10){
-      //   newdate0 = parsedate[2] + "-" + 0+(parseInt(parsedate[1])-1) + "-" + parsedate[0]
-      // } else {
-      //   newdate0 = parsedate[2] + "-" + (parseInt(parsedate[1])-1) + "-" + parsedate[0]
-      // }
-
-      // if (parsedate[1] == "12"){
-      //   newdate2 = parsedate[2] + "-" + "01" + "-" + (parseInt(parsedate[0])+1)      
-      // } else if (parseInt(parsedate[1]) < 9) {
-      //   newdate2 = parsedate[2] + "-" + 0+(parseInt(parsedate[1])+1) + "-" + parsedate[0]
-      // } else {
-      //   newdate2 = parsedate[2] + "-" + (parseInt(parsedate[1])+1) + "-" + parsedate[0]
-      // }
 
       var newdate1 = parsedate[2] + "-" + parsedate[1] + "-" + parsedate[0]
 
-      // console.log(newdate0, newdate1, newdate2);
       var temp = getters.temp;
 
       return new Promise( (resolve,reject) => {
@@ -344,6 +326,13 @@ export default new Vuex.Store({
       axios.get(`/group/${temp.group}/kpi/${kpiID}/axis/${parentID}/value?date=${newdate}`)
       .then( response => {
         this.commit("FETCH_AXIS_VALUES", response.data.result);
+        var axisdata = getters.axis;
+        axisdata[0].children[0].children = []
+        axisdata[0].children[0].children.push({
+          id : 1000,
+          name : "ajout test"
+        })
+        console.log(axisdata);
         commit("FETCH_KPI_OR_AXIS","AXIS")
       }).catch(error => {
         console.log(`Error retrieving axis values : ` + error.response.data.message);

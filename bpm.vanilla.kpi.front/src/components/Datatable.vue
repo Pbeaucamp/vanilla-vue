@@ -180,7 +180,6 @@ data () {
             date : this.picker
           }
           this.$store.dispatch('getAxisValue', data).then(
-            console.log(this.$store.state.axisvalues.data)
           )
           }
         },

@@ -87,23 +87,29 @@ export default {
       Adata.push(valeur)
       background.push('#'+(Math.random()*0xFFFFFF<<0).toString(16))
       // console.log(dataset);
+      var label2 = []
+      var data2 = []
+      var c = 0
       Adata.forEach(el => {
-        if (Adata.length > 10 & el == 0){
-          Adata.splice(Adata.indexOf(el),1)
-          labele.splice(Adata.indexOf(el),1)
+        if (el != 0){
+          data2.push(el)
+          label2.push(labele[Adata.indexOf(el)])
+        } else {
+          c = c+1
         }
       })
-      if(Adata.length > 15) {
-        Adata.splice(15, Adata.length)
-        labele.splice(15, labele.length)
+      if (c > 0){
+        data2.push(0),
+        label2.push(c.toString() + " autres membres de valeur = 0")
       }
+
       return {
-        labels : labele,
+        labels : label2,
         datasets:[
           {
             backgroundColor : background
           ,
-          data : Adata
+          data : data2
           }
         ]
       };

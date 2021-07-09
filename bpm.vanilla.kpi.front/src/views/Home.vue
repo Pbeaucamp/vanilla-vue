@@ -5,10 +5,10 @@
         <list />
         <v-row cols="2">
           <datatable />
-          <v-col>
+          <!-- <v-col> -->
             <group-chart />
-            <group-chart />
-          </v-col>
+            <!-- <group-chart /> -->
+          <!-- </v-col> -->
         </v-row>
       </v-col>
     </v-layout>
