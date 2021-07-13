@@ -50,6 +50,10 @@ export default new Vuex.Store({
     kpioraxis:{
       name: "KPI or axis",
       data: "KPI"
+    }, 
+    tabvalueoneyear:{
+      name: "Tab value one year",
+      data: []
     }
   },
   mutations: {
@@ -83,6 +87,9 @@ export default new Vuex.Store({
     FETCH_KPI_OR_AXIS(state, kpioraxis){
       state.kpioraxis.data = kpioraxis;
     },
+    FETCH_TAB_VALUE_ONE_YEAR(state,tabvalueoneyear){
+      state.tabvalueoneyear.data = tabvalueoneyear;
+    }
   },
   actions: {
     getObservatories({commit}, group) {
@@ -186,6 +193,52 @@ export default new Vuex.Store({
         commit("FETCH_KPI",KPIdata);
         commit("FETCH_KPI_OR_AXIS","KPI")
         commit("FETCH_AXIS", [])
+        resolve()
+      }).catch( () => { reject() })
+      })
+    },
+
+    getTabValueOneYear({commit,getters},{kpiID, date}){
+      // console.log(date);
+      var parsedate = date.split("-")
+      var gooddate = "01-12-"+parsedate[0]
+      // console.log("COUCOU");
+      // console.log(kpiID);
+      var temp = getters.temp;
+      return new Promise( (resolve,reject) => {
+      var KPIdataa = [];
+      var thetheme = temp.themes.filter(e => e.name == temp.theme);
+      thetheme.forEach(element => {
+        for (let index = 0; index < element.metrics.length; index++) {
+          if (!KPIdataa.some(e => e.kpiID == element.metrics[index].kpiID) & (element.metrics[index].kpiID == kpiID)){
+            KPIdataa.push(element.metrics[index])
+          }
+        }
+      });
+      var promiseArray = [];
+
+      KPIdataa.forEach(el => {
+        el.result = []
+          // console.log(e);
+          promiseArray.push(axios.get(`/group/${temp.group}/kpi/${el.kpiID}/values?date=${gooddate}`)      
+          .then(response => {
+          // console.log(response.data.result);
+          el.result.push(response.data.result)
+        }).catch(error => {
+            console.log(`Error retrieving KPI : ` + error.response.data.message);
+        })
+        )
+
+      })
+
+      Promise.all(promiseArray).then( () => {
+        KPIdataa.forEach(e => {
+            e.result.sort(function (a,b){
+              return new Date(a.date) - new Date(b.date)
+            })
+        });
+
+        commit("FETCH_TAB_VALUE_ONE_YEAR",KPIdataa);
         resolve()
       }).catch( () => { reject() })
       })
@@ -370,6 +423,9 @@ export default new Vuex.Store({
     },
     kpioraxis: state => {
       return state.kpioraxis.data;
+    },
+    tabvalueoneyear: state => {
+      return state.tabvalueoneyear.data;
     }
   },
   modules: {

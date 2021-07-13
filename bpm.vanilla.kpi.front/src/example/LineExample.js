@@ -56,7 +56,6 @@ export default {
         element.children.forEach(el => {
           console.log(el);
           if (el.id == this.childrenid.data){
-            console.log("CA FONCTIONNE REELLEMENT ");
             i = compteur
           }
           compteur = compteur +1
@@ -105,19 +104,31 @@ export default {
         backgroundColor : '#'+(Math.random()*0xFFFFFF<<0).toString(16)
       }
       dataset.push(datas)
+      var dataset2 = []
+
+      var c = 0
       dataset.forEach(el => {
-        if (dataset.length > 10 & el.data[0] == 0){
-          dataset.splice(dataset.indexOf(el),1)
+        if (el.data[0] != 0){
+          dataset2.push(el)
+        } else {
+          c = c+1
         }
       })
-      if(dataset.length > 15) {
-        dataset.splice(15, dataset.length)
+      console.log(dataset);
+      if (c > 0){
+        dataset2.push(
+          {
+            label : [c.toString() + " autres membres de valeur = 0"],
+            data : [0],
+            backgroundColor : '#'+(Math.random()*0xFFFFFF<<0).toString(16)
+          }
+        )
       }
       // console.log(dataset);
       return {
         labels : labels,
         datasets:
-          dataset
+          dataset2
       };
     },
     choixKPIorAxis(){

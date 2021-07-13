@@ -9,51 +9,32 @@
             </v-layout>
             <v-flex xs10 sm10 md10 lg10>
                 <div class="Chart" v-if="ChartType == 'Barchart'">
-                <h1 style="text-align:center;">Barchart</h1>
+                <h2 style="text-align:center;">{{Titre}}</h2>
                 <bar-example/>
                 </div>
 
                 <div class="Chart" v-if="ChartType == 'Horizontal Barchart'">
-                    <h1 style="text-align:center;">Horizontal Barchart</h1>
+                    <h2 style="text-align:center;">{{Titre}}</h2>
                     <horizontal-bar-example/>
                 </div>
 
                 <div class="Chart" v-if="ChartType == 'Linechart'">
-                <h1 style="text-align:center;">Linechart</h1>
+                <h2 style="text-align:center;">{{Titre}}</h2>
                 <line-example/>
                 </div>
 
                 <div class="Chart" v-if="ChartType == 'Doughnutchart'">
-                <h1 style="text-align:center;">Doughnutchart</h1>
+                <h2 style="text-align:center;">{{Titre}}</h2>
                 <doughnut-example/>
                 </div>
 
                 <div class="Chart" v-if="ChartType == 'Piechart'">
-                <h1 style="text-align:center;">Piechart</h1>
+                <h2 style="text-align:center;">{{Titre}}</h2>
                 <pie-example/>
                 </div>
-<!-- 
-                <div class="Chart" v-if="ChartType == 'Radarchart'">
-                <h1 style="text-align:center;">Radarchart</h1>
-                <radar-example/>
-                </div>
 
-                <div class="Chart" v-if="ChartType == 'Polarareachart'">
-                <h1 style="text-align:center;">Polararea</h1>
-                <polar-area-example/>
-                </div>
-
-                <div class="Chart" v-if="ChartType == 'Bubblechart'">
-                <h1 style="text-align:center;">Bubblechart</h1>
-                <bubble-example />
-                </div>
-
-                <div class="Chart" v-if="ChartType == 'Scatterchart'">
-                <h1 style="text-align:center;">Scatter Chart</h1>
-                <scatter-example />
-                </div> -->
                 <div class="Chart" v-if="ChartType == 'Gauge'">
-                <h1 style="text-align:center;">Jauge</h1>
+                <h2 style="text-align:center;">{{Titre}}</h2>
                 <gauge />
                 </div>
             </v-flex>
@@ -63,28 +44,29 @@
 </template>
 
 <script>
+  import {mapState} from 'vuex'
   import BarExample from '../example/BarExample'
   import LineExample from '../example/LineExample'
   import DoughnutExample from '../example/DoughnutExample'
   import PieExample from '../example/PieExample'
-  // import RadarExample from '../example/RadarExample'
-  // import PolarAreaExample from '../example/PolarAreaExample'
-  // import BubbleExample from '../example/BubbleExample'
-  // import ScatterExample from '../example/ScatterExample'
   import HorizontalBarExample from '../example/HorizontalBarExample'
   import Gauge from './Gauge.vue'
+  
   export default {
     components: {
       BarExample,
       LineExample,
       DoughnutExample,
       PieExample,
-      // RadarExample,
-      // PolarAreaExample,
-      // BubbleExample,
-      // ScatterExample,
       HorizontalBarExample,
       Gauge
+    },
+    computed: {
+    ...mapState(['kpioraxis']),
+    ...mapState(['kpi']),
+    ...mapState(['axis']),
+    ...mapState(['childrenid']),
+
     },
     data() {
         return {
@@ -97,26 +79,61 @@
             Icon : "mdi-chart-donut"},
             {Type : "Piechart",
             Icon : "mdi-chart-pie"},
-            // {Type : "Radarchart",
-            // Icon : "mdi-graphql"},
-            // {Type : "Polarareachart",
-            // Icon : "mdi-chart-donut-variant"},
-            // {Type : "Bubblechart",
-            // Icon : "mdi-chart-bubble"},
-            // {Type : "Scatterchart",
-            // Icon : "mdi-chart-scatter-plot"},
             {Type : "Horizontal Barchart",
             Icon : "mdi-align-horizontal-left"},
             {Type : "Gauge",
             Icon : "mdi-gauge"},
             ],
-            ChartType : "Barchart"
+            ChartType : "Barchart",
+            Titre : "Graph"
         }
     },
     methods : {
         changeType(type) {
             this.ChartType = type
         }
+    },
+    watch : {
+      childrenid :{
+        handler : function () {
+            var children = this.$store.state.childrenid.data
+            var axistemp = this.$store.state.axis.data;
+            var parentName
+            axistemp.forEach(element => {
+              element.children.forEach(el => {
+                if (el.id == children){
+                  parentName = element.name
+                }
+              })
+            });
+            this.Titre = this.kpi.data[0].name + " pour " + parentName + ", " + this.kpi.data[0].result[0][0].date.split(['T'])[0]
+        },
+        deep : true
+      },
+      kpioraxis :{
+        handler : function () {
+          console.log(this.kpioraxis.data);
+          if (this.kpioraxis.data == "KPI") {
+            this.ChartType = "Gauge"  
+          } else if (this.kpioraxis.data == "AXIS") {
+            this.ChartType = "Barchart"
+          }
+        },
+        deep : true
+      },
+
+      kpi : {
+        handler : function () {
+          if (this.kpi.data.length == 1) {
+            this.ChartType = "Gauge"
+            this.Titre = this.kpi.data[0].name + ", " + this.kpi.data[0].result[0][0].date.split(['T'])[0]
+          } else {
+            this.ChartType = "Barchart"
+            this.Titre = "Indicateurs de " + this.$store.state.temp.data.theme
+          }
+        },
+        deep : true
+      }
     }
   }
 </script>
