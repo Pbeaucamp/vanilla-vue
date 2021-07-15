@@ -54,6 +54,14 @@ export default new Vuex.Store({
     tabvalueoneyear:{
       name: "Tab value one year",
       data: []
+    },
+    boolniveau:{
+      name : "boolniveau",
+      data : false
+    },
+    tabniveau:{
+      name : "tabniveau",
+      data : []
     }
   },
   mutations: {
@@ -89,7 +97,13 @@ export default new Vuex.Store({
     },
     FETCH_TAB_VALUE_ONE_YEAR(state,tabvalueoneyear){
       state.tabvalueoneyear.data = tabvalueoneyear;
-    }
+    },
+    FETCH_BOOLNIVEAU(state, boolniveau){
+      state.boolniveau.data = boolniveau;
+    },
+    FETCH_TABNIVEAU(state, tabniveau){
+      state.tabniveau.data = tabniveau;
+    },
   },
   actions: {
     getObservatories({commit}, group) {
@@ -106,6 +120,7 @@ export default new Vuex.Store({
         })
       commit("FETCH_OBSERVATORIES",obsdata);
       commit("FETCH_AXIS", [])
+      commit("FETCH_BOOLNIVEAU", false)
     },
 
     async getGroups({commit, getters}) {
@@ -113,6 +128,7 @@ export default new Vuex.Store({
       await axios.get(`/user/${user[0].name}/groups`)
       .then( response => {
         commit("FETCH_GROUPS",response.data.result);
+        commit("FETCH_BOOLNIVEAU", false)
       }).catch(error => {
           console.log(`Error retrieving groups : ` + error.response.data.message);
       })
@@ -132,6 +148,7 @@ export default new Vuex.Store({
         })
       commit("FETCH_THEMES",thedata);
       commit("FETCH_AXIS", [])
+      commit("FETCH_BOOLNIVEAU", false)
     },
 
     getThemeByObs({commit, getters}, obs) {
@@ -150,6 +167,7 @@ export default new Vuex.Store({
               console.log(`Error retrieving repositories : ` + error.response.data.message);
           })
         commit("FETCH_THEMES",thedata);
+        commit("FETCH_BOOLNIVEAU", false)
         commit("FETCH_AXIS", [])
       }
     },
@@ -192,6 +210,7 @@ export default new Vuex.Store({
         console.log(KPIdata);
         commit("FETCH_KPI",KPIdata);
         commit("FETCH_KPI_OR_AXIS","KPI")
+        commit("FETCH_BOOLNIVEAU", false)
         commit("FETCH_AXIS", [])
         resolve()
       }).catch( () => { reject() })
@@ -199,11 +218,8 @@ export default new Vuex.Store({
     },
 
     getTabValueOneYear({commit,getters},{kpiID, date}){
-      // console.log(date);
       var parsedate = date.split("-")
       var gooddate = "01-12-"+parsedate[0]
-      // console.log("COUCOU");
-      // console.log(kpiID);
       var temp = getters.temp;
       return new Promise( (resolve,reject) => {
       var KPIdataa = [];
@@ -219,10 +235,8 @@ export default new Vuex.Store({
 
       KPIdataa.forEach(el => {
         el.result = []
-          // console.log(e);
           promiseArray.push(axios.get(`/group/${temp.group}/kpi/${el.kpiID}/values?date=${gooddate}`)      
           .then(response => {
-          // console.log(response.data.result);
           el.result.push(response.data.result)
         }).catch(error => {
             console.log(`Error retrieving KPI : ` + error.response.data.message);
@@ -239,6 +253,7 @@ export default new Vuex.Store({
         });
 
         commit("FETCH_TAB_VALUE_ONE_YEAR",KPIdataa);
+        commit("FETCH_BOOLNIVEAU", false)
         resolve()
       }).catch( () => { reject() })
       })
@@ -281,6 +296,7 @@ export default new Vuex.Store({
         console.log(KPIdata);
         commit("FETCH_KPI",KPIdata);
         commit("FETCH_KPI_OR_AXIS","KPI")
+        commit("FETCH_BOOLNIVEAU", false)
         resolve()
       }).catch( () => { reject() })
       })
@@ -339,6 +355,7 @@ export default new Vuex.Store({
           })
         commit("FETCH_KPI",KPIdata);
         commit("FETCH_KPI_OR_AXIS","KPI")
+        commit("FETCH_BOOLNIVEAU", false)
         commit("FETCH_AXIS", [])
         resolve()
       }).catch( () => { reject() })
@@ -349,6 +366,7 @@ export default new Vuex.Store({
       await axios.get(`/axis`)
       .then( response => {
         commit("FETCH_AXIS",response.data.result);
+        commit("FETCH_BOOLNIVEAU", false)
       }).catch(error => {
           console.log(`Error retrieving axis : ` + error.response.data.message);
       })
@@ -358,10 +376,12 @@ export default new Vuex.Store({
       axios.get(`/kpi/${id}/axis`)
       .then( response => {
         commit("FETCH_AXIS",response.data.result);
+        commit("FETCH_BOOLNIVEAU", false)
       }).catch(error => {
           console.log(`Error retrieving axis : ` + error.response.data.message);
       })
     },
+    
     getAxisValue({commit, getters}, {kpiID, childrenID, date}){
       var temp = getters.temp;
       commit("FETCH_CHILDRENID", childrenID)
@@ -378,18 +398,47 @@ export default new Vuex.Store({
       });
       axios.get(`/group/${temp.group}/kpi/${kpiID}/axis/${parentID}/value?date=${newdate}`)
       .then( response => {
+        console.log("hello ", response.data.result);
         this.commit("FETCH_AXIS_VALUES", response.data.result);
         var axisdata = getters.axis;
         axisdata[0].children[0].children = []
         axisdata[0].children[0].children.push({
-          id : 1000,
-          name : "ajout test"
+          id : axisdata[0].children[0].id,
+          name : axisdata[0].children[0].name
+        })
+        response.data.result.forEach(el => {
+          console.log(el.axis[0]);
+          if (!axisdata[0].children[0].children.find( o => o.name === el.axis[0].label)){
+            axisdata[0].children[0].children.push({
+              id : el.axis[0].label,
+              name : el.axis[0].label
+            })
+          }
         })
         console.log(axisdata);
         commit("FETCH_KPI_OR_AXIS","AXIS")
+        commit("FETCH_BOOLNIVEAU", false)
       }).catch(error => {
         console.log(`Error retrieving axis values : ` + error.response.data.message);
       })
+    },
+    niveaudeux({commit}, id){
+      console.log(id);
+      commit("FETCH_BOOLNIVEAU", true)
+    },
+    getTabNiveau({commit,getters}, id){
+      var tab = getters.axisvalues
+      var temp = []
+      console.log("ici ", tab);
+      tab.forEach(el => {
+        if (el.axis[0].label == id){
+          console.log(el.axis[0].label);
+          console.log(el.axis[1].label);
+          temp.push(el)
+        }
+      }),
+      commit("FETCH_TABNIVEAU", temp)
+      console.log(this.state.tabniveau);
     }
   },
 
@@ -426,6 +475,12 @@ export default new Vuex.Store({
     },
     tabvalueoneyear: state => {
       return state.tabvalueoneyear.data;
+    }, 
+    boolniveau: state => {
+      return state.boolniveau.data;
+    }, 
+    tabniveau: state => {
+      return state.tabniveau.data;
     }
   },
   modules: {

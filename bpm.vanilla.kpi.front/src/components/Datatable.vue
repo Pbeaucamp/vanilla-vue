@@ -85,7 +85,6 @@
                 dense
                 hoverable
                 :items="this.KPIdata()"
-                activatable
                 open-on-click
                 transition
               >
@@ -195,8 +194,6 @@ data () {
           console.log(this.picker);
           this.$store.dispatch('getOneKPI', data).then(
             this.$store.dispatch('getAxis', this.kpi.data[0].kpiID).then(
-              // this.$store.dispatch('getTabValueOneYear', data).then(
-              // )
             )
           )
           
@@ -215,15 +212,24 @@ data () {
         if (typeof item.children == "object"){
           console.log('Not a leaf', item)
         } else {
+          var data
           console.log('A LEAF', item.name)
           console.log("ID KPI : ", this.kpi.data[0].kpiID, ", NAME + ID AXIS :", item.name, " + ", item.id );
-          var data = {
-            kpiID : this.kpi.data[0].kpiID,
-            childrenID : item.id,
-            date : this.picker
+          console.log(typeof(item.id));
+          if (typeof(item.id) == "number"){
+            data = {
+              kpiID : this.kpi.data[0].kpiID,
+              childrenID : item.id,
+              date : this.picker
+            }
+            this.$store.dispatch('getAxisValue', data)
+          } else {
+            console.log(item.id);
+            this.$store.dispatch('niveaudeux', item.id).then(
+              this.$store.dispatch('getTabNiveau', item.id)
+            )
           }
-          this.$store.dispatch('getAxisValue', data).then(
-          )
+
           }
         },
       KPIdata() {
@@ -271,8 +277,7 @@ data () {
               minimume : el.minimum,
               maximume : el.maximum
             })}
-          }),
-          console.log("ITEMS", this.items2)
+          })
         },
         deep : true
       }, 
