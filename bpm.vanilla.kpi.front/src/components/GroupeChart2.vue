@@ -18,11 +18,6 @@
                     <horizontal-bar-example/>
                 </div>
 
-                <div class="Chart" v-if="ChartType == 'Linechart'">
-                <h2 style="text-align:center;">{{Titre}}</h2>
-                <line-example/>
-                </div>
-
                 <div class="Chart" v-if="ChartType == 'Doughnutchart'">
                 <h2 style="text-align:center;">{{Titre}}</h2>
                 <doughnut-example/>
@@ -33,10 +28,6 @@
                 <pie-example/>
                 </div>
 
-                <div class="Chart" v-if="ChartType == 'Gauge'">
-                <h2 style="text-align:center;">{{Titre}}</h2>
-                <gauge />
-                </div>
             </v-flex>
             </v-layout>
     </v-container>
@@ -46,20 +37,16 @@
 <script>
   import {mapState} from 'vuex'
   import BarExample from '../example/BarExample2'
-  import LineExample from '../example/LineExample2'
   import DoughnutExample from '../example/DoughnutExample2'
   import PieExample from '../example/PieExample2'
   import HorizontalBarExample from '../example/HorizontalBarExample2'
-  import Gauge from './Gauge2.vue'
   
   export default {
     components: {
       BarExample,
-      LineExample,
       DoughnutExample,
       PieExample,
       HorizontalBarExample,
-      Gauge
     },
     computed: {
     ...mapState(['kpioraxis']),
@@ -73,16 +60,12 @@
             TabType : [
             {Type : "Barchart",
             Icon : "mdi-chart-bar"},
-            {Type : "Linechart",
-            Icon : "mdi-chart-line"},
             {Type : "Doughnutchart",
             Icon : "mdi-chart-donut"},
             {Type : "Piechart",
             Icon : "mdi-chart-pie"},
             {Type : "Horizontal Barchart",
             Icon : "mdi-align-horizontal-left"},
-            {Type : "Gauge",
-            Icon : "mdi-gauge"},
             ],
             ChartType : "Barchart",
             Titre : "Graph"

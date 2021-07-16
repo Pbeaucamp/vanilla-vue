@@ -10,6 +10,7 @@ export default {
       var labels = []
       var Adata = []
       var dataset = []
+      var c = 0
       console.log("tabniveau ", this.tabniveau.data);
       this.tabniveau.data.forEach(element => {
         Adata = []
@@ -17,15 +18,27 @@ export default {
         if (!labels.includes(returnedDate[0])){
           labels.push(returnedDate[0])
         }
-        Adata.push(element.value)
-        var datas =
-        {
-          label : element.axis[1].label,
-          data : Adata,
-          backgroundColor : '#'+(Math.random()*0xFFFFFF<<0).toString(16)
-        }
-        dataset.push(datas)
+        // if (element.value == 0){
+          c = c+1
+        // } else {
+          Adata.push(element.value)
+          var datas =
+          {
+            label : element.axis[1].label,
+            data : Adata,
+            backgroundColor : '#'+(Math.random()*0xFFFFFF<<0).toString(16)
+          }
+          dataset.push(datas)
+        // }
       });
+      // if (c > 0){
+      //   dataset.push(
+      //   {
+      //     label : [c.toString() + " autres membres de valeur = 0"],
+      //     data : [0],
+      //     backgroundColor : '#'+(Math.random()*0xFFFFFF<<0).toString(16)
+      //   })
+      // }
       return {
         labels : labels,
         datasets:
@@ -34,13 +47,28 @@ export default {
       };
     }
   },
+  methods : {
+    bool(){
+      if (this.tabniveau.data.length >= 10){
+        return false
+      } else {
+        return true
+      }
+    }
+  },
   mounted () {
-    this.renderChart(this.chartData, {responsive: true, maintainAspectRatio: false, align : "center"})
+    this.renderChart(this.chartData, {responsive: true, maintainAspectRatio: false, align : "center",
+    legend: {
+      display: this.bool()
+  }})
   },
   watch : {
     tabniveau : {
       handler :function () {
-        this.renderChart(this.chartData,{ responsive: true, maintainAspectRatio: false });
+        this.renderChart(this.chartData,{ responsive: true, maintainAspectRatio: false,
+          legend: {
+            display: this.bool()
+        } });
     },
     deep: true
     }

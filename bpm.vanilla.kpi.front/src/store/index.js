@@ -401,20 +401,25 @@ export default new Vuex.Store({
         console.log("hello ", response.data.result);
         this.commit("FETCH_AXIS_VALUES", response.data.result);
         var axisdata = getters.axis;
-        axisdata[0].children[0].children = []
-        axisdata[0].children[0].children.push({
-          id : axisdata[0].children[0].id,
-          name : axisdata[0].children[0].name
-        })
-        response.data.result.forEach(el => {
-          console.log(el.axis[0]);
-          if (!axisdata[0].children[0].children.find( o => o.name === el.axis[0].label)){
-            axisdata[0].children[0].children.push({
-              id : el.axis[0].label,
-              name : el.axis[0].label
+        axisdata.forEach(element => {
+          if (element.id == parentID){
+            element.children[0].children = []
+            element.children[0].children.push({
+              id : element.children[0].id,
+              name : element.children[0].name
+            })
+            response.data.result.forEach(el => {
+              console.log(el.axis[0]);
+              if (!element.children[0].children.find( o => o.name === el.axis[0].label)){
+                  element.children[0].children.push({
+                  id : el.axis[0].label,
+                  name : el.axis[0].label
+                })
+              }
             })
           }
-        })
+        });
+
         console.log(axisdata);
         commit("FETCH_KPI_OR_AXIS","AXIS")
         commit("FETCH_BOOLNIVEAU", false)

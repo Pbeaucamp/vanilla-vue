@@ -28,7 +28,8 @@ export default {
         {
           label : element.name,
           data : Adata,
-          backgroundColor : '#'+(Math.random()*0xFFFFFF<<0).toString(16)
+          backgroundColor : '#'+(Math.random()*0xFFFFFF<<0).toString(16),
+ 
         }
         dataset.push(datas)
       });
@@ -36,8 +37,7 @@ export default {
       return {
         labels : labels,
         datasets:
-          dataset
-
+          dataset,
       };
     },
     chartDataAxis() {
@@ -130,7 +130,7 @@ export default {
       return {
         labels : labels,
         datasets:
-          dataset2
+          dataset
       };
     },
     choixKPIorAxis(){
@@ -141,21 +141,47 @@ export default {
       }
     }
   },
+  methods : {
+    bool(){
+      if (this.kpioraxis.data == "AXIS"){
+        if (this.axisvalues.data.length >= 10){
+          return false
+        } else {
+          return true
+        }
+      } else {
+        if (this.kpi.data.length >= 10){
+          return false
+        } else {
+          return true
+        }
+      }
+    }    
+  },
   mounted () {
-    this.renderChart(this.choixKPIorAxis, {responsive: true, maintainAspectRatio: false, align : "center"})
+    this.renderChart(this.choixKPIorAxis, {responsive: true, maintainAspectRatio: false, align : "center",
+      legend: {
+        display: this.bool()
+    }})
   },
   watch : {
     kpi :{
         handler :function () {
             console.log(this.kpioraxis.data);
-            this.renderChart( this.chartData,{ responsive: true, maintainAspectRatio: false });
+            this.renderChart( this.chartData,{ responsive: true, maintainAspectRatio: false,
+              legend: {
+                display: this.bool()
+            } });
         },
         deep: true
     },
     axisvalues : {
       handler :function () {
         console.log(this.kpioraxis.data);
-        this.renderChart(this.chartDataAxis,{ responsive: true, maintainAspectRatio: false });
+        this.renderChart(this.chartDataAxis,{ responsive: true, maintainAspectRatio: false,
+          legend: {
+            display: this.bool()
+        } });
     },
     deep: true
     }
