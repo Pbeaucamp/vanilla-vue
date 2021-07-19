@@ -10,13 +10,15 @@ export default {
     ...mapState(['axisvalues']),
     ...mapState(['childrenid']),
     ...mapState(['kpioraxis']),
+    ...mapState(['hidedata']),
     chartData() {
       var labels = []
       var Adata = []
       var background = []
 
       this.kpi.data.forEach(element => {
-        element.result[0].forEach(ele => {       
+        if (element.Cacher != true){
+          element.result[0].forEach(ele => {       
           background.push('#'+(Math.random()*0xFFFFFF<<0).toString(16))
           if (labels.includes(element.name)){
             var i = labels.indexOf(element.name)
@@ -26,6 +28,7 @@ export default {
           Adata.push(ele.value)
         }
         });
+      }
       });
 
       return {
@@ -123,19 +126,54 @@ export default {
       }
     }
   },
+  methods : {
+    bool(){
+      if (this.kpioraxis.data == "AXIS"){
+        if (this.axisvalues.data.length >= 10){
+          return false
+        } else {
+          return true
+        }
+      } else {
+        if (this.kpi.data.length >= 10){
+          return false
+        } else {
+          return true
+        }
+      }
+    }    
+  },
   mounted () {
-    this.renderChart(this.choixKPIorAxis, {responsive: true, maintainAspectRatio: false, align : "center"})
+    this.renderChart(this.choixKPIorAxis, {responsive: true, maintainAspectRatio: false, align : "center",
+    legend: {
+      display: this.bool()
+  }})
   },
   watch : {
     kpi :{
         handler :function () {
-            this.renderChart( this.chartData,{ responsive: true, maintainAspectRatio: false });
+            this.renderChart( this.chartData,{ responsive: true, maintainAspectRatio: false,
+              legend: {
+                display: this.bool()
+            } });
         },
         deep: true
     },
+    hidedata : {
+      handler :function(){
+        this.renderChart( this.chartData,{ responsive: true, maintainAspectRatio: false,
+          legend: {
+            display: this.bool()
+        } });
+    },
+    deep: true
+  },
     axisvalues : {
       handler :function () {
-        this.renderChart(this.chartDataAxis,{ responsive: true, maintainAspectRatio: false });
+        this.renderChart(this.chartDataAxis,{ responsive: true, maintainAspectRatio: false,
+          legend: {
+            display: this.bool()
+        } });
     },
     deep: true
     }

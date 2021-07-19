@@ -49,10 +49,7 @@
       HorizontalBarExample,
     },
     computed: {
-    ...mapState(['kpioraxis']),
-    ...mapState(['kpi']),
-    ...mapState(['axis']),
-    ...mapState(['childrenid']),
+    ...mapState(['tabniveau']),
 
     },
     data() {
@@ -77,46 +74,15 @@
         }
     },
     watch : {
-      childrenid :{
+      tabniveau :{
         handler : function () {
-            var children = this.$store.state.childrenid.data
-            var axistemp = this.$store.state.axis.data;
-            var parentName
-            axistemp.forEach(element => {
-              element.children.forEach(el => {
-                if (el.id == children){
-                  parentName = element.name
-                }
-              })
-            });
-            this.Titre = this.kpi.data[0].name + " pour " + parentName + ", " + this.kpi.data[0].result[0][0].date.split(['T'])[0]
+            this.Titre = this.$store.state.tabniveau.data[0].axis[0].label
         },
         deep : true
       },
-      kpioraxis :{
-        handler : function () {
-          console.log(this.kpioraxis.data);
-          if (this.kpioraxis.data == "KPI") {
-            this.ChartType = "Gauge"  
-          } else if (this.kpioraxis.data == "AXIS") {
-            this.ChartType = "Barchart"
-          }
-        },
-        deep : true
-      },
-
-      kpi : {
-        handler : function () {
-          if (this.kpi.data.length == 1) {
-            this.ChartType = "Gauge"
-            this.Titre = this.kpi.data[0].name + ", " + this.kpi.data[0].result[0][0].date.split(['T'])[0]
-          } else {
-            this.ChartType = "Barchart"
-            this.Titre = "Indicateurs de " + this.$store.state.temp.data.theme
-          }
-        },
-        deep : true
-      }
+    }, 
+    mounted() {
+      this.Titre = this.$store.state.tabniveau.data[0].axis[0].label
     }
   }
 </script>

@@ -62,6 +62,14 @@ export default new Vuex.Store({
     tabniveau:{
       name : "tabniveau",
       data : []
+    },
+    hidedata:{
+      name : "hide data",
+      data : []
+    },
+    typechart:{
+      name : "typechart",
+      data : "Barchart"
     }
   },
   mutations: {
@@ -103,6 +111,12 @@ export default new Vuex.Store({
     },
     FETCH_TABNIVEAU(state, tabniveau){
       state.tabniveau.data = tabniveau;
+    },
+    FETCH_HIDE_DATA(state, hidedata){
+      state.hidedata.data = hidedata;
+    },
+    FETCH_TYPECHART(state, typechart){
+      state.typechart.data = typechart;
     },
   },
   actions: {
@@ -201,6 +215,7 @@ export default new Vuex.Store({
 
       Promise.all(promiseArray).then( () => {
         KPIdata.forEach(e => {
+
           e.result[0].sort(function (a,b){
             return new Date(b.date) - new Date(a.date)
           })
@@ -444,6 +459,27 @@ export default new Vuex.Store({
       }),
       commit("FETCH_TABNIVEAU", temp)
       console.log(this.state.tabniveau);
+    },
+    getHideData({commit, getters}, {cacher, name, id}){
+      var tab = getters.hidedata
+      var c = 0
+      tab.forEach(el => {
+        if (el.id == id){
+          el.cacher = cacher
+          c = c+1
+        }
+      })
+      if (c == 0){
+        tab.push({
+          cacher : cacher,
+          name : name,
+          id : id
+        })
+      }
+      commit("FETCH_HIDE_DATA", tab)
+    },
+    getTypechart({commit}, chart){
+      commit("FETCH_TYPECHART", chart)
     }
   },
 
@@ -486,6 +522,12 @@ export default new Vuex.Store({
     }, 
     tabniveau: state => {
       return state.tabniveau.data;
+    }, 
+    hidedata: state => {
+      return state.hidedata.data;
+    }, 
+    typechart: state => {
+      return state.typechart.data;
     }
   },
   modules: {

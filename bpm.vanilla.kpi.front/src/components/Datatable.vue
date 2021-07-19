@@ -11,12 +11,12 @@
 
                 <v-spacer></v-spacer>
 
-            <v-dialog max-width="500">
+            <v-dialog max-width="500" v-model="dialog">
             <template v-slot:activator="{ on, attrs }">
               <v-btn v-on="on" v-bind="attrs">
                       Choisir la date
               </v-btn>
-              <v-btn @click="reset()" class="mx-2">
+              <v-btn @click="reset()" @click.native.stop class="mx-2">
                       Aujourd'hui
               </v-btn>
             </template>
@@ -27,10 +27,11 @@
                         color="indigo"
                         locale="fr-FR">     
                   </v-date-picker>
+                  <v-btn dark class='indigo' @click="dialog = false">Valider</v-btn>
             </template>
             </v-dialog> 
 
-            <v-dialog max-width="500">
+            <v-dialog max-width="500" v-model="dialogb">
             <template v-slot:activator="{ on, attrs }">
               <v-btn @click="appelcalendar()" v-on="on" v-bind="attrs" class="ml-2">
                   <v-icon> mdi-calendar </v-icon>
@@ -46,19 +47,21 @@
                         :items-per-page="12"
                       >
                         <template v-slot:top>
-
-                        </template>
-                        <template>
+                        <v-toolbar flat class="indigo">
+                            <v-toolbar-title class="white--text display-1 text-decoration-underline">Valeurs KPI pour l'année</v-toolbar-title>
+                            <v-spacer></v-spacer>
+                        </v-toolbar>
                         </template>
                       </v-data-table>
                     </div>
                   </template>
+                  <v-btn dark class='indigo' @click="dialogb = false">Quitter</v-btn>
             </template>            
             </v-dialog>  
             </v-toolbar>
         </template>
         <template v-slot:[`item.name`]="{ item }">
-            <div v-if="item" @click="test(item.kpiID)">{{item.name}}</div>
+            <div v-if="item" @click="test(item.kpiID)" >{{item.name}}</div>
         </template>
         <template v-slot:[`item.result.0.0.date`]="{ item }">
             <div v-if="item">{{parseDate(item.result[0][0].date)}}</div>
@@ -68,6 +71,13 @@
         </template>
         <template v-slot:[`item.result.0.0.health`]="{ item }">
             <v-icon v-if="item">{{health(item.result[0][0].health)}}</v-icon>
+        </template>
+        <template v-slot:[`item.cacher`]="{ item }">
+          <v-simple-checkbox
+            v-model="item.Cacher"
+            :ripple="false"
+            @click="tabcacher()"
+          ></v-simple-checkbox>
         </template>
         </v-data-table>
 
@@ -120,11 +130,12 @@ data () {
           { text: 'Nom', align: 'start', value: 'name',},
           { text: 'Santé', value: 'result.0.0.health'},
           { text: 'Tendance', value: 'result.0.0.tendancy'},
-          { text: 'Date', value: 'result.0.0.date'},
+          { text: 'Date la plus proche', value: 'result.0.0.date'},
           { text: 'Valeur', value: 'result.0.0.value'},
           { text: 'Minimum', value: 'result.0.0.minimum'},
           { text: 'Maximum', value: 'result.0.0.maximum'},
-          { text: 'Objectif', value: 'result.0.0.objective'}
+          { text: 'Objectif', value: 'result.0.0.objective'},
+          { text: 'Cacher', value: 'cacher'}
         ],
         headers2: [
           { text: 'Date', align: 'start',  value: 'datee'},
@@ -137,7 +148,9 @@ data () {
         picker: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
         c : 0,
         idt : "",
-        chdate : "",
+        chdate : "0",
+        dialog : false,
+        dialogb : false,
       }
     },
     computed: {
@@ -244,6 +257,7 @@ data () {
         } 
       },
       reset(){
+        this.chdate = 0
         this.picker = new Date().toISOString().split('T')[0]
         this.$store.dispatch('resetKPI')
       },
@@ -254,12 +268,17 @@ data () {
           }
         this.$store.dispatch('getTabValueOneYear', data)   
       },
+      tabcacher(){
+        if (this.chdate != 0){
+          this.loaddatadate()
+        }
+      }
     },
     watch : {
       tabvalueoneyear : {
         handler : function () {
           this.items2 = [],
-          console.log("coucou" , this.tabvalueoneyear)
+          console.log("coucou ici " , this.tabvalueoneyear)
           // console.log(this.$store.state.kpi),
           this.tabvalueoneyear.data[0].result[0].forEach(el => {
             console.log(el);
@@ -281,7 +300,7 @@ data () {
         },
         deep : true
       }, 
-    }
+    },
 }
 </script>
 <style scoped>

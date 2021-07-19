@@ -10,28 +10,31 @@ export default {
     ...mapState(['axisvalues']),
     ...mapState(['childrenid']),
     ...mapState(['kpioraxis']),
+    ...mapState(['hidedata']),
     chartData() {
       var labels = []
       var Adata = []
       var dataset = []
 
       this.kpi.data.forEach(element => {
-        Adata = [],
-        element.result[0].forEach(ele => {       
-          var returnedDate = ele.date.split('T')
-          if (!labels.includes(returnedDate[0])){
-            labels.push(returnedDate[0])
+        Adata = []
+        if (element.Cacher != true){
+          element.result[0].forEach(ele => {       
+            var returnedDate = ele.date.split('T')
+            if (!labels.includes(returnedDate[0])){
+              labels.push(returnedDate[0])
+            }
+            Adata.push(ele.value)
+          });
+          var datas =
+          {
+            label : element.name,
+            data : Adata,
+            backgroundColor : '#'+(Math.random()*0xFFFFFF<<0).toString(16),
+  
           }
-          Adata.push(ele.value)
-        });
-        var datas =
-        {
-          label : element.name,
-          data : Adata,
-          backgroundColor : '#'+(Math.random()*0xFFFFFF<<0).toString(16),
- 
-        }
-        dataset.push(datas)
+          dataset.push(datas)
+      }
       });
 
       return {
@@ -166,15 +169,24 @@ export default {
   },
   watch : {
     kpi :{
-        handler :function () {
-            console.log(this.kpioraxis.data);
-            this.renderChart( this.chartData,{ responsive: true, maintainAspectRatio: false,
-              legend: {
-                display: this.bool()
-            } });
-        },
-        deep: true
+      handler :function () {
+          console.log(this.kpioraxis.data);
+          this.renderChart( this.chartData,{ responsive: true, maintainAspectRatio: false,
+            legend: {
+              display: this.bool()
+          } });
+      },
+      deep: true
     },
+    hidedata : {
+      handler :function(){
+        this.renderChart( this.chartData,{ responsive: true, maintainAspectRatio: false,
+          legend: {
+            display: this.bool()
+        } });
+    },
+    deep: true
+  },
     axisvalues : {
       handler :function () {
         console.log(this.kpioraxis.data);

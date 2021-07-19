@@ -139,19 +139,45 @@ export default {
       }
     }
   },
+  methods : {
+    bool(){
+      if (this.kpioraxis.data == "AXIS"){
+        if (this.axisvalues.data.length >= 10){
+          return false
+        } else {
+          return true
+        }
+      } else {
+        if (this.kpi.data.length >= 10){
+          return false
+        } else {
+          return true
+        }
+      }
+    }    
+  },
   mounted () {
-    this.renderChart(this.choixKPIorAxis, {responsive: true, maintainAspectRatio: false, align : "center"})
+    this.renderChart(this.choixKPIorAxis, {responsive: true, maintainAspectRatio: false, align : "center",
+    legend: {
+      display: this.bool()
+  }})
   },
   watch : {
     kpi :{
         handler :function () {
-            this.renderChart( this.chartData,{ responsive: true, maintainAspectRatio: false });
+            this.renderChart( this.chartData,{ responsive: true, maintainAspectRatio: false,
+              legend: {
+                display: this.bool()
+            } });
         },
         deep: true
     },
     axisvalues : {
       handler :function () {
-        this.renderChart(this.chartDataAxis,{ responsive: true, maintainAspectRatio: false });
+        this.renderChart(this.chartDataAxis,{ responsive: true, maintainAspectRatio: false,
+          legend: {
+            display: this.bool()
+        } });
     },
     deep: true
     }

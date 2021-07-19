@@ -66,7 +66,7 @@
     ...mapState(['kpi']),
     ...mapState(['axis']),
     ...mapState(['childrenid']),
-
+    ...mapState(['typechart']),
     },
     data() {
         return {
@@ -90,8 +90,14 @@
     },
     methods : {
         changeType(type) {
-            this.ChartType = type
+            this.ChartType = type,
+            this.$store.dispatch('getTypechart', type).then(
+              console.log(this.typechart.data)
+            )
         }
+    },
+    mounted(){
+      this.ChartType = this.typechart.data
     },
     watch : {
       childrenid :{
@@ -128,12 +134,12 @@
             this.ChartType = "Gauge"
             this.Titre = this.kpi.data[0].name + ", " + this.kpi.data[0].result[0][0].date.split(['T'])[0]
           } else {
-            this.ChartType = "Barchart"
+            this.ChartType = this.typechart.data
             this.Titre = "Indicateurs de " + this.$store.state.temp.data.theme
           }
         },
         deep : true
-      }
+      },
     }
   }
 </script>
