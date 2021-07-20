@@ -18,7 +18,7 @@
 <script>
 import Datatable from '../components/Datatable.vue'
 import GroupChart from '../components/GroupChart.vue'
-import GroupChart2 from '../components/GroupeChart2.vue'
+import GroupChart2 from '../components/GroupChart2.vue'
 import List from '../components/List.vue'
 
   export default {

@@ -16,7 +16,7 @@
               <v-btn v-on="on" v-bind="attrs">
                       Choisir la date
               </v-btn>
-              <v-btn @click="reset()" @click.native.stop class="mx-2">
+              <v-btn @click="reset()" class="mx-2">
                       Aujourd'hui
               </v-btn>
             </template>
@@ -31,15 +31,17 @@
             </template>
             </v-dialog> 
 
-            <v-dialog max-width="500" v-model="dialogb">
+            <v-dialog max-width="auto" v-model="dialogb" persistent>
             <template v-slot:activator="{ on, attrs }">
               <v-btn @click="appelcalendar()" v-on="on" v-bind="attrs" class="ml-2">
                   <v-icon> mdi-calendar </v-icon>
               </v-btn>
             </template>
             <template>
+              <v-row row="12">
+                <v-col cols="6">
                   <template>
-                    <div>
+                    <v-card>
                       <v-data-table
                         :headers="headers2"
                         :items="items2"
@@ -48,14 +50,22 @@
                       >
                         <template v-slot:top>
                         <v-toolbar flat class="indigo">
-                            <v-toolbar-title class="white--text display-1 text-decoration-underline">Valeurs KPI pour l'année</v-toolbar-title>
+                            <v-toolbar-title class="white--text display-1 text-decoration-underline">Valeurs KPI pour l'année</v-toolbar-title> 
                             <v-spacer></v-spacer>
+                            <v-btn class='mx-2' @click="dialogb = false & resetwithoutid()" >Quitter</v-btn>
                         </v-toolbar>
                         </template>
                       </v-data-table>
-                    </div>
+                    </v-card>
                   </template>
-                  <v-btn dark class='indigo' @click="dialogb = false">Quitter</v-btn>
+                </v-col>
+                <v-col cols="6">
+                  <v-card class="ma-5">
+                    <group-chart-3/>
+                    <p>Si le graph ne s'affiche pas correctement, cliquez sur un autre graph pour actualiser les données</p>
+                  </v-card>
+                </v-col>
+              </v-row>
             </template>            
             </v-dialog>  
             </v-toolbar>
@@ -122,7 +132,9 @@
 
 <script>
 import {mapState} from 'vuex'
+import GroupChart3 from './GroupChart3.vue'
 export default {
+  components: { GroupChart3 },
     name: 'Datatable',
 data () {
       return {
@@ -157,6 +169,7 @@ data () {
       ...mapState(['kpi']),
       ...mapState(['axis']),
       ...mapState(['tabvalueoneyear']),
+      ...mapState(['temp']),
     },
     methods : {
       parseDate(date){
@@ -221,6 +234,10 @@ data () {
           }
         }
       },
+      resetwithoutid(){
+        this.c = this.c+1
+        this.test(this.idt)
+      },
       teste(item) {
         if (typeof item.children == "object"){
           console.log('Not a leaf', item)
@@ -260,6 +277,7 @@ data () {
         this.chdate = 0
         this.picker = new Date().toISOString().split('T')[0]
         this.$store.dispatch('resetKPI')
+        this.c = 2
       },
       appelcalendar(){
           var data = {
@@ -278,7 +296,6 @@ data () {
       tabvalueoneyear : {
         handler : function () {
           this.items2 = [],
-          console.log("coucou ici " , this.tabvalueoneyear)
           // console.log(this.$store.state.kpi),
           this.tabvalueoneyear.data[0].result[0].forEach(el => {
             console.log(el);
@@ -300,6 +317,14 @@ data () {
         },
         deep : true
       }, 
+      temp : {
+        handler : function (){
+          // if (this.chdate != 0 & this.c%2 != 0){
+            this.reset()
+          // }
+        },
+        deep : true
+      }
     },
 }
 </script>

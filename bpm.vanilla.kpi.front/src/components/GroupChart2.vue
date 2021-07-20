@@ -76,13 +76,33 @@
     watch : {
       tabniveau :{
         handler : function () {
-            this.Titre = this.$store.state.tabniveau.data[0].axis[0].label
+            var children = this.$store.state.childrenid.data
+            var axistemp = this.$store.state.axis.data;
+            var childrenName
+            axistemp.forEach(element => {
+              element.children.forEach(el => {
+                if (el.id== children){
+                  childrenName = el.name
+                }
+              })
+            });
+            this.Titre = this.$store.state.tabniveau.data[0].axis[0].label + " dans " + childrenName
         },
         deep : true
       },
     }, 
     mounted() {
-      this.Titre = this.$store.state.tabniveau.data[0].axis[0].label
+      var children = this.$store.state.childrenid.data
+      var axistemp = this.$store.state.axis.data;
+      var childrenName
+      axistemp.forEach(element => {
+        element.children.forEach(el => {
+          if (el.id == children){
+            childrenName = el.name
+          }
+        })
+      });
+      this.Titre = this.$store.state.tabniveau.data[0].axis[0].label + " dans " + childrenName
     }
   }
 </script>
