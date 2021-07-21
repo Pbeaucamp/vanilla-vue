@@ -279,6 +279,26 @@ export default new Vuex.Store({
       })
     },
 
+    addNewSavedQuery({dispatch},data) {
+      return new Promise( (resolve, reject) => {
+        axios.post(`/query/save`,data,{})
+        .then(response => {
+          if (response.data.status === 'success') {
+            dispatch("addSnackbar", { id: 0,  aff: true, text: "La requête a été sauvegardée.", color: "success"});
+            resolve("Query successfully saved !");
+          }
+        })
+        .catch(error => {
+          if (error.response) {
+            console.log("Error saving query : "+ error.response.data.message);
+          } else {
+            console.log("Error saving query : "+ error);
+          }
+          reject("Error saving query");
+        })
+      })
+    },
+
 
     getTableNewID({state,commit}) {
       var id = state.tables.idCount;
