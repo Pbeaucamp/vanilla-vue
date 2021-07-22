@@ -4,6 +4,7 @@ import axios from 'axios'
 import router from '@/router'
 import config from '../config.json'
 
+
 axios.defaults.baseURL=config.baseURL;
 axios.defaults.headers.common['X-Gravitee-Api-Key'] = "f3510842-ef9b-4ee7-8877-4d59b5d63907";
 //X-Gravitee-Api-Key
@@ -16,6 +17,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    queryResult : [],
     repositories : {
       name : "Référentiels",
       data : [],
@@ -104,6 +106,9 @@ export default new Vuex.Store({
     },
     INC_ID(state) {
       state.tables.idCount++;
+    },
+    SET_QUERYRESULT(state, result) {
+      state.queryResult = result;
     }
 
   },
@@ -296,6 +301,42 @@ export default new Vuex.Store({
           }
           reject("Error saving query");
         })
+      })
+    },
+
+
+    getQueryResult({commit,getters},{metadataName,modelName,packageName, columns,queryLimit,queryDistinct}) {
+      return new Promise( (resolve, reject) => {
+        axios.get(`/query/result`,{ params : { repositoryName : getters.repositoryName, groupName : getters.groupName, metadataName : metadataName, modelName : modelName, packageName : packageName, columns: columns, queryLimit: queryLimit ,queryDistinct : queryDistinct } })
+        .then(response => {
+          if (response.data.status === 'success') {
+            
+            var result = [];
+            var colTable = columns.split(',');
+            var responseTab = response.data.result.substring(1, response.data.result.length-2).split("], ");
+
+            //responseTab[responseTab.length - 1 ] = responseTab[responseTab.length - 1 ].splice(0,-1);
+            
+            responseTab.forEach(el => {
+              var tmp = new Object();
+              var tmptable = el.substring(1).split(", ");
+              for (let i = 0; i < colTable.length; i++) {
+                tmp[colTable[i] ] = tmptable[i];
+              }
+              result.push(tmp);
+            });
+            
+            commit("SET_QUERYRESULT",result);
+            resolve();
+          }
+        }).catch(error => {
+          if (error.response) {
+            console.log("Error getting query result : "+ error.response.data.message);
+          } else {
+            console.log("Error getting query result : "+ error);
+          }
+          reject("Error saving query");
+        });
       })
     },
 

@@ -1,37 +1,37 @@
 <template>
-      <v-col
-        class="d-flex"
-      >
-      <v-layout>
-        <v-select
-          v-model="metadata"
-          :items="this.metadatas.data"
-          label="Metadata"
-          outlined
-          class="mx-2"
-          
-        ></v-select>
-        <v-select
-          :disabled="metadata == '' && !loadModel"
-          v-model="model"
-          :items="this.models.data"
-          label="Business model"
-          outlined
-          :loading="loadModel"
+  <v-col
+    class="d-flex"
+  >
+    <v-layout>
+      <v-select
+        v-model="metadata"
+        :items="this.metadatas.data"
+        label="Metadata"
+        outlined
         class="mx-2"
-        ></v-select>
-        <v-select
-          :disabled="model == ''"
-          v-model="bPackage"
-          :items="this.packages.data"
-          label="Business package"
-          outlined
-          :loading="loadPackages"
-          class="mx-2"
-        ></v-select>
+        
+      ></v-select>
+      <v-select
+        :disabled="metadata == '' && !loadModel"
+        v-model="model"
+        :items="this.models.data"
+        label="Business model"
+        outlined
+        :loading="loadModel"
+      class="mx-2"
+      ></v-select>
+      <v-select
+        :disabled="model == ''"
+        v-model="bPackage"
+        :items="this.packages.data"
+        label="Business package"
+        outlined
+        :loading="loadPackages"
+        class="mx-2"
+      ></v-select>
 
-        </v-layout>
-      </v-col>
+    </v-layout>
+  </v-col>
 
 </template>
 <script>

@@ -86,18 +86,6 @@
             
           </v-treeview>
         </v-card-text>
-        <!--
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn outlined icon  @click="removeColumn" color="primary"> 
-              <v-icon left size="24">mdi-chevron-triple-left</v-icon>
-          </v-btn>   
-          <v-btn outlined icon color="primary" @click="addColumn" class="mr-1">
-              <v-icon left size="24">mdi-chevron-triple-right</v-icon>
-          </v-btn>  
-              
-        </v-card-actions>
-        -->
       </v-card>
       </v-col>
 
@@ -105,18 +93,94 @@
       <v-col cols="8" xs="8" sm="8" md="8" lg="8" xl="8" >
         
         <v-card>
+        
         <v-data-table
+        flat
+        v-if="(queryResult.length > 0) && affResult"          
+        :headers="resultHeaders"
+        :items="queryResult"
+        class="elevation-1"
+        :hide-default-footer="queryResult.length<10"
+        :search="search"
+        :footer-props="{
+            'items-per-page-text':'Résultats par page',
+            'page-text': '{0} à {1} sur {2}'
+        }"
+        no-results-text="Aucun résultat.">
+        <template v-slot:top> 
+          <v-container>
+            <v-row class="ma-2">
+            <h1 class="subheading grey--text">Résultats de la requête</h1>
+            <v-spacer> </v-spacer>
+            <v-btn class="white--text" v-if="affResult" color="primary lighten-1" @click="affResult=false" depressed > 
+            <span class="mr-1"> Requête </span>
+            <v-icon> mdi-database-settings </v-icon>
+            </v-btn>
+            </v-row>
+          </v-container>           
+        </template>
+        </v-data-table>
+
+
+        <v-data-table
+          v-else
+          flat
           :headers="headers"
           :items="selectedColumns"
           class="elevation-1"
           :hide-default-footer="selectedColumns.length<10"
           :search="search"
           :footer-props="{
-              'items-per-page-text':'Utilisateurs par page',
+              'items-per-page-text':'Colonnes par page',
               'page-text': '{0} à {1} sur {2}'
           }"
           no-results-text="Aucun résultat."
         >
+          <template v-slot:top> 
+                             
+          <v-row v-if="!affResult">
+
+            <v-col class="mx-4" md="4" ><h1 class="subheading grey--text">Création de requête</h1></v-col>
+          
+          <v-col><v-spacer></v-spacer></v-col>
+
+          <v-col md="6" class="mt-3">
+            <v-row justify="end">
+              <v-col class="pr-1 mx-1 pt-0 " md="8" xl="3"> 
+                <v-btn class="white--text" v-if="(queryResult.length > 0) && !affResult" color="primary lighten-1" @click="affResult=true" depressed > 
+                <span class="mr-1"> Résultats </span>
+                <v-icon> mdi-clipboard-text-outline </v-icon>
+                </v-btn> 
+
+
+              </v-col>
+
+
+              <v-col class="pr-1 mx-1 pt-0 " md="8" xl="3"> 
+                <v-btn class="white--text" :loading="loadingQueryResult" color="primary darken-1" @click="executeQuery" depressed > 
+                <span class="mr-1"> Exécuter </span>
+                <v-icon> mdi-database-search </v-icon>
+                </v-btn> 
+              </v-col>
+
+              <v-col class="pl-1 ml-1 mx-1 pt-0"  md="8"  xl="4">  
+                <v-btn class="white--text" color="green darken-1" @click="dialogSaveQuery=true" depressed >
+                <span class="mr-1"> Sauvegarder </span>
+                <v-icon> mdi-content-save </v-icon>
+                </v-btn> 
+              </v-col>
+            </v-row>
+          </v-col>
+
+          </v-row>
+
+          <v-row>
+            <v-spacer></v-spacer>
+            <v-col class="ml-1" md="2"> <v-checkbox v-model="queryDistinct" label="Distincte"></v-checkbox>     </v-col>     
+            <v-col class="mr-3" md="2"> <v-text-field v-model="queryLimit" label="Limite" type="number" class="ml-2" > </v-text-field>  </v-col>  
+          </v-row>  
+                              
+          </template>        
         <!--
         <template slot="items" slot-scope="props">
           <tr class="sortableRow" :key="itemKey(props.item)"> 
@@ -129,15 +193,6 @@
           </tr>
         </template>     -->   
         </v-data-table>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn class="white--text" color="green darken-1" @click="dialogSaveQuery=true" depressed >
-          Sauvegarder
-          <v-icon right>
-            mdi-content-save
-          </v-icon>
-        </v-btn>
-        </v-card-actions>  
         </v-card>
       </v-col>
 
@@ -170,7 +225,7 @@
       <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" outlined class="mr-4" @click="reset">
-              Annuler
+            Annuler
           </v-btn>            
           <v-btn :disabled="!valid" :loading="loadingSaveQuery" outlined color="success" class="mr-4" @click="validate">Confirmer</v-btn>
       </v-card-actions>
@@ -187,7 +242,7 @@
 </template>
 
 <script>
-import { mapState, mapActions,mapGetters  } from 'vuex'
+import { mapState, mapActions,mapGetters   } from 'vuex'
 
 import List from '../components/List.vue'
 
@@ -197,11 +252,11 @@ export default {
 
     name: 'Dashboard',
     components: {List},
-    beforeMount() { 
-      this.localTables = this.tables.data;
-      this.localTables = this.localTables.forEach(e => {e.agg ="NONE"; e.pos = 0;})
-    },
     data: () => ({
+      loadingQueryResult : false,
+      affResult : false,
+      queryDistinct : false,
+      queryLimit : 0,
       loadingSaveQuery: false,
       valid: true,
       nameRules: [ v => !!v || 'Le nom est requis',],
@@ -230,7 +285,7 @@ export default {
       tablesLoading : false,
     }),
     computed: {
-      ...mapState(["metadatas","models","packages","tables"]),
+      ...mapState(["metadatas","models","packages","tables","queryResult"]),
       ...mapGetters(["repositoryName","groupName"]),
       filter () {
         return this.caseSensitive
@@ -240,9 +295,38 @@ export default {
       items() {
         var files = [];
         return files;
-      }
+      },
+      resultHeaders() {
+        if (this.queryResult != "") {
+          var headers = [];
+          for (const el of this.selectedColumns) {
+            headers.push( {text: el.name, value: el.name});
+          }
+          return headers;
+        }
+        return [];
+      },
     },
     methods : {
+      ...mapActions(["getTables","getColumns","addNewSavedQuery","getQueryResult"]),     
+      executeQuery() {
+        this.loadingQueryResult = true;
+        var columns = "";
+        for (const el of this.selectedColumns) {
+          columns += el.name+","
+        }
+         var data = {
+          metadataName : this.metadatas.selected ,modelName : this.models.selected ,packageName : this.packages.selected,
+          columns : columns, queryName : this.queryName, queryDescription : this.queryDescription, queryLimit: this.queryLimit ,queryDistinct : this.queryDistinct
+        }
+        this.getQueryResult(data).then( () => {
+          this.loadingQueryResult=false; 
+          this.affResult = true;
+        }).catch( () => {
+          this.loadingQueryResult=false;
+        });
+
+      },
       validate () {
         if (this.$refs.form.validate() && (this.selectedColumns.length > 0) ) {
           this.saveQuery();
@@ -252,7 +336,7 @@ export default {
         this.$refs.form.reset();
         this.dialogSaveQuery = false;
       },           
-      ...mapActions(["getTables","getColumns","addNewSavedQuery"]),
+
       saveQuery() {
         this.loadingSaveQuery = true;
         var columns = "";
@@ -262,7 +346,7 @@ export default {
         columns = columns.slice(0,-1);
         var data = {
            repositoryName : this.repositoryName, groupName : this.groupName, metadataName : this.metadatas.selected ,modelName : this.models.selected ,packageName : this.packages.selected,
-           columns : columns, queryName : this.queryName, queryDescription : this.queryDescription
+           columns : columns, queryName : this.queryName, queryDescription : this.queryDescription, queryLimit: this.queryLimit ,queryDistinct : this.queryDistinct
         }
         //console.log("My saved Query data : " + JSON.stringify(data));
         this.addNewSavedQuery(data).then( () => {this.loadingSaveQuery = false}).catch( () => {this.loadingSaveQuery = false});
@@ -340,6 +424,8 @@ export default {
           for (let i = 0 ; i < this.selectedColumns.length; i++) {
             this.selectedColumns[i].pos = i+1;
           }
+          this.$store.commit('SET_QUERYRESULT', []);
+          console.log("QueryResult : " + this.queryResult);
         },
         deep : true
       }
