@@ -13,7 +13,7 @@ export default new Vuex.Store({
   state: {
     users: {
       name: 'Utilisateurs',
-      data: [{'name' : 'system'}]
+      data: []
     },
     groups: {
       name: 'Groupes',
@@ -231,7 +231,7 @@ export default new Vuex.Store({
       }).catch( () => { reject() })
       })
     },
-
+    
     getTabValueOneYear({commit,getters},{kpiID, date}){
       var parsedate = date.split("-")
       var gooddate = "01-12-"+parsedate[0]
@@ -480,6 +480,14 @@ export default new Vuex.Store({
     },
     getTypechart({commit}, chart){
       commit("FETCH_TYPECHART", chart)
+    },
+    getUser({commit}, user){
+      console.log(user);
+      var vartemp = [{
+        name : user
+      }]
+      console.log(vartemp);
+      commit("FETCH_USERS", vartemp)
     }
   },
 

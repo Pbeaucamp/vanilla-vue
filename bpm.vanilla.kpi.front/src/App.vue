@@ -1,5 +1,7 @@
 <template>
+
   <v-app class="grey lighten-4" >
+
     <div v-if="loaded">
       <Navbar/>
       <v-main class="mx-4 pb-15">
@@ -20,6 +22,7 @@
         </div>
       </v-overlay>
     </div>
+
   </v-app>
 
 
@@ -28,10 +31,12 @@
 <script>
 import Navbar from '@/components/Navbar.vue'
 import Footer from '@/components/Footer.vue'
+import Vue from 'vue'
 
 export default {
   name: 'App',
   components: { Navbar, Footer },
+  props : ['keycloak'],
   data: () => ({
     loaded: false,
     loadingMsg: 'Loading...',
@@ -42,8 +47,12 @@ export default {
   },
   methods : {
     appLoadData(){
-      this.$store.dispatch('getGroups').then(() => {
-          this.loaded = true;
+      var user = Vue.$keycloak.tokenParsed.preferred_username
+      console.log(user);
+      this.$store.dispatch('getUser', user).then(() =>{
+        this.$store.dispatch('getGroups').then(() => {
+            this.loaded = true;
+        })
       })
       .catch(() =>{
         this.loadingMsg = "Impossible d'établir la connexion au serveur, veuillez rafraichir la page ou contacter l'administrateur.";

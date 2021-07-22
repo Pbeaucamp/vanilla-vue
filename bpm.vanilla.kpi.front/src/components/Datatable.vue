@@ -62,7 +62,6 @@
                 <v-col cols="6">
                   <v-card class="ma-5">
                     <group-chart-3/>
-                    <p>Si le graph ne s'affiche pas correctement, cliquez sur un autre graph pour actualiser les données</p>
                   </v-card>
                 </v-col>
               </v-row>
@@ -169,7 +168,6 @@ data () {
       ...mapState(['kpi']),
       ...mapState(['axis']),
       ...mapState(['tabvalueoneyear']),
-      ...mapState(['temp']),
     },
     methods : {
       parseDate(date){
@@ -208,6 +206,21 @@ data () {
           this.$store.dispatch('getOneKPI', data)
         } else {
           this.$store.dispatch('getKPIDate', this.picker)
+        }
+      },
+      loaddatadatecacher(datetemp){
+        if (this.c%2 != 0){ 
+          var data = {
+            kpiID : this.idt,
+            date : datetemp,
+          }
+          this.$store.dispatch('getOneKPI', data).then(() => {
+            this.picker = datetemp
+          })
+        } else {
+          this.$store.dispatch('getKPIDate', datetemp).then(() => {
+            this.picker = datetemp
+          })
         }
       },
       test(id){
@@ -277,7 +290,7 @@ data () {
         this.chdate = 0
         this.picker = new Date().toISOString().split('T')[0]
         this.$store.dispatch('resetKPI')
-        this.c = 2
+        this.c = 0
       },
       appelcalendar(){
           var data = {
@@ -317,14 +330,6 @@ data () {
         },
         deep : true
       }, 
-      temp : {
-        handler : function (){
-          // if (this.chdate != 0 & this.c%2 != 0){
-            this.reset()
-          // }
-        },
-        deep : true
-      }
     },
 }
 </script>

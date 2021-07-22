@@ -44,12 +44,12 @@ export default {
     this.renderChart(this.chartData, {responsive: true, maintainAspectRatio: false, align : "center"})
   },
   watch : {
-    kpi :{
-        handler :function () {
-            this.renderChart( this.chartData,{ responsive: true, maintainAspectRatio: false});
-        },
-        deep: true
-    },
+    // kpi :{
+    //     handler :function () {
+    //         this.renderChart( this.chartData,{ responsive: true, maintainAspectRatio: false});
+    //     },
+    //     deep: true
+    // },
     tabvalueoneyear :{
         handler :function () {
             this.renderChart( this.chartData,{ responsive: true, maintainAspectRatio: false});
