@@ -17,6 +17,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    querySQL : "",
     queryResult : [],
     repositories : {
       name : "Référentiels",
@@ -109,6 +110,9 @@ export default new Vuex.Store({
     },
     SET_QUERYRESULT(state, result) {
       state.queryResult = result;
+    },
+    SET_QUERYSQL(state,sql) {
+      state.querySQL = sql;
     }
 
   },
@@ -223,6 +227,41 @@ export default new Vuex.Store({
       })
     },
 
+    getTablesAndColumns({dispatch,getters,commit}, {metadataName,modelName,packageName}) {
+      return new Promise( (resolve, reject) => {
+        axios.get(`/tables/columns`,{ params : { repositoryName : getters.repositoryName, groupName : getters.groupName, metadataName : metadataName, modelName : modelName, packageName : packageName } })
+        .then(response => {
+          if (response.data.status == "success") {
+            var tables = []
+            response.data.result.forEach(element => {
+     
+              dispatch("getTableNewID").then( id => {
+                var children = [];
+                for (const el of element[Object.keys(element)[0]]) {
+
+                  dispatch("getTableNewID").then( newID => { 
+                    children.push({id: newID,name : el , parent : Object.keys(element)[0]+"", agg : "NONE", pos : 0,  file : "txt" });
+                  });       
+                }
+                tables.push({id: id,name : Object.keys(element)[0], children : children})
+              });
+            });
+            commit("SET_TABLES", tables);
+          }
+          resolve();
+        })
+        .catch( error => {
+          if (error.reponse) {
+            console.log("Unable to retrieve tables message : " + error.response.data.message)
+          } else {
+            console.log("Unable to retrieve tables : " + error);
+          }
+          dispatch("addSnackbar", { id: 0,  aff: true, text: "Erreur lors de la récupération des Tables.", color: "error"});
+          reject(error);
+        })
+      });
+    },
+
 
     getTables({commit,getters,dispatch} , {metadataName,modelName,packageName}) {
       return new Promise( (resolve, reject) => {
@@ -334,6 +373,25 @@ export default new Vuex.Store({
             console.log("Error getting query result : "+ error.response.data.message);
           } else {
             console.log("Error getting query result : "+ error);
+          }
+          reject("Error saving query");
+        });
+      })
+    },
+
+    getQuerySQL({commit,getters},{metadataName,modelName,packageName, columns,queryLimit,queryDistinct}) {
+      return new Promise( (resolve, reject) => {
+        axios.get(`/query/sql`,{ params : { repositoryName : getters.repositoryName, groupName : getters.groupName, metadataName : metadataName, modelName : modelName, packageName : packageName, columns: columns, queryLimit: queryLimit ,queryDistinct : queryDistinct } })
+        .then(response => {
+          if (response.data.status === 'success') {                       
+            commit("SET_QUERYSQL",response.data.result);
+            resolve();
+          }
+        }).catch(error => {
+          if (error.response) {
+            console.log("Error getting query SQL : "+ error.response.data.message);
+          } else {
+            console.log("Error getting query SQL : "+ error);
           }
           reject("Error saving query");
         });

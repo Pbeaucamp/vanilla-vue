@@ -8,7 +8,7 @@
 
     <v-row wrap>
 
-      <v-col cols="4" xs="4" sm="4" md="4" lg="4" xl="4" >
+      <v-col sm="12" md="4" lg="4" xl="4" >
       <v-card
         class="mx-auto"
         max-width="500"
@@ -37,7 +37,7 @@
           <v-treeview
             v-model="selectedColumns"
             :items="localTables"
-            item-key="name"
+            item-key="id"
             return-object
             :search="search"
             :filter="filter"
@@ -90,7 +90,7 @@
       </v-col>
 
 
-      <v-col cols="8" xs="8" sm="8" md="8" lg="8" xl="8" >
+      <v-col  sm="12" md="8" lg="8" xl="8" >
         
         <v-card>
         
@@ -137,33 +137,34 @@
           no-results-text="Aucun résultat."
         >
           <template v-slot:top> 
-                             
+
+          <v-container>                   
           <v-row v-if="!affResult">
 
-            <v-col class="mx-4" md="4" ><h1 class="subheading grey--text">Création de requête</h1></v-col>
+          <v-col class="mx-4" md="5"
+          ><h1 class="subheading grey--text">Création de requête</h1></v-col>
           
-          <v-col><v-spacer></v-spacer></v-col>
+          <v-spacer></v-spacer>
 
-          <v-col md="6" class="mt-3">
+
+          <v-col md="6" class="mt-3 text-right" >
             <v-row justify="end">
-              <v-col class="pr-1 mx-1 pt-0 " md="8" xl="3"> 
+              <v-col class="pr-1 mx-1 pt-0 " md="12" xl="3"> 
                 <v-btn class="white--text" v-if="(queryResult.length > 0) && !affResult" color="primary lighten-1" @click="affResult=true" depressed > 
                 <span class="mr-1"> Résultats </span>
                 <v-icon> mdi-clipboard-text-outline </v-icon>
                 </v-btn> 
-
-
               </v-col>
+              
 
-
-              <v-col class="pr-1 mx-1 pt-0 " md="8" xl="3"> 
+              <v-col class="pr-1 mx-1 pt-0 " md="12" xl="3"> 
                 <v-btn class="white--text" :loading="loadingQueryResult" color="primary darken-1" @click="executeQuery" depressed > 
                 <span class="mr-1"> Exécuter </span>
                 <v-icon> mdi-database-search </v-icon>
                 </v-btn> 
               </v-col>
 
-              <v-col class="pl-1 ml-1 mx-1 pt-0"  md="8"  xl="4">  
+              <v-col class="pl-1 ml-1 mx-0 pt-0 "  md="12"  xl="4">  
                 <v-btn class="white--text" color="green darken-1" @click="dialogSaveQuery=true" depressed >
                 <span class="mr-1"> Sauvegarder </span>
                 <v-icon> mdi-content-save </v-icon>
@@ -172,13 +173,30 @@
             </v-row>
           </v-col>
 
-          </v-row>
+          <v-row class="">
+            <v-col class="mx-5"> 
+              <v-btn class="white--text px-2" color="orange lighten-1" @click="selectedColumns=[]" depressed > 
+              <span class="mr-1">Réinitialiser</span>
+              <v-icon> mdi-close-box-multiple-outline </v-icon>
+              </v-btn> 
+            </v-col>         
+            <v-col> 
+              <v-btn class="white--text px-2" color="green lighten-1" @click="getSQL" :loading="loadSQL" depressed > 
+              <span class="mr-1">SQL</span>
+              <v-icon> mdi-file-document-multiple-outline </v-icon>
+              </v-btn> 
+            </v-col>                 
+              
+            <v-col md=""><v-spacer></v-spacer></v-col>
+            <v-col md=""><v-spacer></v-spacer></v-col>
+            
+            <v-col class="ml-1" > <v-checkbox v-model="queryDistinct" label="Distincte"></v-checkbox>     </v-col>     
+            <v-col class="mr-3" > <v-text-field v-model="queryLimit" label="Limite" type="number" class="ml-2" > </v-text-field>  </v-col>  
+          </v-row>            
 
-          <v-row>
-            <v-spacer></v-spacer>
-            <v-col class="ml-1" md="2"> <v-checkbox v-model="queryDistinct" label="Distincte"></v-checkbox>     </v-col>     
-            <v-col class="mr-3" md="2"> <v-text-field v-model="queryLimit" label="Limite" type="number" class="ml-2" > </v-text-field>  </v-col>  
-          </v-row>  
+          </v-row>
+          </v-container>
+
                               
           </template>        
         <!--
@@ -236,6 +254,24 @@
     </v-dialog>
     </v-row> 
 
+    <v-row justify="center">
+    <v-dialog v-model="affSQL" persistent max-width="600px">    
+      <v-card>
+      <v-card-title>
+          <h2 class="subheading grey--text">Requête SQL :</h2>
+      </v-card-title>
+      <v-card-text>
+        {{querySQL}}
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="primary darken-1" outlined class="mr-4" @click="affSQL=false"> Fermer </v-btn>            
+      </v-card-actions>
+      </v-card>
+    </v-dialog>
+    </v-row>     
+
+
     </v-container> 
 
   </div>
@@ -253,6 +289,8 @@ export default {
     name: 'Dashboard',
     components: {List},
     data: () => ({
+      affSQL : false,
+      loadSQL : false,
       loadingQueryResult : false,
       affResult : false,
       queryDistinct : false,
@@ -285,7 +323,7 @@ export default {
       tablesLoading : false,
     }),
     computed: {
-      ...mapState(["metadatas","models","packages","tables","queryResult"]),
+      ...mapState(["metadatas","models","packages","tables","queryResult","querySQL"]),
       ...mapGetters(["repositoryName","groupName"]),
       filter () {
         return this.caseSensitive
@@ -298,9 +336,10 @@ export default {
       },
       resultHeaders() {
         if (this.queryResult != "") {
+          //console.log("Query Result : " + JSON.stringify(this.queryResult));
           var headers = [];
           for (const el of this.selectedColumns) {
-            headers.push( {text: el.name, value: el.name});
+            headers.push( {text: el.name, value: el.parent+":"+el.name});
           }
           return headers;
         }
@@ -308,12 +347,29 @@ export default {
       },
     },
     methods : {
-      ...mapActions(["getTables","getColumns","addNewSavedQuery","getQueryResult"]),     
+      ...mapActions(["getTables","getColumns","addNewSavedQuery","getQueryResult","getTablesAndColumns","getQuerySQL"]),
+      getSQL() {
+        this.loadSQL = true; 
+        var columns = "";
+        for (const el of this.selectedColumns) {
+          columns += el.parent+":"+el.name+","
+        }
+         var data = {
+          metadataName : this.metadatas.selected ,modelName : this.models.selected ,packageName : this.packages.selected,
+          columns : columns, queryName : this.queryName, queryDescription : this.queryDescription, queryLimit: this.queryLimit ,queryDistinct : this.queryDistinct
+        }        
+        this.getQuerySQL(data).then( () => {
+          this.loadSQL=false; 
+          this.affSQL = true;
+        }).catch( () => {
+          this.loadSQL=false;
+        });
+      },
       executeQuery() {
         this.loadingQueryResult = true;
         var columns = "";
         for (const el of this.selectedColumns) {
-          columns += el.name+","
+          columns += el.parent+":"+el.name+","
         }
          var data = {
           metadataName : this.metadatas.selected ,modelName : this.models.selected ,packageName : this.packages.selected,
@@ -341,7 +397,7 @@ export default {
         this.loadingSaveQuery = true;
         var columns = "";
         for (const el of this.selectedColumns) {
-          columns += el.name+","
+          columns += el.parent+":"+el.name+","
         }
         columns = columns.slice(0,-1);
         var data = {
@@ -393,6 +449,8 @@ export default {
         handler : function () {
           if (this.packages.selected != "") {
             this.tablesLoading = true;
+
+            /*
             this.getTables( {metadataName : this.metadatas.selected ,modelName : this.models.selected ,packageName : this.packages.selected})
             .then( () => {
               var promiseArray = [];
@@ -412,9 +470,20 @@ export default {
               })
               
             }) 
+            */
+
+            this.getTablesAndColumns({metadataName : this.metadatas.selected ,modelName : this.models.selected ,packageName : this.packages.selected})
+            .then( () => {
+              this.tablesLoaded = true;
+              this.tablesLoading = false;
+              this.localTables = this.tables.data;
+            })
+
           } else {
             this.tablesLoaded = false;
           }
+
+
 
         },
         deep: true        
@@ -425,7 +494,7 @@ export default {
             this.selectedColumns[i].pos = i+1;
           }
           this.$store.commit('SET_QUERYRESULT', []);
-          console.log("QueryResult : " + this.queryResult);
+          this.affResult = false;
         },
         deep : true
       }
