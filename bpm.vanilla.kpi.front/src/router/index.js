@@ -36,7 +36,7 @@ router.beforeEach((to, from, next) => {
     if (!Vue.$keycloak.authenticated) {
       // The page is protected and the user is not authenticated. Force a login.
       Vue.$keycloak.login({ redirectUri: basePath.slice(0, -1) + to.path })
-    } else if (Vue.$keycloak.hasResourceRole('system')) {
+    } else if (Vue.$keycloak.hasResourceRole('acces-kpi')) {
       // The user was authenticated, and has the app role (is authorized). Update the token.
       Vue.$keycloak.updateToken(70)
         .then(() => {
