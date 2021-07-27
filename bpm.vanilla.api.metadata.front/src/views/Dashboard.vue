@@ -8,7 +8,7 @@
 
     <v-row wrap>
 
-      <v-col sm="12" md="4" lg="4" xl="4" >
+      <v-col cols="12" sm="12" md="4" lg="4" xl="4" >
       <v-card
         class="mx-auto"
         max-width="500"
@@ -90,7 +90,7 @@
       </v-col>
 
 
-      <v-col  sm="12" md="8" lg="8" xl="8" >
+      <v-col cols="12" sm="12" md="8" lg="8" xl="8" >
         
         <v-card>
         
@@ -141,15 +141,14 @@
           <v-container>                   
           <v-row v-if="!affResult">
 
-          <v-col class="mx-4" md="5"
-          ><h1 class="subheading grey--text">Création de requête</h1></v-col>
+          <v-col class="mx-4" md="2" xl="5" ><h1 class="subheading grey--text">Création de requête</h1></v-col>
           
           <v-spacer></v-spacer>
 
 
-          <v-col md="6" class="mt-3 text-right" >
+          <v-col md="9" xl="6" class="mt-3 text-right" >
             <v-row justify="end">
-              <v-col class="pr-1 mx-1 pt-0 " md="12" xl="3"> 
+              <v-col class="pr-1 mx-1 pt-0 " md="3" xl="3"> 
                 <v-btn class="white--text" v-if="(queryResult.length > 0) && !affResult" color="primary lighten-1" @click="affResult=true" depressed > 
                 <span class="mr-1"> Résultats </span>
                 <v-icon> mdi-clipboard-text-outline </v-icon>
@@ -157,23 +156,47 @@
               </v-col>
               
 
-              <v-col class="pr-1 mx-1 pt-0 " md="12" xl="3"> 
+              <v-col class="pr-1 mx-1 pt-0 " md="3" xl="3"> 
                 <v-btn class="white--text" :loading="loadingQueryResult" color="primary darken-1" @click="executeQuery" depressed > 
                 <span class="mr-1"> Exécuter </span>
                 <v-icon> mdi-database-search </v-icon>
                 </v-btn> 
               </v-col>
 
-              <v-col class="pl-1 ml-1 mx-0 pt-0 "  md="12"  xl="4">  
+              <v-col class="pl-1 ml-1 mx-0 pt-0 "  md="4"  xl="4">  
                 <v-btn class="white--text" color="green darken-1" @click="dialogSaveQuery=true" depressed >
                 <span class="mr-1"> Sauvegarder </span>
                 <v-icon> mdi-content-save </v-icon>
                 </v-btn> 
               </v-col>
+        
+              <v-col class="pl-1 ml-1 mx-0 pt-0" md="" xl="2"> 
+                <v-btn class="white--text px-2" color="green lighten-1" @click="getSQL" :loading="loadSQL" depressed > 
+                <span class="mr-1">SQL</span>
+                <v-icon> mdi-file-document-multiple-outline </v-icon>
+                </v-btn> 
+              </v-col>                   
+
+
+              <v-col class="pl-0 ml-1 mx-0 pt-0" md="4" xl="3"> 
+                <v-btn class="white--text px-2" color="orange lighten-1" @click="selectedColumns=[]" depressed > 
+                <span class="mr-1">Réinitialiser</span>
+                <v-icon> mdi-close-box-multiple-outline </v-icon>
+                </v-btn> 
+              </v-col> 
+
+              <v-col class="pl-1 ml-1 mx-0 pt-0 "  md="4"  xl="3"> 
+                <v-btn class="white--text px-2" color="green darken-1" @click="getSaved" :loading="loadSaved" depressed > 
+                <span class="mr-1">Charger</span>
+                <v-icon> mdi-cloud-download-outline </v-icon>
+                </v-btn> 
+              </v-col>
+
             </v-row>
           </v-col>
 
           <v-row class="">
+            <!--
             <v-col class="mx-5"> 
               <v-btn class="white--text px-2" color="orange lighten-1" @click="selectedColumns=[]" depressed > 
               <span class="mr-1">Réinitialiser</span>
@@ -185,7 +208,8 @@
               <span class="mr-1">SQL</span>
               <v-icon> mdi-file-document-multiple-outline </v-icon>
               </v-btn> 
-            </v-col>                 
+            </v-col>      
+            -->
               
             <v-col md=""><v-spacer></v-spacer></v-col>
             <v-col md=""><v-spacer></v-spacer></v-col>
@@ -271,6 +295,24 @@
     </v-dialog>
     </v-row>     
 
+    <v-row justify="center">
+    <v-dialog v-model="affSaved" persistent max-width="600px">    
+      <v-card>
+      <v-card-title>
+          <h2 class="subheading grey--text">Requêtes sauvegardées :</h2>
+      </v-card-title>
+      <v-card-text>
+      <v-select v-model="selectedSavedQuery" :items="savedQueries" label="Choisir une requête"  outlined class="mx-2"></v-select>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="green darken-1" outlined class="mr-4" @click="affSaved=false"> Charger </v-btn>   
+        <v-btn color="primary darken-1" outlined class="mr-4" @click="affSaved=false"> Fermer </v-btn>            
+      </v-card-actions>
+      </v-card>
+    </v-dialog>
+    </v-row>       
+
 
     </v-container> 
 
@@ -289,6 +331,9 @@ export default {
     name: 'Dashboard',
     components: {List},
     data: () => ({
+      selectedSavedQuery : "",
+      affSaved : false,
+      loadSaved : false,
       affSQL : false,
       loadSQL : false,
       loadingQueryResult : false,
@@ -323,7 +368,7 @@ export default {
       tablesLoading : false,
     }),
     computed: {
-      ...mapState(["metadatas","models","packages","tables","queryResult","querySQL"]),
+      ...mapState(["metadatas","models","packages","tables","queryResult","querySQL","savedQueries"]),
       ...mapGetters(["repositoryName","groupName"]),
       filter () {
         return this.caseSensitive
@@ -347,7 +392,11 @@ export default {
       },
     },
     methods : {
-      ...mapActions(["getTables","getColumns","addNewSavedQuery","getQueryResult","getTablesAndColumns","getQuerySQL"]),
+      ...mapActions(["getTables","getColumns","addNewSavedQuery","getQueryResult","getTablesAndColumns","getQuerySQL","getSavedQueries"]),
+      getSaved() {
+        this.loadSaved= true;
+        this.getSavedQueries({metadataName : this.metadatas.selected ,modelName : this.models.selected ,packageName : this.packages.selected}).then(() => { this.loadSaved= false; this.affSaved = true; }).catch( () => { this.loadSaved= false;});
+      },
       getSQL() {
         this.loadSQL = true; 
         var columns = "";
@@ -497,6 +546,12 @@ export default {
           this.affResult = false;
         },
         deep : true
+      },
+      queryDistinct : {
+        handler : function () {
+          this.$store.commit('SET_QUERYRESULT', []);
+          this.affResult = false;
+        }
       }
 
     }

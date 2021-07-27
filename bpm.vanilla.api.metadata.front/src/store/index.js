@@ -17,6 +17,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    savedQueries : [],
     querySQL : "",
     queryResult : [],
     repositories : {
@@ -113,6 +114,9 @@ export default new Vuex.Store({
     },
     SET_QUERYSQL(state,sql) {
       state.querySQL = sql;
+    },
+    SET_SAVEDQUERIES(state,queries) {
+      state.savedQueries = queries;
     }
 
   },
@@ -392,6 +396,25 @@ export default new Vuex.Store({
             console.log("Error getting query SQL : "+ error.response.data.message);
           } else {
             console.log("Error getting query SQL : "+ error);
+          }
+          reject("Error saving query");
+        });
+      })
+    },
+
+    getSavedQueries({commit,getters}, {metadataName,modelName,packageName}) {
+      return new Promise( (resolve, reject) => {
+        axios.get(`/query/saved`,{ params : { repositoryName : getters.repositoryName, groupName : getters.groupName, metadataName : metadataName, modelName : modelName, packageName : packageName} })
+        .then(response => {
+          if (response.data.status === 'success') {                       
+            commit("SET_SAVEDQUERIES",response.data.result);
+            resolve();
+          }
+        }).catch(error => {
+          if (error.response) {
+            console.log("Error getting saved queries : "+ error.response.data.message);
+          } else {
+            console.log("Error getting saved queries : "+ error);
           }
           reject("Error saving query");
         });
