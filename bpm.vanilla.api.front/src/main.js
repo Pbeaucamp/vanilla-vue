@@ -4,9 +4,13 @@ import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify'
 
+import keycloak from "@/plugins/keycloak"
+
 
 Vue.config.productionTip = false
+Vue.use(keycloak)
 
+/*
 new Vue({
   router,
   store,
@@ -14,5 +18,15 @@ new Vue({
   render: h => h(App)
 }).$mount('#app')
 
-
+*/
  
+Vue.$keycloak
+  .init({ onLoad: 'login-required', checkLoginIframe: false })
+  .then(() => {
+    new Vue({
+      router,
+      store,
+      vuetify,
+      render: h => h(App)
+    }).$mount('#app')
+  })
