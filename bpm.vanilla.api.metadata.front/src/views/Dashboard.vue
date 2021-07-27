@@ -141,14 +141,14 @@
           <v-container>                   
           <v-row v-if="!affResult">
 
-          <v-col class="mx-4" md="2" xl="5" ><h1 class="subheading grey--text">Création de requête</h1></v-col>
+          <v-col class="mx-4" cols="12" sm="12" md="12" xl="5" ><h1 class="subheading grey--text">Création de requête</h1></v-col>
           
           <v-spacer></v-spacer>
 
 
-          <v-col md="9" xl="6" class="mt-3 text-right" >
+          <v-col cols="12" sm="12" md="12" xl="6" class="mt-3 text-right" >
             <v-row justify="end">
-              <v-col class="pr-1 mx-1 pt-0 " md="3" xl="3"> 
+              <v-col class="pr-1 mx-1 pt-0 " sm="3" md="3" xl="3"> 
                 <v-btn class="white--text" v-if="(queryResult.length > 0) && !affResult" color="primary lighten-1" @click="affResult=true" depressed > 
                 <span class="mr-1"> Résultats </span>
                 <v-icon> mdi-clipboard-text-outline </v-icon>
@@ -156,21 +156,21 @@
               </v-col>
               
 
-              <v-col class="pr-1 mx-1 pt-0 " md="3" xl="3"> 
+              <v-col class="pr-1 mx-1 pt-0 " sm="3" md="3" xl="3"> 
                 <v-btn class="white--text" :loading="loadingQueryResult" color="primary darken-1" @click="executeQuery" depressed > 
                 <span class="mr-1"> Exécuter </span>
                 <v-icon> mdi-database-search </v-icon>
                 </v-btn> 
               </v-col>
 
-              <v-col class="pl-1 ml-1 mx-0 pt-0 "  md="4"  xl="4">  
+              <v-col class="pl-1 ml-1 mx-0 pt-0 " sm="4" md="4"  xl="4">  
                 <v-btn class="white--text" color="green darken-1" @click="dialogSaveQuery=true" depressed >
                 <span class="mr-1"> Sauvegarder </span>
                 <v-icon> mdi-content-save </v-icon>
                 </v-btn> 
               </v-col>
         
-              <v-col class="pl-1 ml-1 mx-0 pt-0" md="" xl="2"> 
+              <v-col class="pl-1 ml-1 mx-0 pt-0" sm="3" md="2" xl="2"> 
                 <v-btn class="white--text px-2" color="green lighten-1" @click="getSQL" :loading="loadSQL" depressed > 
                 <span class="mr-1">SQL</span>
                 <v-icon> mdi-file-document-multiple-outline </v-icon>

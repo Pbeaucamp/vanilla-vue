@@ -81,7 +81,7 @@
 import Navbar from '@/components/Navbar.vue'
 import Footer from '@/components/Footer.vue'
 import { mapState } from 'vuex';
-
+import Vue from 'vue'
 
 export default {
   name: 'App',
@@ -99,7 +99,9 @@ export default {
 
   beforeMount() {
     //this.appLoadData();
-    this.$store.dispatch('getGroups');
+    //this.$store.dispatch('getGroups');
+    //console.log("Token parsed :" + JSON.stringify(Vue.$keycloak.tokenParsed));
+    this.$store.dispatch('getUserGroups',{userLogin : Vue.$keycloak.tokenParsed.preferred_username});
     //console.log("weird condition  !loaded && !(groups.selected == '') : " + (!this.loaded && !(this.groups.selected == '') ));
     //console.log("weird condition  !(groups.selected == '') : " + (this.groups.selected == '') );
   }, 

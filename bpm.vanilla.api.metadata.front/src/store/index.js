@@ -167,6 +167,29 @@ export default new Vuex.Store({
       });
     },
 
+    getUserGroups({commit},{userLogin}) {
+      return new Promise( (resolve, reject) => {
+        axios.get(`/user/${userLogin}/groups`)
+        .then(response => {
+          if (response.data.status == "success") {
+            var groups = [];
+            response.data.result.forEach(el => groups.push(el.name));
+            commit("SET_GROUPS", groups);
+          }
+          resolve();
+        })
+        .catch( error => {
+          if (error.reponse) {
+            console.log("Unable to retrieve groups message : " + error.response.data.message)
+          } else {
+            console.log("Unable to retrieve groups : " + error);
+          }
+          reject(error);
+        })
+
+      });
+    },
+
 
     getMetadata({commit,getters,dispatch}) {
       return new Promise( (resolve, reject) => {
