@@ -171,7 +171,7 @@
               </v-col>
         
               <v-col class="pl-1 ml-1 mx-0 pt-0" sm="3" md="2" xl="2"> 
-                <v-btn class="white--text px-2" color="green lighten-1" @click="getSQL" :loading="loadSQL" depressed > 
+                <v-btn class="white--text px-2" :disabled="(selectedColumns.length==0)" color="green lighten-1" @click="getSQL" :loading="loadSQL" depressed > 
                 <span class="mr-1">SQL</span>
                 <v-icon> mdi-file-document-multiple-outline </v-icon>
                 </v-btn> 
@@ -186,7 +186,7 @@
               </v-col> 
 
               <v-col class="pl-1 ml-1 mx-0 pt-0 "  md="4"  xl="3"> 
-                <v-btn class="white--text px-2" color="green darken-1" @click="getSaved" :loading="loadSaved" depressed > 
+                <v-btn class="white--text px-2" :disabled="(packages.selected=='')" color="green darken-1" @click="getSaved" :loading="loadSaved" depressed > 
                 <span class="mr-1">Charger</span>
                 <v-icon> mdi-cloud-download-outline </v-icon>
                 </v-btn> 
@@ -306,8 +306,9 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="green darken-1" outlined class="mr-4" @click="affSaved=false"> Charger </v-btn>   
-        <v-btn color="primary darken-1" outlined class="mr-4" @click="affSaved=false"> Fermer </v-btn>            
+        <v-btn color="primary darken-1" outlined class="mr-4" @click="affSaved=false"> Fermer </v-btn>             
+        <v-btn color="green darken-1" outlined class="mr-4" :loading="loadImportQuery" @click="getSavedQuery"> Importer </v-btn>   
+       
       </v-card-actions>
       </v-card>
     </v-dialog>
@@ -331,6 +332,7 @@ export default {
     name: 'Dashboard',
     components: {List},
     data: () => ({
+      loadImportQuery : false,
       selectedSavedQuery : "",
       affSaved : false,
       loadSaved : false,
@@ -368,7 +370,7 @@ export default {
       tablesLoading : false,
     }),
     computed: {
-      ...mapState(["metadatas","models","packages","tables","queryResult","querySQL","savedQueries"]),
+      ...mapState(["metadatas","models","packages","tables","queryResult","querySQL","savedQueries","loadedSavedQuery"]),
       ...mapGetters(["repositoryName","groupName"]),
       filter () {
         return this.caseSensitive
@@ -392,7 +394,37 @@ export default {
       },
     },
     methods : {
-      ...mapActions(["getTables","getColumns","addNewSavedQuery","getQueryResult","getTablesAndColumns","getQuerySQL","getSavedQueries"]),
+      ...mapActions(["getTables","getColumns","addNewSavedQuery","getQueryResult","getTablesAndColumns","getQuerySQL","getSavedQueries","getSavedQueryData"]),
+      getSavedQuery() {
+        this.loadImportQuery = true;
+        this.getSavedQueryData({metadataName : this.metadatas.selected ,modelName : this.models.selected ,packageName : this.packages.selected, queryName: this.selectedSavedQuery })
+        .then(() => { 
+          this.loadImportQuery = false;
+          this.selectedColumns = []
+          this.affSaved = false;
+          this.queryDistinct = this.loadedSavedQuery.queryDistinct;
+          this.queryLimit = this.loadedSavedQuery.queryLimit;
+          for (const el of this.loadedSavedQuery.columns) {
+            var tmpTab = el.split(":");
+            var table = this.localTables.find(table => table.name == tmpTab[0]); 
+            //console.log("tmpTab : " + tmpTab);
+            //console.log(" tmpTab[0] : " +  tmpTab[0] + " | tmpTab[1] : " + tmpTab[1]);
+            //console.log("table : " + JSON.stringify(table));
+            //console.log("table children " + JSON.stringify(table.children));
+            this.selectedColumns.push( table.children.find(col => col.name == tmpTab[1] ) );
+            //console.log("psuhed children : " + JSON.stringify(table.children.find(col => col.name == tmpTab[1] )));
+            /*
+            this.selectedColumns.push (
+
+              this.localTables.find(table => {
+                table.name == tmpTab[0] && table.children.find(col => {col.name == tmpTab[1]})
+              })
+            );
+            */
+          }
+          
+        }).catch(() => {this.loadImportQuery = false;this.affSaved = false;});
+      },
       getSaved() {
         this.loadSaved= true;
         this.getSavedQueries({metadataName : this.metadatas.selected ,modelName : this.models.selected ,packageName : this.packages.selected}).then(() => { this.loadSaved= false; this.affSaved = true; }).catch( () => { this.loadSaved= false;});

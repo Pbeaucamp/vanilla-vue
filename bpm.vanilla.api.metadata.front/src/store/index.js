@@ -17,6 +17,11 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    loadedSavedQuery : {
+      queryDistinct : false,
+      queryLimit : 0,
+      columns : [] 
+    },
     savedQueries : [],
     querySQL : "",
     queryResult : [],
@@ -117,6 +122,9 @@ export default new Vuex.Store({
     },
     SET_SAVEDQUERIES(state,queries) {
       state.savedQueries = queries;
+    },
+    SET_LOADEDSAVEDQUERY(state,query) {
+      state.loadedSavedQuery = query;
     }
 
   },
@@ -179,8 +187,8 @@ export default new Vuex.Store({
           resolve();
         })
         .catch( error => {
-          if (error.reponse) {
-            console.log("Unable to retrieve groups message : " + error.response.data.message)
+          if (error.response.data.message && error.response.data.message.includes("User not found.") ) {
+            reject("User not found.");
           } else {
             console.log("Unable to retrieve groups : " + error);
           }
@@ -189,7 +197,6 @@ export default new Vuex.Store({
 
       });
     },
-
 
     getMetadata({commit,getters,dispatch}) {
       return new Promise( (resolve, reject) => {
@@ -427,7 +434,7 @@ export default new Vuex.Store({
 
     getSavedQueries({commit,getters}, {metadataName,modelName,packageName}) {
       return new Promise( (resolve, reject) => {
-        axios.get(`/query/saved`,{ params : { repositoryName : getters.repositoryName, groupName : getters.groupName, metadataName : metadataName, modelName : modelName, packageName : packageName} })
+        axios.get(`/queries/saved`,{ params : { repositoryName : getters.repositoryName, groupName : getters.groupName, metadataName : metadataName, modelName : modelName, packageName : packageName} })
         .then(response => {
           if (response.data.status === 'success') {                       
             commit("SET_SAVEDQUERIES",response.data.result);
@@ -442,6 +449,25 @@ export default new Vuex.Store({
           reject("Error saving query");
         });
       })
+    },
+
+    getSavedQueryData({commit,getters} , {metadataName,modelName,packageName,queryName}) {
+      return new Promise( (resolve, reject) => {
+        axios.get(`/query/saved`,{ params : { repositoryName : getters.repositoryName, groupName : getters.groupName, metadataName : metadataName, modelName : modelName, packageName : packageName, queryName : queryName} })
+        .then(response => {
+          if (response.data.status === 'success') {                       
+            commit("SET_LOADEDSAVEDQUERY",response.data.result);
+            resolve();
+          }
+        }).catch(error => {
+          if (error.response) {
+            console.log("Error getting saved query data : "+ error.response.data.message);
+          } else {
+            console.log("Error getting saved query data : "+ error);
+          }
+          reject("Error saving query");
+        });
+      })      
     },
 
 
