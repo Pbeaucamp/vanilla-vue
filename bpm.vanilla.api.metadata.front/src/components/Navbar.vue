@@ -21,6 +21,7 @@
             <img src="@/assets/icon_vanilla.png"> 
           </v-avatar>
         </v-flex>
+        <h3 class="white--text">{{userName}}</h3>
       </v-layout>
 
       <v-list>
@@ -33,6 +34,21 @@
           </v-list-item-content>
         </v-list-item>  
       </v-list>
+
+      <template v-slot:append>
+
+        <v-list>
+          <v-list-item @click="logout">  
+            <v-list-item-action>
+              <v-icon class="white--text">mdi-logout-variant</v-icon>
+            </v-list-item-action>  
+            <v-list-item-content>
+              <v-list-item-title class="white--text">Déconnexion</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>  
+        </v-list>       
+      </template>       
+
     </v-navigation-drawer>
 
   </nav>
@@ -41,6 +57,7 @@
 
 
 <script>
+import Vue from 'vue'
 export default {
   name: 'Navbar',
   data() {
@@ -51,7 +68,18 @@ export default {
 
       ]
     }
+  },
+  computed: {
+    userName(){
+      return Vue.$keycloak.tokenParsed.preferred_username
+    }
+  },
+  methods : {
+    logout() {
+      Vue.$keycloak.logout({ redirectUri: window.location.origin });
+    }
   }
+
 }
 </script>
 

@@ -17,6 +17,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    userLogin : "",
     loadedSavedQuery : {
       queryDistinct : false,
       queryLimit : 0,
@@ -184,7 +185,7 @@ export default new Vuex.Store({
             response.data.result.forEach(el => groups.push(el.name));
             commit("SET_GROUPS", groups);
           }
-          resolve();
+          resolve(response.data.result);
         })
         .catch( error => {
           if (error.response.data.message && error.response.data.message.includes("User not found.") ) {
@@ -470,12 +471,83 @@ export default new Vuex.Store({
       })      
     },
 
+    addUserToGroup({state},{userLogin,groupName}) {
+
+      var data ={
+        userLogin: userLogin,
+        groupName : groupName
+      };   
+
+
+      return new Promise( (resolve,reject) => {
+        axios.post(`/user/group/add`,data,{})
+        .then(response => {
+          if (response.data.status === 'success') {            
+            resolve (`L'utilisateur ${userLogin} a été ajouté au groupe ${groupName}.`);
+          }
+          state.groups.data.push(groupName);      
+        })
+        .catch( error => {
+          if (error.response) {
+            console.log(`Error adding user ${userLogin} to ${groupName}  : `+ error.response.data.message)
+          }                 
+          reject(`Erreur lors de l'ajout de ${userLogin} à ${groupName}.`);        
+        })
+      });
+    },
+
+    removeUserFromGroup({state},{userLogin,groupName}) {
+      var data ={
+          userLogin: userLogin,
+          groupName : groupName
+      };   
+      
+      return new Promise( (resolve,reject) => {
+        axios.post(`/user/group/remove`,data,{})
+        .then(response => {
+          if (state.groups.data.indexOf(groupName) != -1) {
+            state.groups.data.splice(state.groups.data.indexOf(groupName),1)
+          }
+          if (response.data.status === 'success') {
+            resolve (`L'utilisateur ${userLogin} a été retiré du groupe ${groupName}.`);
+
+          }
+             
+        })
+        .catch( error => {
+          if (error.response) {
+            console.log(`Erreur lors du retrait de l'utilisateur ${userLogin} du groupe ${groupName}  : ` + error.response.data.message);
+          }               
+          reject(`Erreur lors du retrait de l'utilisateur ${userLogin} du groupe ${groupName}.`);        
+        })
+      });
+    },       
+
+    addUser({state},data) {
+      return new Promise( (resolve,reject) => {
+        state.userLogin = data.login;
+        axios.post("/user/create",data,{})
+        .then(response => {
+          if (response.data.status === 'success') {
+            resolve(`L'utilisateur ${data.login} a été crée.`);
+          }
+        })
+        .catch( error => {
+          if (error.response) {
+            console.log(`Error adding user ${data.login} : ${error.response.data.message}`);
+          } else {
+            console.log(`Error adding user ${data.login} : ${error}`);
+          }
+          reject(`Erreur lors de la création de l'utilisateur ${data.login}.`);
+        })
+      })
+    },
 
     getTableNewID({state,commit}) {
       var id = state.tables.idCount;
       commit("INC_ID");
       return new Promise( (resolve)=> { resolve(id)});
-    }
+    },
 
 
 

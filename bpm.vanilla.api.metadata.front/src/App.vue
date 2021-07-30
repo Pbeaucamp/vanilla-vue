@@ -101,7 +101,10 @@ export default {
     //this.appLoadData();
     //this.$store.dispatch('getGroups');
     //console.log("Token parsed :" + JSON.stringify(Vue.$keycloak.tokenParsed));
-    this.$store.dispatch('getUserGroups',{userLogin : Vue.$keycloak.tokenParsed.preferred_username});
+    this.manageKeycloakUser().then( () => {
+      this.$store.dispatch('getUserGroups',{userLogin : Vue.$keycloak.tokenParsed.preferred_username});
+    })
+
     //console.log("weird condition  !loaded && !(groups.selected == '') : " + (!this.loaded && !(this.groups.selected == '') ));
     //console.log("weird condition  !(groups.selected == '') : " + (this.groups.selected == '') );
   }, 
@@ -126,6 +129,61 @@ export default {
         console.log("error getting metadatas : " + error);
       })
     },
+
+    manageKeycloakUser() {
+      //console.log("Token parsed " + JSON.stringify(Vue.$keycloak.tokenParsed));
+      var userLogin = Vue.$keycloak.tokenParsed.preferred_username;
+      var keycloakGroups = Vue.$keycloak.tokenParsed.groups;
+      
+      return new Promise( (resolve) => {
+      this.$store.dispatch('getUserGroups',{userLogin : userLogin})     
+      .then( response => {
+        // L'utilisateur existe dans Vanilla, on vérifie la cohérence des groupes
+
+        var userGroups =  response;
+        var promiseArray = [];
+        //console.log("User exist, user groups  : " + JSON.stringify(userGroups));
+        for (const groupName of keycloakGroups) {
+          var searchedGroup = userGroups.find(el => el.name == groupName);
+          if (searchedGroup == undefined) {  // s'il n'est pas dans le groupe 
+            promiseArray.push(this.$store.dispatch('addUserToGroup',{userLogin: userLogin, groupName: groupName}));
+          } else {
+            userGroups.splice(userGroups.indexOf(searchedGroup),1);
+          }
+        }
+
+        if (userGroups.length>0) {
+          //console.log("User Groups after splice : " + JSON.stringify(userGroups));
+          for (const group of userGroups) {
+            promiseArray.push(this.$store.dispatch('removeUserFromGroup',{ userLogin: userLogin, groupName: group.name}));
+          }
+        }
+        Promise.all(promiseArray).then( () => { resolve();});
+        
+      })
+      .catch( reject => {
+        if (reject == "User not found.") { // Si l'utilisateur est dans Keycloak mais n'existe pas dans vanilla 
+          var data ={
+              name: userLogin,
+              login: userLogin,
+              password: "Default",
+              mail: Vue.$keycloak.tokenParsed.email,
+          };  
+          var promiseArray = [];
+          this.$store.dispatch('addUser',data)
+          .then(() => {           
+            for (const groupName of keycloakGroups) {
+              promiseArray.push(this.$store.dispatch('addUserToGroup',{ userLogin: userLogin, groupName: groupName}));
+            }
+          })
+          Promise.all(promiseArray).then( () => { resolve();});       
+        }
+      })
+
+      })
+      
+    },
+
   },
   watch: {
     $route: {
