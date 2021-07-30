@@ -4,11 +4,11 @@ import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify'
 
-import keycloak from "@/plugins/keycloak"
+import authentication from "@/plugins/authentication"
 
 
 Vue.config.productionTip = false
-Vue.use(keycloak)
+Vue.use(authentication)
 
 /*
 new Vue({

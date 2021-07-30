@@ -261,8 +261,10 @@ export default new Vuex.Store({
       });
     },    
 
-    async getUserGroups({commit,getters},login) {
-      await axios.get(`/user/${login}/groups`)
+    getUserGroups({commit,getters},login) {
+      return new Promise( (resolve,reject) => {
+
+      axios.get(`/user/${login}/groups`)
       .then( response => {
         var groups = getters.groups;
         groups.forEach( group => { // Pour chaque groupe dans le data store 
@@ -278,9 +280,15 @@ export default new Vuex.Store({
           }
         })
         commit("FETCH_GROUPS",groups);
+        resolve(response.data.result);
       }).catch(error => {
-          console.log(`Error retrieving ${login}'s groups : ` + error.response.data.message);
+          if ( error.response &&  error.response.data.message.includes("User not found.")) {
+            reject("User not found.");
+          }
+          reject( error.response);
       })
+
+      });
     },
 
     getUserRepositories({commit,getters},login) {
