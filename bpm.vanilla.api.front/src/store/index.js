@@ -254,8 +254,8 @@ export default new Vuex.Store({
         })
         .catch( error => {
           if (error.response) {
-              console.log(`Error removing user ${userLogin} from ${name}  : ` + error.response.data.message);
-          }                  
+            console.log(`Erreur lors du retrait de l'utilisateur ${userLogin} du groupe ${name}  : ` + error.response.data.message);
+          }               
           reject(`Erreur lors du retrait de l'utilisateur ${userLogin} du groupe ${name}.`);        
         })
       });

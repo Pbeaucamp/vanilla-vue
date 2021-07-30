@@ -37,7 +37,7 @@
             <v-row justify="center">
             <v-btn text @click="logout">
               <v-icon class="pr-1">mdi-logout-variant</v-icon>
-              <span>Décconnexion</span>
+              <span>Déconnexion</span>
             </v-btn>
             </v-row>
           </v-container>
@@ -85,30 +85,36 @@ export default {
     appLoadData() {
       this.manageKeycloakUser();
       this.$store.dispatch('loadData','users').then(() => {
-        var userLogin = Vue.$keycloak.tokenParsed.preferred_username;
-        var user = this.$store.state.users.data.find(el =>  el.login == userLogin)
-        if (user.superUser == false ) {
-          this.loadingMsg = "Impossible d'accéder à la plateforme, vous n'avez les autorisations nécessaires.";
-          this.loadingCircular = false;          
-        } else {
+
 
           this.$store.dispatch('loadData','groups').then( () => {
             this.$store.dispatch('loadData','repositories').then( () => {
-              var promiseArray = [];
-              this.$store.state.users.data.forEach(user => {
-                promiseArray.push(this.$store.dispatch('getUserGroups',user.login));
-                promiseArray.push(this.$store.dispatch('getUserRepositories',user.login));
-              });
 
-              Promise.all(promiseArray).then( () => {
-                this.$store.dispatch('groupsChartUser', this.$store.state.groups.data);
-                this.loaded = true;
-              })
+              var userLogin = Vue.$keycloak.tokenParsed.preferred_username;
+              var user = this.$store.state.users.data.find(el =>  el.login.toLowerCase() == userLogin)
 
+              //var user = this.$store.state.users.data.find(el =>  el.login == userLogin);
+     
+              if (user.superUser == false ) {
+                this.loadingMsg = "Impossible d'accéder à la plateforme, vous n'avez les autorisations nécessaires.";
+                this.loadingCircular = false;          
+              } else {
+
+                var promiseArray = [];
+                this.$store.state.users.data.forEach(user => {
+                  promiseArray.push(this.$store.dispatch('getUserGroups',user.login));
+                  promiseArray.push(this.$store.dispatch('getUserRepositories',user.login));
+                });
+
+                Promise.all(promiseArray).then( () => {
+                  this.$store.dispatch('groupsChartUser', this.$store.state.groups.data);
+                  this.loaded = true;
+                })
+              }
             });    
           } );
 
-        }
+        
       })
       .catch( () => {
         this.loadingMsg = "Impossible d'établir la connexion au serveur, veuillez rafraichir la page ou contacter l'administrateur.";
@@ -116,7 +122,7 @@ export default {
       });
     },
     manageKeycloakUser() {
-      console.log("Token parsed " + JSON.stringify(Vue.$keycloak.tokenParsed));
+      //console.log("Token parsed " + JSON.stringify(Vue.$keycloak.tokenParsed));
       var userLogin = Vue.$keycloak.tokenParsed.preferred_username;
       var keycloakGroups = Vue.$keycloak.tokenParsed.groups;
       this.$store.dispatch('getUserGroups',userLogin)
@@ -124,7 +130,7 @@ export default {
         // L'utilisateur existe dans Vanilla, on vérifie la cohérence des groupes
 
         var userGroups =  response;
-        console.log("User exist, user groups  : " + JSON.stringify(userGroups));
+        //console.log("User exist, user groups  : " + JSON.stringify(userGroups));
         for (const groupName of keycloakGroups) {
           var searchedGroup = userGroups.find(el => el.name == groupName);
           if (searchedGroup == undefined) {  // s'il n'est pas dans le groupe 
