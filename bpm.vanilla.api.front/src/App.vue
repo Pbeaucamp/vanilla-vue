@@ -83,58 +83,73 @@ export default {
       this.$store.dispatch('removeSnackbar',snackbar);
     }, 
     appLoadData() {
-      this.manageKeycloakUser();
-      this.$store.dispatch('loadData','users').then(() => {
+      this.manageKeycloakUser().then(() => {
 
 
-          this.$store.dispatch('loadData','groups').then( () => {
-            this.$store.dispatch('loadData','repositories').then( () => {
+        this.$store.dispatch('loadData','users').then(() => {
 
-              var userLogin = Vue.$keycloak.tokenParsed.preferred_username;
-              var user = this.$store.state.users.data.find(el =>  el.login.toLowerCase() == userLogin)
 
-              //var user = this.$store.state.users.data.find(el =>  el.login == userLogin);
-     
-              if (user.superUser == false ) {
-                this.loadingMsg = "Impossible d'accéder à la plateforme, vous n'avez les autorisations nécessaires.";
-                this.loadingCircular = false;          
-              } else {
+            this.$store.dispatch('loadData','groups').then( () => {
+              this.$store.dispatch('loadData','repositories').then( () => {
 
-                var promiseArray = [];
-                this.$store.state.users.data.forEach(user => {
-                  promiseArray.push(this.$store.dispatch('getUserGroups',user.login));
-                  promiseArray.push(this.$store.dispatch('getUserRepositories',user.login));
-                });
+                var userLogin = Vue.$keycloak.tokenParsed.preferred_username;
+                var user = this.$store.state.users.data.find(el =>  el.login.toLowerCase() == userLogin)
 
-                Promise.all(promiseArray).then( () => {
-                  this.$store.dispatch('groupsChartUser', this.$store.state.groups.data);
-                  this.loaded = true;
-                })
-              }
-            });    
-          } );
+                //var user = this.$store.state.users.data.find(el =>  el.login == userLogin);
+      
+                if (user.superUser == false ) {
+                  this.loadingMsg = "Impossible d'accéder à la plateforme, vous n'avez les autorisations nécessaires.";
+                  this.loadingCircular = false;          
+                } else {
 
-        
-      })
-      .catch( () => {
-        this.loadingMsg = "Impossible d'établir la connexion au serveur, veuillez rafraichir la page ou contacter l'administrateur.";
-        this.loadingCircular = false;
+                  var promiseArray = [];
+                  this.$store.state.users.data.forEach(user => {
+                    promiseArray.push(this.$store.dispatch('getUserGroups',user.login));
+                    promiseArray.push(this.$store.dispatch('getUserRepositories',user.login));
+                  });
+
+                  Promise.allSettled(promiseArray).then( () => {
+                    this.$store.dispatch('groupsChartUser', this.$store.state.groups.data);
+                    this.loaded = true;
+                  })
+                }
+              });    
+            } );
+
+          
+        })
+        .catch( () => {
+          this.loadingMsg = "Impossible d'établir la connexion au serveur, veuillez rafraichir la page ou contacter l'administrateur.";
+          this.loadingCircular = false;
+        });
+
+
+
+
+
       });
+
+
+
     },
     manageKeycloakUser() {
       //console.log("Token parsed " + JSON.stringify(Vue.$keycloak.tokenParsed));
       var userLogin = Vue.$keycloak.tokenParsed.preferred_username;
       var keycloakGroups = Vue.$keycloak.tokenParsed.groups;
+      return new Promise( (resolve) => {
+
+      
       this.$store.dispatch('getUserGroups',userLogin)
       .then( response => {
         // L'utilisateur existe dans Vanilla, on vérifie la cohérence des groupes
 
         var userGroups =  response;
         //console.log("User exist, user groups  : " + JSON.stringify(userGroups));
+        var promiseArray = [];
         for (const groupName of keycloakGroups) {
           var searchedGroup = userGroups.find(el => el.name == groupName);
           if (searchedGroup == undefined) {  // s'il n'est pas dans le groupe 
-            this.$store.dispatch('addUserTo',{dataType: "group", userLogin: userLogin, name: groupName});
+            promiseArray.push(this.$store.dispatch('addUserTo',{dataType: "group", userLogin: userLogin, name: groupName}));
           } else {
             userGroups.splice(userGroups.indexOf(searchedGroup),1);
           }
@@ -143,13 +158,10 @@ export default {
         if (userGroups.length>0) {
           //console.log("User Groups after splice : " + JSON.stringify(userGroups));
           for (const group of userGroups) {
-            this.$store.dispatch('removeUserFrom',{dataType: "group", userLogin: userLogin, name: group.name});
+            promiseArray.push(this.$store.dispatch('removeUserFrom',{dataType: "group", userLogin: userLogin, name: group.name}));
           }
         }
-        /*
-        for (const group of userGroups) {
-          if (keycloakGroups.indexOf(group.name) )
-        }*/
+        Promise.allSettled(promiseArray).then( () => { resolve();});
       })
       .catch( reject => {
         if (reject == "User not found.") { // Si l'utilisateur est dans Keycloak mais n'existe pas dans vanilla 
@@ -159,14 +171,18 @@ export default {
               password: "Default",
               mail: Vue.$keycloak.tokenParsed.email,
           };  
+          var promiseArray = [];
           this.$store.dispatch('addUser',data)
           .then(() => {
             for (const groupName of keycloakGroups) {
-              this.$store.dispatch('addUserTo',{dataType: "group", userLogin: userLogin, name: groupName});
+              promiseArray.push(this.$store.dispatch('addUserTo',{dataType: "group", userLogin: userLogin, name: groupName}));
             }
+            Promise.allSettled(promiseArray).then( () => { resolve();});
           })       
         }
       })
+
+      });
       
     },
   },
