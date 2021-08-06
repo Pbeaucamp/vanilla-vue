@@ -188,8 +188,8 @@ export default {
   watch: {
     $route: {
       immediate: true,
-      handler(to) {
-        document.title = (to.name+" | Vanilla Metadata") || 'Vanilla Metadata';
+      handler() {
+        document.title = 'Vanilla Metadata';
       }
     },
   }

@@ -272,13 +272,14 @@ export default new Vuex.Store({
      
               dispatch("getTableNewID").then( id => {
                 var children = [];
-                for (const el of element[Object.keys(element)[0]]) {
+                
+                for (const el of element.columns) {
 
                   dispatch("getTableNewID").then( newID => { 
-                    children.push({id: newID,name : el , parent : Object.keys(element)[0]+"", agg : "NONE", pos : 0,  file : "txt" });
+                    children.push({id: newID,name : el.columnName , parent : element.tableName, type : el.type , agg : "NONE", pos : 0,  file : "txt" });
                   });       
                 }
-                tables.push({id: id,name : Object.keys(element)[0], children : children})
+                tables.push({id: id,name :element.tableName, children : children})
               });
             });
             commit("SET_TABLES", tables);
@@ -419,7 +420,7 @@ export default new Vuex.Store({
         axios.get(`/query/sql`,{ params : { repositoryName : getters.repositoryName, groupName : getters.groupName, metadataName : metadataName, modelName : modelName, packageName : packageName, columns: columns, queryLimit: queryLimit ,queryDistinct : queryDistinct } })
         .then(response => {
           if (response.data.status === 'success') {                       
-            commit("SET_QUERYSQL",response.data.result);
+            commit("SET_QUERYSQL",response.data.result.SQL);
             resolve();
           }
         }).catch(error => {

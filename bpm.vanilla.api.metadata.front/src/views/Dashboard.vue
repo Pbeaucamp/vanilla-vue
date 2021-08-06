@@ -1,37 +1,46 @@
 <template>
   <div class="dashboard">
-    <h1 class="subheading grey--text">Dashboard</h1>
     <v-container class="my-5">
     <List/>
 
 
 
-    <v-row wrap>
+    <v-row wrap justify="center">
 
-      <v-col cols="12" sm="12" md="4" lg="4" xl="4" >
+      <v-col cols="12" sm="12" md="4" lg="4" xl="4" v-if="affTreeview">
       <v-card
         class="mx-auto"
         max-width="500"
         :disabled="!tablesLoaded"
         :loading="tablesLoading"
-      >
+      > 
+        
         <v-sheet class="pa-4 primary lighten-1">
-          <v-text-field
-            v-model="search"
-            label="Rechercher une table ou une colonne"
-            dark
-            flat
-            solo-inverted
-            hide-details
-            clearable
-            clear-icon="mdi-close-circle-outline"
-          ></v-text-field>
-          <v-checkbox
-            v-model="caseSensitive"
-            dark
-            hide-details
-            label="Recherche sensible à la casse"
-          ></v-checkbox>
+          <v-container class="pa-2" >
+            <v-row >  
+            <v-text-field
+              v-model="search"
+              label="Rechercher une table ou une colonne"
+              dark
+              flat
+              solo-inverted
+              hide-details
+              clearable
+              clear-icon="mdi-close-circle-outline"
+            ></v-text-field>
+            </v-row>
+            <v-row>
+            <v-checkbox
+              v-model="caseSensitive"
+              dark
+              hide-details
+              label="Recherche sensible à la casse"
+            ></v-checkbox>
+            <v-spacer></v-spacer>
+            <v-btn icon text class="mt-3 white--text" @click="affTreeview=false"> <v-icon >mdi-format-horizontal-align-left</v-icon> </v-btn>
+
+            </v-row>
+          </v-container>
         </v-sheet>
         <v-card-text>
           <v-treeview
@@ -64,7 +73,7 @@
 
             
             <template v-slot:prepend="{ item, open }">
-              <v-icon v-if="!item.file">
+              <v-icon v-if="!item.file" >
                 {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
               </v-icon>
               <v-icon v-else>
@@ -72,6 +81,12 @@
               </v-icon>
             </template>
             
+            <template v-slot:label="{ item }">
+              <span class="indigo--text" v-if="item.type=='MEASURE'">{{item.name}}</span>
+              <span class="green--text" v-else-if="item.type=='DIMENSION'">{{item.name}}</span>
+              <span class="" v-else>{{item.name}}</span>
+              <!--<span class="{ blue--text : item.type==='MEASURE'}" >{{item.name}}</span>-->
+            </template>   
             <!--
             <template v-slot:label="{ item,selected }">
               <v-hover @click="selected=!selected" v-slot:default="{ hover }">
@@ -138,180 +153,319 @@
         >
           <template v-slot:top> 
 
-          <v-container>                   
-          <v-row v-if="!affResult">
+            <v-container>                   
+              <v-row v-if="!affResult">
 
-          <v-col class="mx-4" cols="12" sm="12" md="12" xl="5" ><h1 class="subheading grey--text">Création de requête</h1></v-col>
-          
-          <v-spacer></v-spacer>
-
-
-          <v-col cols="12" sm="12" md="12" xl="6" class="mt-3 text-right" >
-            <v-row justify="end">
-              <v-col class="pr-1 mx-1 pt-0 " sm="3" md="3" xl="3"> 
-                <v-btn class="white--text" v-if="(queryResult.length > 0) && !affResult" color="primary lighten-1" @click="affResult=true" depressed > 
-                <span class="mr-1"> Résultats </span>
-                <v-icon> mdi-clipboard-text-outline </v-icon>
-                </v-btn> 
-              </v-col>
-              
-
-              <v-col class="pr-1 mx-1 pt-0 " sm="3" md="3" xl="3"> 
-                <v-btn class="white--text" :loading="loadingQueryResult" color="primary darken-1" @click="executeQuery" depressed > 
-                <span class="mr-1"> Exécuter </span>
-                <v-icon> mdi-database-search </v-icon>
-                </v-btn> 
-              </v-col>
-
-              <v-col class="pl-1 ml-1 mx-0 pt-0 " sm="4" md="4"  xl="4">  
-                <v-btn class="white--text" color="green darken-1" @click="dialogSaveQuery=true" depressed >
-                <span class="mr-1"> Sauvegarder </span>
-                <v-icon> mdi-content-save </v-icon>
-                </v-btn> 
-              </v-col>
-        
-              <v-col class="pl-1 ml-1 mx-0 pt-0" sm="3" md="2" xl="2"> 
-                <v-btn class="white--text px-2" :disabled="(selectedColumns.length==0)" color="green lighten-1" @click="getSQL" :loading="loadSQL" depressed > 
-                <span class="mr-1">SQL</span>
-                <v-icon> mdi-file-document-multiple-outline </v-icon>
-                </v-btn> 
-              </v-col>                   
+                <v-col class="mx-4" cols="12" sm="12" md="12" xl="5" ><h1 class="subheading grey--text">Création de requête</h1></v-col>
+                
+                <v-spacer></v-spacer>
 
 
-              <v-col class="pl-0 ml-1 mx-0 pt-0" md="4" xl="3"> 
-                <v-btn class="white--text px-2" color="orange lighten-1" @click="selectedColumns=[]" depressed > 
-                <span class="mr-1">Réinitialiser</span>
-                <v-icon> mdi-close-box-multiple-outline </v-icon>
-                </v-btn> 
-              </v-col> 
 
-              <v-col class="pl-1 ml-1 mx-0 pt-0 "  md="4"  xl="3"> 
-                <v-btn class="white--text px-2" :disabled="(packages.selected=='')" color="green darken-1" @click="getSaved" :loading="loadSaved" depressed > 
-                <span class="mr-1">Charger</span>
-                <v-icon> mdi-cloud-download-outline </v-icon>
-                </v-btn> 
-              </v-col>
-
-            </v-row>
-          </v-col>
-
-          <v-row class="">
-            <!--
-            <v-col class="mx-5"> 
-              <v-btn class="white--text px-2" color="orange lighten-1" @click="selectedColumns=[]" depressed > 
-              <span class="mr-1">Réinitialiser</span>
-              <v-icon> mdi-close-box-multiple-outline </v-icon>
-              </v-btn> 
-            </v-col>         
-            <v-col> 
-              <v-btn class="white--text px-2" color="green lighten-1" @click="getSQL" :loading="loadSQL" depressed > 
-              <span class="mr-1">SQL</span>
-              <v-icon> mdi-file-document-multiple-outline </v-icon>
-              </v-btn> 
-            </v-col>      
-            -->
-              
-            <v-col md=""><v-spacer></v-spacer></v-col>
-            <v-col md=""><v-spacer></v-spacer></v-col>
             
-            <v-col class="ml-1" > <v-checkbox v-model="queryDistinct" label="Distincte"></v-checkbox>     </v-col>     
-            <v-col class="mr-3" > <v-text-field v-model="queryLimit" label="Limite" type="number" class="ml-2" > </v-text-field>  </v-col>  
-          </v-row>            
 
-          </v-row>
-          </v-container>
 
-                              
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                <!--
+                <v-col cols="12" sm="12" md="12" xl="6" class="mt-3 text-right" >
+                  <v-row justify="end">
+                    <v-col class="pr-1 mx-1 pt-0 " sm="3" md="3" xl="3"> 
+                      <v-btn class="white--text" v-if="(queryResult.length > 0) && !affResult" color="primary lighten-1" @click="affResult=true" depressed > 
+                      <span class="mr-1"> Résultats </span>
+                      <v-icon> mdi-clipboard-text-outline </v-icon>
+                      </v-btn> 
+                    </v-col>
+                    
+
+                    <v-col class="pr-1 mx-1 pt-0 " sm="3" md="3" xl="3"> 
+                      <v-btn class="white--text" :loading="loadingQueryResult" color="primary darken-1" @click="executeQuery" depressed > 
+                      <span class="mr-1"> Exécuter </span>
+                      <v-icon> mdi-database-search </v-icon>
+                      </v-btn> 
+                    </v-col>
+
+                    <v-col class="pl-1 ml-1 mx-0 pt-0 " sm="4" md="4"  xl="4">  
+                      <v-btn class="white--text" color="green darken-1" @click="dialogSaveQuery=true" depressed >
+                      <span class="mr-1"> Sauvegarder </span>
+                      <v-icon> mdi-content-save </v-icon>
+                      </v-btn> 
+                    </v-col>
+              
+                    <v-col class="pl-1 ml-1 mx-0 pt-0" sm="3" md="2" xl="2"> 
+                      <v-btn class="white--text px-2" :disabled="(selectedColumns.length==0)" color="green lighten-1" @click="getSQL" :loading="loadSQL" depressed > 
+                      <span class="mr-1">SQL</span>
+                      <v-icon> mdi-file-document-multiple-outline </v-icon>
+                      </v-btn> 
+                    </v-col>                   
+
+
+                    <v-col class="pl-0 ml-1 mx-0 pt-0" md="4" xl="3"> 
+                      <v-btn class="white--text px-2" color="orange lighten-1" @click="selectedColumns=[]" depressed > 
+                      <span class="mr-1">Réinitialiser</span>
+                      <v-icon> mdi-close-box-multiple-outline </v-icon>
+                      </v-btn> 
+                    </v-col> 
+
+                    <v-col class="pl-1 ml-1 mx-0 pt-0 "  md="4"  xl="3"> 
+                      <v-btn class="white--text px-2" :disabled="(packages.selected=='')" color="green darken-1" @click="getSaved" :loading="loadSaved" depressed > 
+                      <span class="mr-1">Charger</span>
+                      <v-icon> mdi-cloud-download-outline </v-icon>
+                      </v-btn> 
+                    </v-col>
+
+                  </v-row>
+                </v-col>
+                -->
+
+                <v-col>
+
+                <v-row class="">
+
+                    
+
+                  
+                  <v-col class="ml-1" > <v-checkbox v-model="queryDistinct" label="Distincte"></v-checkbox>     </v-col>     
+                  <v-col class="mr-3" > <v-text-field v-model="queryLimit" label="Limite" type="number" class="ml-2" > </v-text-field>  </v-col>  
+
+
+                  <v-col>
+                    <v-speed-dial v-model="fab" top right direction="bottom" transition="scale-transition" absolute>
+                      <template v-slot:activator>
+                        <v-btn v-model="fab" color="blue darken-2" dark fab>
+                          <v-icon v-if="fab">  mdi-close </v-icon>
+                          <v-icon v-else> mdi-database-edit </v-icon>
+                        </v-btn>
+                      </template>
+
+
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-btn @click.stop="zoomOut" fab dark small v-bind="attrs" v-on="on" class="white--text" v-if="!(selectedColumns.length==0)" color="green darken-1" @click="dialogSaveQuery=true">
+                            <v-icon>mdi-content-save</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Sauvegarder</span>
+                      </v-tooltip>    
+                  
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-btn @click.stop="zoomOut" fab dark small v-bind="attrs" v-on="on" class="white--text" v-if="!(packages.selected=='')" color="green darken-1" @click="getSaved" :loading="loadSaved">
+                            <v-icon>mdi-cloud-download-outline</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Charger</span>
+                      </v-tooltip>  
+
+
+
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-btn @click.stop="zoomOut" fab dark small v-bind="attrs" v-on="on" class="white--text" v-if="!(selectedColumns.length==0)" color="green lighten-1" @click="getSQL" :loading="loadSQL">
+                            <v-icon>mdi-file-document-multiple-outline</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>SQL</span>
+                      </v-tooltip>  
+
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-btn @click.stop="zoomOut" fab dark small v-bind="attrs" v-on="on" class="white--text" v-if="!(selectedColumns.length==0)" :loading="loadingQueryResult" color="primary darken-1" @click="executeQuery">
+                            <v-icon>mdi-database-search</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Exécuter</span>
+                      </v-tooltip>  
+
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-btn @click.stop="zoomOut" fab dark small v-bind="attrs" v-on="on" class="white--text" v-if="(queryResult.length > 0) && !affResult" color="primary lighten-1" @click="affResult=true">
+                            <v-icon> mdi-clipboard-text-outline</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Résultats</span>
+                      </v-tooltip>                        
+
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-btn @click.stop="zoomOut" fab dark small v-bind="attrs" v-on="on" class="white--text" color="orange lighten-1" @click="selectedColumns=[]">
+                            <v-icon>mdi-delete</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Réinitialiser</span>
+                      </v-tooltip>  
+
+
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-btn @click.stop="zoomOut" fab dark small v-bind="attrs" v-on="on"  v-if="!affTreeview" class="white--text" color="green darken-1" @click="affTreeview=true">
+                            <v-icon>mdi-file-tree-outline</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Afficher les colonnes</span>
+                      </v-tooltip>                       
+
+                  
+            
+                  
+                    </v-speed-dial>
+                  </v-col>
+
+
+                </v-row>  
+                </v-col>          
+
+              </v-row>
+
+
+            
+
+
+
+
+
+
+
+
+
+
+
+
+            </v-container>
+
+                                
           </template>        
-        <!--
-        <template slot="items" slot-scope="props">
-          <tr class="sortableRow" :key="itemKey(props.item)"> 
-            <td class="px-1" style="width: 0.1%">
-              <v-btn style="cursor: move" icon class="sortHandle"><v-icon>mdi-drag-horizontal-variant</v-icon></v-btn>
-            </td>
-            <td>{{ props.item.name }}</td>
-            <td class="text-xs-right">{{ props.item.agg }}</td>
-            <td class="text-xs-right">{{ props.item.pos }}</td>
-          </tr>
-        </template>     -->   
+          <!--
+          <template slot="items" slot-scope="props">
+            <tr class="sortableRow" :key="itemKey(props.item)"> 
+              <td class="px-1" style="width: 0.1%">
+                <v-btn style="cursor: move" icon class="sortHandle"><v-icon>mdi-drag-horizontal-variant</v-icon></v-btn>
+              </td>
+              <td>{{ props.item.name }}</td>
+              <td class="text-xs-right">{{ props.item.agg }}</td>
+              <td class="text-xs-right">{{ props.item.pos }}</td>
+            </tr>
+          </template>     -->   
         </v-data-table>
         </v-card>
       </v-col>
 
 
-
+      <v-col  cols="12" sm="12" md="4" lg="4" xl="4">
+        <v-card v-if="(queryResult.length > 0)">
+          <Chart :selectedColumns="selectedColumns" />
+        </v-card>
+      </v-col>
 
     </v-row>
 
-    <v-row justify="center">
-    <v-dialog v-model="dialogSaveQuery" persistent max-width="600px">    
-
-      <v-form ref="form" v-model="valid" lazy-validation >  
-      <v-card>
-      <v-card-title>
-          <h2 class="subheading grey--text">Sauvegarder une requête</h2>
-      </v-card-title>
-      <v-card-text>
-        <v-container>
-        <v-row>
-          <v-col cols="12">
-            <v-text-field v-model="queryName" :rules="nameRules" label="Nom" required> </v-text-field>
-          </v-col>
-          <v-col cols="12">
-            <v-text-field v-model="queryDescription" label="Description"> </v-text-field>    
-          </v-col>
-        </v-row>
-        
-        </v-container>
-      </v-card-text>
-      <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" outlined class="mr-4" @click="reset">
-            Annuler
-          </v-btn>            
-          <v-btn :disabled="!valid" :loading="loadingSaveQuery" outlined color="success" class="mr-4" @click="validate">Confirmer</v-btn>
-      </v-card-actions>
+    <!--
+    <v-row >
+      <v-card v-if="(queryResult.length > 0)">
+        <Chart :selectedColumns="selectedColumns" />
       </v-card>
-      </v-form>
+    </v-row>
+    -->
+
+    <v-row justify="center">
+      <v-dialog v-model="dialogSaveQuery" persistent max-width="600px">    
+
+        <v-form ref="form" v-model="valid" lazy-validation >  
+        <v-card>
+        <v-card-title>
+            <h2 class="subheading grey--text">Sauvegarder une requête</h2>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+          <v-row>
+            <v-col cols="12">
+              <v-text-field v-model="queryName" :rules="nameRules" label="Nom" required> </v-text-field>
+            </v-col>
+            <v-col cols="12">
+              <v-text-field v-model="queryDescription" label="Description"> </v-text-field>    
+            </v-col>
+          </v-row>
+          
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="error" outlined class="mr-4" @click="reset">
+              Annuler
+            </v-btn>            
+            <v-btn :disabled="!valid" :loading="loadingSaveQuery" outlined color="success" class="mr-4" @click="validate">Confirmer</v-btn>
+        </v-card-actions>
+        </v-card>
+        </v-form>
 
 
-    </v-dialog>
+      </v-dialog>
     </v-row> 
 
     <v-row justify="center">
-    <v-dialog v-model="affSQL" persistent max-width="600px">    
-      <v-card>
-      <v-card-title>
-          <h2 class="subheading grey--text">Requête SQL :</h2>
-      </v-card-title>
-      <v-card-text>
-        {{querySQL}}
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="primary darken-1" outlined class="mr-4" @click="affSQL=false"> Fermer </v-btn>            
-      </v-card-actions>
-      </v-card>
-    </v-dialog>
+      <v-dialog v-model="affSQL" persistent max-width="600px">    
+        <v-card>
+        <v-card-title>
+            <h2 class="subheading grey--text">Requête SQL :</h2>
+        </v-card-title>
+        <v-card-text>
+          {{querySQL}}
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary darken-1" outlined class="mr-4" @click="affSQL=false"> Fermer </v-btn>            
+        </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-row>     
 
     <v-row justify="center">
-    <v-dialog v-model="affSaved" persistent max-width="600px">    
-      <v-card>
-      <v-card-title>
+      <v-dialog v-model="affSaved" persistent max-width="600px">    
+        <v-card>
+        <v-card-title>
           <h2 class="subheading grey--text">Requêtes sauvegardées :</h2>
-      </v-card-title>
-      <v-card-text>
-      <v-select v-model="selectedSavedQuery" :items="savedQueries" label="Choisir une requête"  outlined class="mx-2"></v-select>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="primary darken-1" outlined class="mr-4" @click="affSaved=false"> Fermer </v-btn>             
-        <v-btn color="green darken-1" outlined class="mr-4" :loading="loadImportQuery" @click="getSavedQuery"> Importer </v-btn>   
-       
-      </v-card-actions>
-      </v-card>
-    </v-dialog>
+        </v-card-title>
+        <v-card-text>
+        <v-select v-model="selectedSavedQuery" :items="savedQueries" label="Choisir une requête"  outlined class="mx-2"></v-select>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary darken-1" outlined class="mr-4" @click="affSaved=false"> Fermer </v-btn>             
+          <v-btn color="green darken-1" outlined class="mr-4" :loading="loadImportQuery" @click="getSavedQuery"> Importer </v-btn>   
+        
+        </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-row>       
 
 
@@ -324,14 +478,17 @@
 import { mapState, mapActions,mapGetters   } from 'vuex'
 
 import List from '../components/List.vue'
+import Chart from '../components/Chart.vue'
 
 //import Sortable from 'sortablejs';
 
 export default {
 
-    name: 'Dashboard',
-    components: {List},
+    name: 'Home',
+    components: {List,Chart},
     data: () => ({
+      fab : false,
+      affTreeview : true,
       loadImportQuery : false,
       selectedSavedQuery : "",
       affSaved : false,
@@ -592,5 +749,11 @@ export default {
 </script>
 
 <style>
+#create .v-speed-dial {
+  position: absolute;
+}
 
+#create .v-btn--floating {
+  position: relative;
+}
 </style>
