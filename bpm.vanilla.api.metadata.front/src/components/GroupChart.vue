@@ -17,22 +17,22 @@
 
                 <div class="Chart" v-if="ChartType == 'Horizontal Barchart'">
                     <h2 style="text-align:center;">{{Titre}}</h2>
-                    <horizontal-bar-example/>
+                    <horizontal-bar-example  :Axe_X="Axe_X" :series="series" :selectedColumns="selectedColumns" />
                 </div>
 
                 <div class="Chart" v-if="ChartType == 'Linechart'">
                 <h2 style="text-align:center;">{{Titre}}</h2>
-                <line-example/>
+                <line-example :Axe_X="Axe_X" :series="series" :selectedColumns="selectedColumns" />
                 </div>
 
                 <div class="Chart" v-if="ChartType == 'Doughnutchart'">
                 <h2 style="text-align:center;">{{Titre}}</h2>
-                <doughnut-example/>
+                <doughnut-example :Axe_X="Axe_X" :series="series" :selectedColumns="selectedColumns" />
                 </div>
 
                 <div class="Chart" v-if="ChartType == 'Piechart'">
                 <h2 style="text-align:center;">{{Titre}}</h2>
-                <pie-example/>
+                <pie-example :Axe_X="Axe_X" :series="series" :selectedColumns="selectedColumns" />
                 </div>
 
 
@@ -81,8 +81,6 @@
             Icon : "mdi-chart-pie"},
             {Type : "Horizontal Barchart",
             Icon : "mdi-align-horizontal-left"},
-            {Type : "Gauge",
-            Icon : "mdi-gauge"},
             ],
             ChartType : "Barchart",
             Titre : "Graph"

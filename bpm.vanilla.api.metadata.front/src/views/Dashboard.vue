@@ -105,8 +105,247 @@
       </v-col>
 
 
-      <v-col cols="12" sm="12" md="8" lg="8" xl="8" >
+
+
+
+      <v-col cols="12" sm="12" :md="breakpointTreeview" :lg="breakpointTreeview" :xl="breakpointTreeview" >
+
+        <v-card>
+          <v-tabs
+            v-model="tab"
+            background-color="primary lighten-1"
+            class=""
+            dark
+            icons-and-text
+          >
+            <v-tabs-slider></v-tabs-slider>
+      
+            <v-tab href="#query" >
+              Requête
+              <v-icon>mdi-database-settings</v-icon>
+            </v-tab>
+      
+            <v-tab href="#results" :disabled="!(queryResult.length > 0)">
+              Résultats
+              <v-icon>mdi-clipboard-text-outline</v-icon>
+            </v-tab>
+      
+            <v-tab href="#chart" :disabled="!(queryResult.length > 0)">
+              Graphes
+              <v-icon>mdi-chart-box-plus-outline</v-icon>
+            </v-tab>
+          </v-tabs>
+      
+
+
+
+          <v-speed-dial v-model="fab" top right direction="bottom" transition="scale-transition" class="mt-4" absolute>
+            <template v-slot:activator>
+              <v-btn v-model="fab" color="blue darken-2" dark fab>
+                <v-icon v-if="fab">  mdi-close </v-icon>
+                <v-icon v-else> mdi-database-edit </v-icon>
+              </v-btn>
+            </template>
+
+
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn @click.stop="zoomOut" fab dark small v-bind="attrs" v-on="on" class="white--text" v-if="!(selectedColumns.length==0)" color="green darken-1" @click="dialogSaveQuery=true">
+                  <v-icon>mdi-content-save</v-icon>
+                </v-btn>
+              </template>
+              <span>Sauvegarder</span>
+            </v-tooltip>    
         
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn @click.stop="zoomOut" fab dark small v-bind="attrs" v-on="on" class="white--text" v-if="!(packages.selected=='')" color="green darken-1" @click="getSaved" :loading="loadSaved">
+                  <v-icon>mdi-cloud-download-outline</v-icon>
+                </v-btn>
+              </template>
+              <span>Charger</span>
+            </v-tooltip>  
+
+
+
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn @click.stop="zoomOut" fab dark small v-bind="attrs" v-on="on" class="white--text" v-if="!(selectedColumns.length==0)" color="green lighten-1" @click="getSQL" :loading="loadSQL">
+                  <v-icon>mdi-file-document-multiple-outline</v-icon>
+                </v-btn>
+              </template>
+              <span>SQL</span>
+            </v-tooltip>  
+
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn @click.stop="zoomOut" fab dark small v-bind="attrs" v-on="on" class="white--text" v-if="!(selectedColumns.length==0)" :loading="loadingQueryResult" color="primary darken-1" @click="executeQuery">
+                  <v-icon>mdi-database-search</v-icon>
+                </v-btn>
+              </template>
+              <span>Exécuter</span>
+            </v-tooltip>  
+              
+
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn @click.stop="zoomOut" fab dark small v-bind="attrs" v-on="on" class="white--text" color="orange lighten-1" @click="selectedColumns=[]">
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+              </template>
+              <span>Réinitialiser</span>
+            </v-tooltip>  
+
+
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn @click.stop="zoomOut" fab dark small v-bind="attrs" v-on="on"  v-if="!affTreeview" class="white--text" color="green darken-1" @click="affTreeview=true">
+                  <v-icon>mdi-file-tree-outline</v-icon>
+                </v-btn>
+              </template>
+              <span>Afficher les colonnes</span>
+            </v-tooltip>                       
+
+          </v-speed-dial>
+
+
+
+
+
+
+
+
+          <v-tabs-items v-model="tab">
+
+            
+            <v-tab-item value="query">
+
+              <v-data-table
+              
+              flat
+              :headers="headers"
+              :items="selectedColumns"
+              class="elevation-1"
+              :hide-default-footer="selectedColumns.length<10"
+              :search="search"
+              :footer-props="{
+                  'items-per-page-text':'Colonnes par page',
+                  'page-text': '{0} à {1} sur {2}'
+              }"
+              no-results-text="Aucun résultat." >
+              <template v-slot:top> 
+
+                <v-container>                   
+                  <v-row >
+
+                    <v-col class="mx-4" cols="12" sm="12" md="12" xl="5" ><h1 class="subheading grey--text">Création de requête</h1></v-col>
+                    
+                    <v-spacer></v-spacer>
+
+
+                    <v-col>
+                    <v-row class="">
+
+                      
+                      <v-col class="ml-1" > <v-checkbox v-model="queryDistinct" label="Distincte"></v-checkbox>     </v-col>     
+                      <v-col class="mr-3" > <v-text-field v-model="queryLimit" label="Limite" type="number" class="ml-2" min="0"> </v-text-field>  </v-col>  
+                      <v-col>
+
+                      </v-col>
+
+                    </v-row>  
+                    </v-col>          
+
+                  </v-row>
+
+                </v-container>
+                        
+              </template>        
+
+            </v-data-table>
+
+
+
+
+
+
+
+
+
+
+
+            </v-tab-item>
+
+
+
+            <v-tab-item value="results" >
+
+              <!--v-if="(queryResult.length > 0) && affResult" -->
+              <v-data-table
+              flat
+              :headers="resultHeaders"
+              :items="queryResult"
+              class="elevation-1"
+              :hide-default-footer="queryResult.length<10"
+              :search="search"
+              :footer-props="{
+                  'items-per-page-text':'Résultats par page',
+                  'page-text': '{0} à {1} sur {2}'
+              }"
+              no-results-text="Aucun résultat.">
+              <template v-slot:top> 
+                <v-container>
+                  <v-row class="ma-2">
+                  <h1 class="subheading grey--text">Résultats de la requête</h1>
+                  <v-spacer> </v-spacer>
+                  </v-row>
+                </v-container>           
+              </template>
+              </v-data-table>
+
+            </v-tab-item>
+
+
+
+
+            <v-tab-item value="chart">
+              <Chart :selectedColumns="selectedColumns" :affTreeview="affTreeview" />
+            </v-tab-item>                
+          </v-tabs-items>
+  
+        </v-card>
+
+
+      </v-col>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <!--
+      <v-col cols="12" sm="12" md="8" lg="8" xl="8" >
+
         <v-card>
         
         <v-data-table
@@ -162,91 +401,6 @@
 
 
 
-            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                <!--
-                <v-col cols="12" sm="12" md="12" xl="6" class="mt-3 text-right" >
-                  <v-row justify="end">
-                    <v-col class="pr-1 mx-1 pt-0 " sm="3" md="3" xl="3"> 
-                      <v-btn class="white--text" v-if="(queryResult.length > 0) && !affResult" color="primary lighten-1" @click="affResult=true" depressed > 
-                      <span class="mr-1"> Résultats </span>
-                      <v-icon> mdi-clipboard-text-outline </v-icon>
-                      </v-btn> 
-                    </v-col>
-                    
-
-                    <v-col class="pr-1 mx-1 pt-0 " sm="3" md="3" xl="3"> 
-                      <v-btn class="white--text" :loading="loadingQueryResult" color="primary darken-1" @click="executeQuery" depressed > 
-                      <span class="mr-1"> Exécuter </span>
-                      <v-icon> mdi-database-search </v-icon>
-                      </v-btn> 
-                    </v-col>
-
-                    <v-col class="pl-1 ml-1 mx-0 pt-0 " sm="4" md="4"  xl="4">  
-                      <v-btn class="white--text" color="green darken-1" @click="dialogSaveQuery=true" depressed >
-                      <span class="mr-1"> Sauvegarder </span>
-                      <v-icon> mdi-content-save </v-icon>
-                      </v-btn> 
-                    </v-col>
-              
-                    <v-col class="pl-1 ml-1 mx-0 pt-0" sm="3" md="2" xl="2"> 
-                      <v-btn class="white--text px-2" :disabled="(selectedColumns.length==0)" color="green lighten-1" @click="getSQL" :loading="loadSQL" depressed > 
-                      <span class="mr-1">SQL</span>
-                      <v-icon> mdi-file-document-multiple-outline </v-icon>
-                      </v-btn> 
-                    </v-col>                   
-
-
-                    <v-col class="pl-0 ml-1 mx-0 pt-0" md="4" xl="3"> 
-                      <v-btn class="white--text px-2" color="orange lighten-1" @click="selectedColumns=[]" depressed > 
-                      <span class="mr-1">Réinitialiser</span>
-                      <v-icon> mdi-close-box-multiple-outline </v-icon>
-                      </v-btn> 
-                    </v-col> 
-
-                    <v-col class="pl-1 ml-1 mx-0 pt-0 "  md="4"  xl="3"> 
-                      <v-btn class="white--text px-2" :disabled="(packages.selected=='')" color="green darken-1" @click="getSaved" :loading="loadSaved" depressed > 
-                      <span class="mr-1">Charger</span>
-                      <v-icon> mdi-cloud-download-outline </v-icon>
-                      </v-btn> 
-                    </v-col>
-
-                  </v-row>
-                </v-col>
-                -->
 
                 <v-col>
 
@@ -365,27 +519,20 @@
 
                                 
           </template>        
-          <!--
-          <template slot="items" slot-scope="props">
-            <tr class="sortableRow" :key="itemKey(props.item)"> 
-              <td class="px-1" style="width: 0.1%">
-                <v-btn style="cursor: move" icon class="sortHandle"><v-icon>mdi-drag-horizontal-variant</v-icon></v-btn>
-              </td>
-              <td>{{ props.item.name }}</td>
-              <td class="text-xs-right">{{ props.item.agg }}</td>
-              <td class="text-xs-right">{{ props.item.pos }}</td>
-            </tr>
-          </template>     -->   
+
         </v-data-table>
         </v-card>
-      </v-col>
 
+
+      </v-col>
+      
 
       <v-col  cols="12" sm="12" md="4" lg="4" xl="4">
         <v-card v-if="(queryResult.length > 0)">
           <Chart :selectedColumns="selectedColumns" />
         </v-card>
       </v-col>
+      -->
 
     </v-row>
 
@@ -487,6 +634,7 @@ export default {
     name: 'Home',
     components: {List,Chart},
     data: () => ({
+      tab: null,
       fab : false,
       affTreeview : true,
       loadImportQuery : false,
@@ -549,6 +697,9 @@ export default {
         }
         return [];
       },
+      breakpointTreeview() {
+        return (this.affTreeview ? 8 : 12);
+      }
     },
     methods : {
       ...mapActions(["getTables","getColumns","addNewSavedQuery","getQueryResult","getTablesAndColumns","getQuerySQL","getSavedQueries","getSavedQueryData"]),
@@ -616,6 +767,7 @@ export default {
         this.getQueryResult(data).then( () => {
           this.loadingQueryResult=false; 
           this.affResult = true;
+          this.tab="results";
         }).catch( () => {
           this.loadingQueryResult=false;
         });
@@ -683,6 +835,11 @@ export default {
     
     */
     watch: {
+      tab() {
+        if(this.tab=="chart") {
+          this.affTreeview = false;
+        }
+      },      
       packages : {
         handler : function () {
           if (this.packages.selected != "") {
@@ -733,6 +890,7 @@ export default {
           }
           this.$store.commit('SET_QUERYRESULT', []);
           this.affResult = false;
+          this.tab="query";
         },
         deep : true
       },
@@ -740,8 +898,16 @@ export default {
         handler : function () {
           this.$store.commit('SET_QUERYRESULT', []);
           this.affResult = false;
+          this.tab="query";
         }
-      }
+      },
+      queryLimit : {
+        handler : function () {
+          this.$store.commit('SET_QUERYRESULT', []);
+          this.affResult = false;
+          this.tab="query";
+        }        
+      },
 
     }
 

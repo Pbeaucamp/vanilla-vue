@@ -12,69 +12,8 @@ export default {
 
   computed: {
 
-    chartData() {
-      var labels = []
-      var Adata = []
-      var dataset = []
-
-
-      //var searchCol = this.Axe_X.column;
-
-
-
-      this.kpi.data.forEach(element => {
-        Adata = []
-        if (element.Cacher != true){
-          element.result[0].forEach(ele => {       
-            var returnedDate = ele.date.split('T')
-            if (!labels.includes(returnedDate[0])){
-              labels.push(returnedDate[0])
-            }
-            Adata.push(ele.value)
-          });
-          var datas =
-          {
-            label : element.name,
-            data : Adata,
-            backgroundColor : '#'+(Math.random()*0xFFFFFF<<0).toString(16),
-  
-          }
-          dataset.push(datas)
-      }
-      });
-
-      return {
-        labels : labels,
-        datasets:
-          dataset,
-      };
-    },
-
   },
   methods : {
-    aggCompte() {
-
-    },
-    getLabels() {
-      //console.log("AXE X : " + JSON.stringify(this.Axe_X) );
-      //var colIndex = this.selectedColumns.indexOf(this.Axe_X);
-
-      //console.log("filter : a[`${this.selectedColumns.parent}:${this.selectedColumns.name}`] : " + `${this.Axe_X.parent}:${this.Axe_X.name}`);
-      var filtered = this.$store.state.queryResult.map(a => a[`${this.Axe_X.parent}:${this.Axe_X.name}`]);
-      var labels = [...new Set(filtered)];
-
-      //var labels = [];
-      /*
-      console.log("Index of col : " + colIndex);
-      this.$store.state.queryResult.forEach(el => {
-        console.log("el " + JSON.stringify(el));
-        if ( !labels.includes(el[colIndex])  ) {
-          labels.push(el[colIndex]);
-        }
-      });
-      */
-      return labels;
-    },
     getDatas() {
       var labels = [];
 
@@ -272,7 +211,6 @@ export default {
     console.log("Seleccted columns : " + JSON.stringify(this.selectedColumns));
     console.log("AXE X : " + JSON.stringify(this.Axe_X) );
     console.log("series : " + JSON.stringify(this.series) );
-    console.log("HERE ARE THE LABELS : " + this.getLabels());
     console.log("Label bis : " + JSON.stringify(this.getDatas()));
     */
     var graphDatas = this.getDatas();
@@ -300,6 +238,14 @@ export default {
       },
       deep: true,
 
-    }
+    },
+    queryResult : {
+      handler : function () {
+        var graphDatas = this.getDatas();
+        this.renderChart( graphDatas, { responsive: true, maintainAspectRatio: false, scaleOverride:true, scaleStartValue:0});   
+      },
+      deep: true,
+
+    },
   },
 }
