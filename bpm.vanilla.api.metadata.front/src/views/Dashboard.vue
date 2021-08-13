@@ -131,9 +131,17 @@
             </v-tab>
       
             <v-tab href="#chart" :disabled="!(queryResult.length > 0)">
-              Graphes
+              Graphiques
               <v-icon>mdi-chart-box-plus-outline</v-icon>
             </v-tab>
+
+            <!--
+            <v-tab href="#relations" >
+              Relations
+              <v-icon>mdi-vector-polyline-plus</v-icon>
+            </v-tab>
+            -->
+
           </v-tabs>
       
 
@@ -310,7 +318,12 @@
 
             <v-tab-item value="chart">
               <Chart :selectedColumns="selectedColumns" :affTreeview="affTreeview" />
-            </v-tab-item>                
+            </v-tab-item>  
+
+            <v-tab-item value="relations">
+              Empty
+            </v-tab-item>   
+
           </v-tabs-items>
   
         </v-card>
@@ -885,6 +898,7 @@ export default {
       },
       selectedColumns : {
         handler : function () {
+          console.log("TABLES LOADED : " + JSON.stringify(this.tables.data));
           for (let i = 0 ; i < this.selectedColumns.length; i++) {
             this.selectedColumns[i].pos = i+1;
           }

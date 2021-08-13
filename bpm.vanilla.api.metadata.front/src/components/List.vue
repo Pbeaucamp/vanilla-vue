@@ -15,6 +15,7 @@
         :disabled="metadata == '' && !loadModel"
         v-model="model"
         :items="this.models.data"
+        item-text="name"
         label="Business model"
         outlined
         :loading="loadModel"

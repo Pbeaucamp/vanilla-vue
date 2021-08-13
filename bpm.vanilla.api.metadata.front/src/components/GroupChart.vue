@@ -11,27 +11,27 @@
             </v-layout>
             <v-flex xs10 sm10 md10 lg10>
                 <div class="Chart" v-if="ChartType == 'Barchart'">
-                <h2 style="text-align:center;">{{Titre}}</h2>
+
                 <bar-example :Axe_X="Axe_X" :series="series" :selectedColumns="selectedColumns" />
                 </div>
 
                 <div class="Chart" v-if="ChartType == 'Horizontal Barchart'">
-                    <h2 style="text-align:center;">{{Titre}}</h2>
+
                     <horizontal-bar-example  :Axe_X="Axe_X" :series="series" :selectedColumns="selectedColumns" />
                 </div>
 
                 <div class="Chart" v-if="ChartType == 'Linechart'">
-                <h2 style="text-align:center;">{{Titre}}</h2>
+
                 <line-example :Axe_X="Axe_X" :series="series" :selectedColumns="selectedColumns" />
                 </div>
 
                 <div class="Chart" v-if="ChartType == 'Doughnutchart'">
-                <h2 style="text-align:center;">{{Titre}}</h2>
+
                 <doughnut-example :Axe_X="Axe_X" :series="series" :selectedColumns="selectedColumns" />
                 </div>
 
                 <div class="Chart" v-if="ChartType == 'Piechart'">
-                <h2 style="text-align:center;">{{Titre}}</h2>
+
                 <pie-example :Axe_X="Axe_X" :series="series" :selectedColumns="selectedColumns" />
                 </div>
 
