@@ -98,7 +98,10 @@ export default {
               dirID : item
             }
             this.$store.dispatch('getItems', data)
-          } else {
+          } else if (item.type == 'PORTAL'){
+              window.location.href = "https://semaphore-vanilla-kpi.data4citizen.com/#/";
+            }
+          else {
             console.log(item.id);
             // this.$store.dispatch('niveaudeux', item.id).then(
             //   this.$store.dispatch('getTabNiveau', item.id)

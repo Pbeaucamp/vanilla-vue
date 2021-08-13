@@ -2,8 +2,8 @@ import Vue from 'vue'
 import Keycloak from 'keycloak-js'
 
 const options = {
-  url: 'https://semaphore-keycloak2.data4citizen.com/auth/',
-  // url:'http://localhost:8080/auth/',
+  // url: 'https://semaphore-keycloak2.data4citizen.com/auth/',
+  url:'http://localhost:8080/auth/',
   realm: 'Vanilla7',
   clientId: 'portail'
 }
