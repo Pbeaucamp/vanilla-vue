@@ -180,12 +180,12 @@ export default new Vuex.Store({
       });
     },
 
-    addUserTo({getters, commit},{dataType,userLogin,name}) {
+    addUserTo({getters, commit},{dataType,userLogin,item}) {
 
       var data ={
           userLogin: userLogin,
       };   
-      data[`${dataType}Name`] = name;
+      data[`${dataType}ID`] = item.id;
 
       return new Promise( (resolve,reject) => {
         axios.post(`/user/${dataType}/add`,data,{})
@@ -194,20 +194,20 @@ export default new Vuex.Store({
             switch(dataType) {
               case 'group': 
                 var groups = getters.groups;
-                if(groups.find(group => group.name === name).contain.indexOf(userLogin) === -1) { // Si l'utilisateur n'est pas déjà dans contain
-                  groups.find(group => group.name === name).contain.push(userLogin);
+                if(groups.find(group => group.id === item.id).contain.indexOf(userLogin) === -1) { // Si l'utilisateur n'est pas déjà dans contain
+                  groups.find(group => group.id === item.id).contain.push(userLogin);
                   commit("FETCH_GROUPS",groups);
                   commit("FETCH_GROUPS_CHART",groups);
                 }
-                resolve (`L'utilisateur ${userLogin} a été ajouté au groupe ${name}.`);
+                resolve (`L'utilisateur ${userLogin} a été ajouté au groupe ${item.name}.`);
                 break;
               case 'repository' :
                 var repositories = getters.repositories;
-                if (repositories.find(repo => repo.name === name).contain.indexOf(userLogin) === -1 ) { // Si l'utilisateur n'est pas déjà dans contain
-                  repositories.find(repo => repo.name === name).contain.push(userLogin);
+                if (repositories.find(repo => repo.id === item.id).contain.indexOf(userLogin) === -1 ) { // Si l'utilisateur n'est pas déjà dans contain
+                  repositories.find(repo => repo.id === item.id).contain.push(userLogin);
                   commit("FETCH_REPOSITORIES",repositories);
                 }
-                resolve(`L'utilisateur ${userLogin} a été ajouté au référentiel ${name}.`);
+                resolve(`L'utilisateur ${userLogin} a été ajouté au référentiel ${item.name}.`);
                 break;
             }
           } else {
@@ -216,19 +216,19 @@ export default new Vuex.Store({
         })
         .catch( error => {
           if (error.response) {
-              console.log(`Error adding user ${userLogin} to ${name}  : `+ error.response.data.message)
+              console.log(`Error adding user ${userLogin} to ${item.name}  : `+ error.response.data.message)
           }                 
-          reject(`Erreur lors de l'ajout de ${userLogin} à ${name}.`);        
+          reject(`Erreur lors de l'ajout de ${userLogin} à ${item.name}.`);        
         })
       });
     },
 
 
-    removeUserFrom({getters, commit},{dataType,userLogin,name}) {
+    removeUserFrom({getters, commit},{dataType,userLogin,item}) {
       var data ={
           userLogin: userLogin,
       };   
-      data[`${dataType}Name`] = name;
+      data[`${dataType}ID`] = item.id;
       return new Promise( (resolve,reject) => {
         axios.post(`/user/${dataType}/remove`,data,{})
         .then(response => {
@@ -236,13 +236,13 @@ export default new Vuex.Store({
             switch(dataType) {
               case 'group': 
                 var groups = getters.groups;
-                var indexOfUser = groups.find(group => group.name === name).contain.indexOf(userLogin);
+                var indexOfUser = groups.find(group => group.id === item.id).contain.indexOf(userLogin);
                 if ( indexOfUser != -1) { // Si l'utilisateur est dans le groupe 
-                  groups.find(group =>  group.name === name).contain.splice(indexOfUser,1);
+                  groups.find(group =>  group.id === item.id).contain.splice(indexOfUser,1);
                   commit("FETCH_GROUPS",groups);
                   commit("FETCH_GROUPS_CHART",groups);
                 }
-                resolve (`L'utilisateur ${userLogin} a été retiré du groupe ${name}.`);
+                resolve (`L'utilisateur ${userLogin} a été retiré du groupe ${item.name}.`);
                 break;
               case 'repository' :
                 resolve(`Impossible de retirer un utilisateur d'un référentiel`);
@@ -254,9 +254,9 @@ export default new Vuex.Store({
         })
         .catch( error => {
           if (error.response) {
-            console.log(`Erreur lors du retrait de l'utilisateur ${userLogin} du groupe ${name}  : ` + error.response.data.message);
+            console.log(`Erreur lors du retrait de l'utilisateur ${userLogin} du groupe ${item.name}  : ` + error.response.data.message);
           }               
-          reject(`Erreur lors du retrait de l'utilisateur ${userLogin} du groupe ${name}.`);        
+          reject(`Erreur lors du retrait de l'utilisateur ${userLogin} du groupe ${item.name}.`);        
         })
       });
     },    

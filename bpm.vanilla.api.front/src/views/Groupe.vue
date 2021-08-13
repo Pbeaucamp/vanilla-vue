@@ -142,12 +142,11 @@ export default {
             return tab[2]+"/"+tab[1]+"/"+tab[0];
         },
         addUserTo(login) {
-            var groupName = this.group.name;
             this.loading_add_btns.push(login);
             this.$store.dispatch('addUserTo', {
                 "dataType": "group",
                 "userLogin": login,
-                "name" : groupName
+                "item" : this.group
             })
             .then( response => {
                 var indexOflogin = this.loading_add_btns.indexOf(login); 
@@ -168,12 +167,12 @@ export default {
 
         removeUserFrom(login) {
             
-            var groupName = this.group.name;
+            
             this.loading_remove_btns.push(login);
             this.$store.dispatch('removeUserFrom', {
                 "dataType": "group",
                 "userLogin": login,
-                "name" : groupName
+                "item" : this.group
             })
             .then( response => {
                 var indexOflogin = this.loading_remove_btns.indexOf(login); 
