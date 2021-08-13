@@ -22,6 +22,33 @@
                 <v-icon v-else-if="item.type == 'DIRECTORY'">
                 mdi-folder
                 </v-icon>
+                <v-icon v-else-if="item.type == 'FMDT'">
+                mdi-dropbox
+                </v-icon>
+                <v-icon v-else-if="item.type == 'GED_ENTRY'">
+                mdi-book-open
+                </v-icon>
+                <v-icon v-else-if="item.type == 'CUSTOM'">
+                mdi-content-paste
+                </v-icon>
+                <v-icon v-else-if="item.type == 'FD'">
+                mdi-table-cog
+                </v-icon>
+                <v-icon v-else-if="item.type == 'GTW'">
+                mdi-database
+                </v-icon>
+                <v-icon v-else-if="item.type == 'BIW'">
+                mdi-sync-circle
+                </v-icon>
+                <v-icon v-else-if="item.type == 'PORTAL'">
+                mdi-door
+                </v-icon>
+                <v-icon v-else-if="item.type == 'FASD'">
+                mdi-cube-outline
+                </v-icon>
+                <v-icon v-else-if="item.type == 'MAP'">
+                mdi-map-legend
+                </v-icon>
                 <v-icon v-else-if="!item.children">
                 mdi-file
                 </v-icon>
