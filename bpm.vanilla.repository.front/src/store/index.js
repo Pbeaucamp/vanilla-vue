@@ -169,53 +169,55 @@ export default new Vuex.Store({
       commit("FETCH_USERS", vartemp)
     },
 
-    addUserToGroup({state},{userLogin,groupName}) {
+    addUserToGroup({state},{userLogin,group}) {
 
       var data ={
         userLogin: userLogin,
-        groupName : groupName
+        groupID : group.id
       };   
+
 
       return new Promise( (resolve,reject) => {
         axios.post(`/user/group/add`,data,{})
         .then(response => {
-          if (response.data.status === 'success') {            
-            resolve (`L'utilisateur ${userLogin} a été ajouté au groupe ${groupName}.`);
+          if (response.data.status === 'success') {      
+            state.groups.data.push(group.name);            
+            resolve (`L'utilisateur ${userLogin} a été ajouté au groupe ${group.name}.`);
           }
-          state.groups.data.push(groupName);      
         })
         .catch( error => {
           if (error.response) {
-            console.log(`Error adding user ${userLogin} to ${groupName}  : `+ error.response.data.message)
+            console.log(`Error adding user ${userLogin} to ${group.name}  : `+ error.response.data.message)
           }                 
-          reject(`Erreur lors de l'ajout de ${userLogin} à ${groupName}.`);        
+          reject(`Erreur lors de l'ajout de ${userLogin} à ${group.name}.`);        
         })
       });
     },
 
-    removeUserFromGroup({state},{userLogin,groupName}) {
+
+    removeUserFromGroup({state},{userLogin,group}) {
       var data ={
           userLogin: userLogin,
-          groupName : groupName
+          groupID : group.id
       };   
       
       return new Promise( (resolve,reject) => {
         axios.post(`/user/group/remove`,data,{})
         .then(response => {
-          if (state.groups.data.indexOf(groupName) != -1) {
-            state.groups.data.splice(state.groups.data.indexOf(groupName),1)
+          if (state.groups.data.indexOf(group.name) != -1) {
+            state.groups.data.splice(state.groups.data.indexOf(group.name),1)
           }
           if (response.data.status === 'success') {
-            resolve (`L'utilisateur ${userLogin} a été retiré du groupe ${groupName}.`);
+            resolve (`L'utilisateur ${userLogin} a été retiré du groupe ${group.name}.`);
 
           }
              
         })
         .catch( error => {
           if (error.response) {
-            console.log(`Erreur lors du retrait de l'utilisateur ${userLogin} du groupe ${groupName}  : ` + error.response.data.message);
+            console.log(`Erreur lors du retrait de l'utilisateur ${userLogin} du groupe ${group.name}  : ` + error.response.data.message);
           }               
-          reject(`Erreur lors du retrait de l'utilisateur ${userLogin} du groupe ${groupName}.`);        
+          reject(`Erreur lors du retrait de l'utilisateur ${userLogin} du groupe ${group.name}.`);        
         })
       });
     },       
@@ -257,6 +259,27 @@ export default new Vuex.Store({
               reject("User not found.");
             }
 
+          } else {
+            console.log("Unable to retrieve groups : " + error);
+          }
+          reject(error);
+        })
+
+      });
+    },
+
+    getAllGroups({commit}) {
+      return new Promise( (resolve, reject) => {
+        axios.get("/groups")
+        .then(response => {
+          if (response.data.status == "success") {
+            commit("SET_GROUPS", []);
+          }
+          resolve(response.data.result);
+        })
+        .catch( error => {
+          if (error.reponse) {
+            console.log("Unable to retrieve groups message : " + error.response.data.message)
           } else {
             console.log("Unable to retrieve groups : " + error);
           }
