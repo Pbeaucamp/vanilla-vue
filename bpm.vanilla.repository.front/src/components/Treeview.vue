@@ -137,7 +137,7 @@ export default {
                 this.$store.dispatch('getItems', data)
               } else if (item.type == 'PORTAL'){
                 window.open(
-                    'https://semaphore-vanilla-kpi.data4citizen.com/#/portail/System/PAAT%20à%20destination%20des%20AR',
+                    'https://semaphore-vanilla-kpi.data4citizen.com/#/portail/System/PAAT%20à%20destination%20des%20ARS',
                     '_blank' // <- This is what makes it open in a new window.
                   );
                 }
