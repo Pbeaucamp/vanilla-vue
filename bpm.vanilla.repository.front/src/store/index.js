@@ -82,7 +82,7 @@ export default new Vuex.Store({
       })
     },
 
-    getItems ({ getters}, {repoName, groupName, dirID}){
+    getItems ({getters}, {repoName, groupName, dirID}){
       var group = getters.groups;
       var repo = getters.repositories;
       var groupID;
@@ -113,6 +113,32 @@ export default new Vuex.Store({
         console.log(`Error retrieving items : ` + error.response.data.message);
       })
     },
+
+    getAllItems ({commit, getters}, {repoName, groupName}){
+      var group = getters.groups;
+      var repo = getters.repositories;
+      var groupID;
+      var repoID;
+      group.forEach(e => {
+        if (e.name === groupName){
+          groupID = e.id
+        }
+      })
+      repo.forEach(e => {
+        if (e.name == repoName){
+          repoID = e.id
+        }
+      })
+      console.log(groupID, repoID);
+      axios.get(`/AllItems?repoID=${repoID}&grpID=${groupID}`)    
+      .then( response =>{
+        commit("FETCH_ITEMS", response.data.result);
+      }).catch(error => {
+        console.log(`Error retrieving items : ` + error.response.data.message);
+      })  
+    },
+
+
 
    getItemsRoot ({commit, getters}, {repoName, groupName}){
       var group = getters.groups;

@@ -2,16 +2,42 @@
         <v-card>
         <v-card-title class="indigo white--text display-1 text-decoration-underline">
         Repositories
+        <v-spacer></v-spacer>
+        <v-btn @click="reset()" class="mx-2">
+          Recherche
+        </v-btn>
         </v-card-title>
+        
         <v-row
         class="pa-4"
         justify="space-between"
         >
-        <v-col>
+        <v-col>      
+            <v-sheet class="pa-4 indigo" v-if="research == 1">
+              <v-text-field
+                v-model="search"
+                label="Rechercher un fichier"
+                dark
+                flat
+                solo-inverted
+                hide-details
+                clearable
+                clear-icon="mdi-close-circle-outline"
+              ></v-text-field>
+              <v-checkbox
+                v-model="caseSensitive"
+                dark
+                hide-details
+                label="Recherche sensible a la casse"
+              ></v-checkbox>
+            </v-sheet>
             <v-treeview
             dense
             hoverable
             :items="this.ITEMdata()"
+            :search="search"
+            :filter="filter"
+            :open.sync="open"
             open-on-click
             transition
             >
@@ -69,7 +95,18 @@ export default {
     computed: {
       ...mapState(['items']),
       ...mapState(['temps']),
+      filter () {
+        return this.caseSensitive
+          ? (item, search, textKey) => item[textKey].indexOf(search) > -1
+          : undefined
+      },
     },
+    data: () => ({
+      research : 0,
+      open: [1, 2],
+      search: null,
+      caseSensitive: false,
+    }),
     methods : {
         ITEMdata() {
             if (typeof this.items.data[0] == "object"){
@@ -83,31 +120,45 @@ export default {
             } 
         },
     
-    teste(item) {
-          var data
-          console.log('ITEM ', item);
-          console.log('A LEAF', item.name)
-          console.log(item.type);
-          console.log(this.temps.data);
-          console.log(this.temps.data.repoName);
-          console.log(this.temps.data.groupName);
-          if (item.type == "DIRECTORY"){
-            data = {
-              repoName : this.temps.data.repoName,
-              groupName : this.temps.data.groupName,
-              dirID : item
-            }
-            this.$store.dispatch('getItems', data)
-          } else if (item.type == 'PORTAL'){
-              window.location.href = "https://semaphore-vanilla-kpi.data4citizen.com/#/";
-            }
-          else {
-            console.log(item.id);
-            // this.$store.dispatch('niveaudeux', item.id).then(
-            //   this.$store.dispatch('getTabNiveau', item.id)
-            // )
-          }
-          }
+        teste(item) {
+              var data
+              console.log('ITEM ', item);
+              console.log('A LEAF', item.name)
+              console.log(item.type);
+              console.log(this.temps.data);
+              console.log(this.temps.data.repoName);
+              console.log(this.temps.data.groupName);
+              if (item.type == "DIRECTORY"){
+                data = {
+                  repoName : this.temps.data.repoName,
+                  groupName : this.temps.data.groupName,
+                  dirID : item
+                }
+                this.$store.dispatch('getItems', data)
+              } else if (item.type == 'PORTAL'){
+                window.open(
+                    'https://semaphore-vanilla-kpi.data4citizen.com/#/portail/System/PAAT%20à%20destination%20des%20AR',
+                    '_blank' // <- This is what makes it open in a new window.
+                  );
+                }
+              else {
+                console.log(item.id);
+
+              }
+              },
+              reset(){
+                if (this.research == 0){
+                  var data
+                  data = {
+                  repoName : this.temps.data.repoName,
+                  groupName : this.temps.data.groupName,
+                }
+                this.$store.dispatch('getAllItems', data)
+                this.research = 1
+                } else {
+                  this.research = 0
+                }
+              },
         }
 }
 </script>
