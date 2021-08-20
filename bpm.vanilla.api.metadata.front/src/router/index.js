@@ -2,7 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Dashboard from '../views/Dashboard.vue'
 import NotFoundComponent from '@/components/NotFound.vue'
-
+//import store from '@/store/index.js'
 
 Vue.use(VueRouter)
 
@@ -12,6 +12,12 @@ const routes = [
     name: 'Dashboard',
     component: Dashboard
   },
+  {
+    path: '/portail/:groupName/:metadataName',
+    name: 'Home',
+    component: Dashboard,
+  },  
+
   { 
     path: '*', 
     component: NotFoundComponent 

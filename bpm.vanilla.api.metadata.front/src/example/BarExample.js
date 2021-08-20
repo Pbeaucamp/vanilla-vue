@@ -206,7 +206,6 @@ export default {
   },
   mounted () {
     /*
-    console.log("Thing mounted");
     console.log("QueryResult : " + JSON.stringify(this.$store.state.queryResult));
     console.log("Seleccted columns : " + JSON.stringify(this.selectedColumns));
     console.log("AXE X : " + JSON.stringify(this.Axe_X) );

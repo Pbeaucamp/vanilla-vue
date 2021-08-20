@@ -103,7 +103,12 @@ export default {
     //this.$store.dispatch('getGroups');
     //console.log("Token parsed :" + JSON.stringify(Vue.$keycloak.tokenParsed));
     this.manageKeycloakUser().then( () => {
-      this.$store.dispatch('getUserGroups',{userLogin : Vue.$keycloak.tokenParsed.preferred_username});
+      this.$store.dispatch('getUserGroups',{userLogin : Vue.$keycloak.tokenParsed.preferred_username}).then( () => {
+        if ( !(this.$route.params.groupName == undefined) ) {
+          this.group = this.$route.params.groupName;
+          this.selectGroup();
+        }
+      });
     })
 
     //console.log("weird condition  !loaded && !(groups.selected == '') : " + (!this.loaded && !(this.groups.selected == '') ));
@@ -131,10 +136,7 @@ export default {
       })
     },
 
-    manageKeycloakUser() {
-      
-      
-       
+    manageKeycloakUser() {             
       //console.log("Token parsed " + JSON.stringify(Vue.$keycloak.tokenParsed));
       var userLogin = Vue.$keycloak.tokenParsed.preferred_username;
       var keycloakGroups = Vue.$keycloak.tokenParsed.groups;
@@ -195,28 +197,20 @@ export default {
               Promise.all(promiseArray).then( () => { resolve();});       
             }
           })
-
-
         })
-          
-
-
-      })
-
-
-      
-
-      
+      })      
     },
-
   },
   watch: {
     $route: {
       immediate: true,
       handler() {
+
         document.title = 'Vanilla Metadata';
       }
     },
+
+
   }
   
 };

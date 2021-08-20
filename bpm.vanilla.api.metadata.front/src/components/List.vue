@@ -9,7 +9,7 @@
         label="Metadata"
         outlined
         class="mx-2"
-        
+        :disabled = "!(this.$route.params.metadataName == undefined)"
       ></v-select>
       <v-select
         :disabled="metadata == '' && !loadModel"
@@ -50,6 +50,13 @@ export default {
       ...mapState(['metadatas','models','packages',"Tables"]),
       
       
+  },
+  beforeMount() { 
+    if ( !(this.$route.params.metadataName == undefined) ) {
+      this.metadata = this.$route.params.metadataName;
+
+    }
+
   },
   methods : {
     ...mapActions(["getBusinessModels","getBusinessPackages"]),
