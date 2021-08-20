@@ -140,6 +140,11 @@ export default {
                     'https://semaphore-vanilla-kpi.data4citizen.com/#/portail/System/PAAT%20à%20destination%20des%20ARS',
                     '_blank' // <- This is what makes it open in a new window.
                   );
+                } else if (item.type == 'FMDT'){
+                window.open(
+                    'https://semaphore-vanilla-metadata.data4citizen.com/portail/'+this.temps.data.groupName+'/'+item.name,
+                    '_blank' // <- This is what makes it open in a new window.
+                  );
                 }
               else {
                 console.log(item.id);
