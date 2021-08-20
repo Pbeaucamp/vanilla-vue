@@ -4,7 +4,7 @@ import Keycloak from 'keycloak-js'
 const options = {
   url: 'https://semaphore-keycloak2.data4citizen.com/auth/',
   realm: 'Vanilla7',
-  clientId: 'user'
+  clientId: 'reportviewer'
 }
 
 const _keycloak = Keycloak(options)
