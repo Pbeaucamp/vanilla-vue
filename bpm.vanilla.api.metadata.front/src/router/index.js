@@ -13,7 +13,7 @@ const routes = [
     component: Dashboard
   },
   {
-    path: '/portail/:groupName/:metadataName',
+    path: '/portail/:groupID/:metadataName',
     name: 'Home',
     component: Dashboard,
   },  

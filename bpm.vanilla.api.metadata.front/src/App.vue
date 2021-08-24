@@ -23,7 +23,7 @@
       <Footer/>
     </div>
 
-    <div v-if="!loaded && !(groups.selected == '')" >
+    <div v-if="!loaded && !(groups.selected == null)" >
       <v-overlay
         opacity="1"
         value="true"
@@ -52,6 +52,7 @@
         <v-row>
       
         <v-select
+          return-object
           v-model="group"
           :items="this.groups.data"
           item-text="name"
@@ -91,7 +92,7 @@ export default {
     loaded: false,
     loadingMsg: 'Loading...',
     loadingCircular: true,
-    group : "",
+    group : null,
     dialogGroup : true,
   }),
   computed : {
@@ -99,35 +100,29 @@ export default {
   },
 
   beforeMount() {
-    //this.appLoadData();
-    //this.$store.dispatch('getGroups');
     //console.log("Token parsed :" + JSON.stringify(Vue.$keycloak.tokenParsed));
     this.manageKeycloakUser().then( () => {
       this.$store.dispatch('getUserGroups',{userLogin : Vue.$keycloak.tokenParsed.preferred_username}).then( () => {
-        if ( !(this.$route.params.groupName == undefined) ) {
-          this.group = this.$route.params.groupName;
+        if ( !(this.$route.params.groupID == undefined) ) {
+          this.group = this.$store.state.groups.data.find(el => el.id == this.$route.params.groupID); 
           this.selectGroup();
         }
       });
     })
-
-    //console.log("weird condition  !loaded && !(groups.selected == '') : " + (!this.loaded && !(this.groups.selected == '') ));
-    //console.log("weird condition  !(groups.selected == '') : " + (this.groups.selected == '') );
   }, 
   methods : {
     removeSnackbar(snackbar) {
       this.$store.dispatch('removeSnackbar',snackbar);
     }, 
     selectGroup() {
-      if (this.group != "") {
+      if (this.group != null) {
         this.$store.commit("SELECT_GROUP",this.group);
         this.dialogGroup = false;
         this.loadMetadatas();
       }
     },
     loadMetadatas() {
-      this.$store.commit("SELECT_REPOSITORY","Vanilla");
-      //this.$store.commit("SELECT_GROUP","system");
+      this.$store.commit("SELECT_REPOSITORY","1"); // ID : 1 par défaut car ID du référentiel Vanilla 
 
       this.$store.dispatch('getMetadata').then(() => {
         this.loaded = true;
@@ -137,7 +132,6 @@ export default {
     },
 
     manageKeycloakUser() {             
-      //console.log("Token parsed " + JSON.stringify(Vue.$keycloak.tokenParsed));
       var userLogin = Vue.$keycloak.tokenParsed.preferred_username;
       var keycloakGroups = Vue.$keycloak.tokenParsed.groups;
         
@@ -160,9 +154,6 @@ export default {
               var searchedGroup = userGroups.find(el => el.name == groupName);
               if (searchedGroup == undefined) {  // s'il n'est pas dans le groupe 
 
-                // Tout refaire car maintenant tout passe par les IDs 
-
-                //console.log("( groups.find(el => el.name == groupName).name : " + ( groups.find(el => el.name == groupName).name ));
                 promiseArray.push(this.$store.dispatch('addUserToGroup',{userLogin: userLogin, group: ( groups.find(el => el.name == groupName) ) }));
               } else {
                 userGroups.splice(userGroups.indexOf(searchedGroup),1);

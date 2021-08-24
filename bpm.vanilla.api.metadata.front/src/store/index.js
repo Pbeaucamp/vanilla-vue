@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
-import router from '@/router'
+
 import config from '../config.json'
+
 
 
 axios.defaults.baseURL=config.baseURL;
@@ -29,13 +30,13 @@ export default new Vuex.Store({
     repositories : {
       name : "Référentiels",
       data : [],
-      selected : "",
+      selected : null,
     },
     repositoryName : "",
     groups : {
       name : "Groupes",
       data : [],
-      selected : "",
+      selected : null,
     },
     groupName : "",
     metadatas : {
@@ -97,8 +98,8 @@ export default new Vuex.Store({
     SET_TABLES(state, tables) {
       state.tables.data = tables;
     },
-    SELECT_REPOSITORY(state,name) {
-      state.repositories.selected = name;
+    SELECT_REPOSITORY(state,repoID) {
+      state.repositories.selected = repoID;
     },
     SELECT_GROUP(state, name) {
       state.groups.selected = name;
@@ -130,15 +131,6 @@ export default new Vuex.Store({
 
   },
   actions: {
-    setBottomBtn({commit}, btn) {
-      commit("SET_BOTTOM_REDIRECT_BTN", btn);
-    },
-    clickBottomBtn({commit,state}) {
-      if ( state.bottom_redirect_btn.link != '') {
-        router.push(state.bottom_redirect_btn.link);
-        commit("SET_BOTTOM_REDIRECT_BTN", {visible: false, link: ''});
-      }
-    },
     addSnackbar({state,commit, dispatch},snackbar) {
       snackbar.id = state.snackbars.id;
       state.snackbars.id++;
@@ -203,7 +195,7 @@ export default new Vuex.Store({
 
     getMetadata({commit,getters,dispatch}) {
       return new Promise( (resolve, reject) => {
-        axios.get(`/metadatas`, { params : { repositoryName : getters.repositoryName, groupName : getters.groupName} })
+        axios.get(`/metadatas`, { params : { repositoryID : getters.repositoryID, groupID : getters.groupID} })
         .then(response => {
           if (response.data.status == "success") {
             commit("SET_METADATAS", response.data.result);
@@ -224,7 +216,7 @@ export default new Vuex.Store({
 
     getBusinessModels({commit,getters,dispatch} , metadataName) {
       return new Promise( (resolve, reject) => {
-        axios.get(`/models`,{ params : { repositoryName : getters.repositoryName, groupName : getters.groupName, metadataName : metadataName } })
+        axios.get(`/models`,{ params : { repositoryID : getters.repositoryID, groupID : getters.groupID, metadataName : metadataName } })
         .then(response => {
           if (response.data.status == "success") {
             commit("SET_MODELS", response.data.result);
@@ -245,7 +237,7 @@ export default new Vuex.Store({
 
     getBusinessPackages({commit,getters,dispatch} , {metadataName,modelName}) {
       return new Promise( (resolve, reject) => {
-        axios.get(`/packages`,{ params : { repositoryName : getters.repositoryName, groupName : getters.groupName, metadataName : metadataName, modelName : modelName } })
+        axios.get(`/packages`,{ params : { repositoryID : getters.repositoryID, groupID : getters.groupID, metadataName : metadataName, modelName : modelName } })
         .then(response => {
           if (response.data.status == "success") {
             commit("SET_PACKAGES", response.data.result);
@@ -266,7 +258,7 @@ export default new Vuex.Store({
 
     getTablesAndColumns({dispatch,getters,commit}, {metadataName,modelName,packageName}) {
       return new Promise( (resolve, reject) => {
-        axios.get(`/tables/columns`,{ params : { repositoryName : getters.repositoryName, groupName : getters.groupName, metadataName : metadataName, modelName : modelName, packageName : packageName } })
+        axios.get(`/tables/columns`,{ params : { repositoryID : getters.repositoryID, groupID : getters.groupID, metadataName : metadataName, modelName : modelName, packageName : packageName } })
         .then(response => {
           if (response.data.status == "success") {
             var tables = []
@@ -303,7 +295,7 @@ export default new Vuex.Store({
 
     getTables({commit,getters,dispatch} , {metadataName,modelName,packageName}) {
       return new Promise( (resolve, reject) => {
-        axios.get(`/tables`,{ params : { repositoryName : getters.repositoryName, groupName : getters.groupName, metadataName : metadataName, modelName : modelName, packageName : packageName } })
+        axios.get(`/tables`,{ params : { repositoryID : getters.repositoryID, groupID : getters.groupID, metadataName : metadataName, modelName : modelName, packageName : packageName } })
         .then(response => {
           if (response.data.status == "success") {
             var tables = []
@@ -330,7 +322,7 @@ export default new Vuex.Store({
 
     getColumns({commit,getters,dispatch} , {metadataName,modelName,packageName,tableName}) {
       return new Promise( (resolve, reject) => {
-        axios.get(`/columns`,{ params : { repositoryName : getters.repositoryName, groupName : getters.groupName, metadataName : metadataName, modelName : modelName, packageName : packageName, tableName : tableName } })
+        axios.get(`/columns`,{ params : { repositoryID : getters.repositoryID, groupID : getters.groupID, metadataName : metadataName, modelName : modelName, packageName : packageName, tableName : tableName } })
         .then(response => {
           if (response.data.status == "success") {
             //var result = [];
@@ -384,26 +376,25 @@ export default new Vuex.Store({
 
     getQueryResult({commit,getters},{metadataName,modelName,packageName, columns,queryLimit,queryDistinct}) {
       return new Promise( (resolve, reject) => {
-        axios.get(`/query/result`,{ params : { repositoryName : getters.repositoryName, groupName : getters.groupName, metadataName : metadataName, modelName : modelName, packageName : packageName, columns: columns, queryLimit: queryLimit ,queryDistinct : queryDistinct } })
+        axios.get(`/query/result`,{ params : { repositoryID : getters.repositoryID, groupID : getters.groupID, metadataName : metadataName, modelName : modelName, packageName : packageName, columns: columns, queryLimit: queryLimit ,queryDistinct : queryDistinct } })
         .then(response => {
           if (response.data.status === 'success') {
             
             var result = [];
             var colTable = columns.split(',');
-            var responseTab = response.data.result.substring(1, response.data.result.length-2).split("], ");
+            var responseTab = response.data.result;
 
-            //responseTab[responseTab.length - 1 ] = responseTab[responseTab.length - 1 ].splice(0,-1);
             
             responseTab.forEach(el => {
               var tmp = new Object();
-              var tmptable = el.substring(1).split(", ");
               for (let i = 0; i < colTable.length; i++) {
-                tmp[colTable[i] ] = tmptable[i];
+                tmp[colTable[i] ] = el[i];
               }
               result.push(tmp);
             });
             
             commit("SET_QUERYRESULT",result);
+
             resolve();
           }
         }).catch(error => {
@@ -419,7 +410,7 @@ export default new Vuex.Store({
 
     getQuerySQL({commit,getters},{metadataName,modelName,packageName, columns,queryLimit,queryDistinct}) {
       return new Promise( (resolve, reject) => {
-        axios.get(`/query/sql`,{ params : { repositoryName : getters.repositoryName, groupName : getters.groupName, metadataName : metadataName, modelName : modelName, packageName : packageName, columns: columns, queryLimit: queryLimit ,queryDistinct : queryDistinct } })
+        axios.get(`/query/sql`,{ params : { repositoryID : getters.repositoryID, groupID : getters.groupID, metadataName : metadataName, modelName : modelName, packageName : packageName, columns: columns, queryLimit: queryLimit ,queryDistinct : queryDistinct } })
         .then(response => {
           if (response.data.status === 'success') {                       
             commit("SET_QUERYSQL",response.data.result.SQL);
@@ -438,7 +429,7 @@ export default new Vuex.Store({
 
     getSavedQueries({commit,getters}, {metadataName,modelName,packageName}) {
       return new Promise( (resolve, reject) => {
-        axios.get(`/queries/saved`,{ params : { repositoryName : getters.repositoryName, groupName : getters.groupName, metadataName : metadataName, modelName : modelName, packageName : packageName} })
+        axios.get(`/queries/saved`,{ params : { repositoryID : getters.repositoryID, groupID : getters.groupID, metadataName : metadataName, modelName : modelName, packageName : packageName} })
         .then(response => {
           if (response.data.status === 'success') {                       
             commit("SET_SAVEDQUERIES",response.data.result);
@@ -457,7 +448,7 @@ export default new Vuex.Store({
 
     getSavedQueryData({commit,getters} , {metadataName,modelName,packageName,queryName}) {
       return new Promise( (resolve, reject) => {
-        axios.get(`/query/saved`,{ params : { repositoryName : getters.repositoryName, groupName : getters.groupName, metadataName : metadataName, modelName : modelName, packageName : packageName, queryName : queryName} })
+        axios.get(`/query/saved`,{ params : { repositoryID : getters.repositoryID, groupID : getters.groupID, metadataName : metadataName, modelName : modelName, packageName : packageName, queryName : queryName} })
         .then(response => {
           if (response.data.status === 'success') {                       
             commit("SET_LOADEDSAVEDQUERY",response.data.result);
@@ -561,8 +552,14 @@ export default new Vuex.Store({
     repositoryName: state => {
       return state.repositories.selected;
     },
+    repositoryID: state => {
+      return state.repositories.selected;
+    },
     groupName: state => {
-      return state.groups.selected;
+      return state.groups.selected.name;
+    },
+    groupID: state => {
+      return state.groups.selected.id;
     },
     tables : state => {
       return state.tables.data;

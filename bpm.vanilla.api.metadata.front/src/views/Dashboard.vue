@@ -389,6 +389,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
+          <v-btn color="green" outlined class="mr-4" @click="copyQueryToClipboard"> Copier </v-btn>  
           <v-btn color="primary darken-1" outlined class="mr-4" @click="affSQL=false"> Fermer </v-btn>            
         </v-card-actions>
         </v-card>
@@ -502,6 +503,9 @@ export default {
     },
     methods : {
       ...mapActions(["getTables","getColumns","addNewSavedQuery","getQueryResult","getTablesAndColumns","getQuerySQL","getSavedQueries","getSavedQueryData"]),
+      copyQueryToClipboard() {
+        navigator.clipboard.writeText(this.querySQL);
+      },
       getSavedQuery() {
         this.loadImportQuery = true;
         this.getSavedQueryData({metadataName : this.metadatas.selected ,modelName : this.models.selected ,packageName : this.packages.selected, queryName: this.selectedSavedQuery })
@@ -591,11 +595,11 @@ export default {
         }
         columns = columns.slice(0,-1);
         var data = {
-           repositoryName : this.repositoryName, groupName : this.groupName, metadataName : this.metadatas.selected ,modelName : this.models.selected ,packageName : this.packages.selected,
-           columns : columns, queryName : this.queryName, queryDescription : this.queryDescription, queryLimit: this.queryLimit ,queryDistinct : this.queryDistinct
+           repositoryID : this.$store.getters.repositoryID, groupID : this.$store.getters.groupID, metadataName : this.metadatas.selected ,modelName : this.models.selected ,packageName : this.packages.selected,
+           columns : columns, queryName : this.queryName, queryDesc : this.queryDescription, queryLimit: this.queryLimit ,queryDistinct : this.queryDistinct
         }
         //console.log("My saved Query data : " + JSON.stringify(data));
-        this.addNewSavedQuery(data).then( () => {this.loadingSaveQuery = false}).catch( () => {this.loadingSaveQuery = false});
+        this.addNewSavedQuery(data).then( () => {this.loadingSaveQuery = false; this.dialogSaveQuery = false; }).catch( () => {this.loadingSaveQuery = false; this.dialogSaveQuery = false;});
       },
       mySuperAlert() {
         alert(this.activeColumn)
@@ -644,29 +648,6 @@ export default {
         handler : function () {
           if (this.packages.selected != "") {
             this.tablesLoading = true;
-
-            /*
-            this.getTables( {metadataName : this.metadatas.selected ,modelName : this.models.selected ,packageName : this.packages.selected})
-            .then( () => {
-              var promiseArray = [];
-              this.tables.data.forEach(element => {
-                promiseArray.push(
-                  this.getColumns({metadataName : this.metadatas.selected ,modelName : this.models.selected ,packageName : this.packages.selected, tableName : element.name})
-                );
-              });
-              Promise.all(promiseArray).then( () => {
-                
-                this.tablesLoaded = true;
-                this.tablesLoading = false;
-                this.localTables = this.tables.data;
-                this.localTables.forEach(e => {
-                  e.children.forEach(child => {child["agg"] ="NONE"; child["pos"] = 0;})
-                })
-              })
-              
-            }) 
-            */
-
             this.getTablesAndColumns({metadataName : this.metadatas.selected ,modelName : this.models.selected ,packageName : this.packages.selected})
             .then( () => {
               this.tablesLoaded = true;
