@@ -31,10 +31,6 @@ export default new Vuex.Store({
       name: 'Temps',
       data: []
     },
-    // arborescence: {
-    //   name: "Arborescence",
-    //   data : []
-    // }
   },
   mutations: {
     FETCH_USERS(state, users) {
@@ -52,9 +48,6 @@ export default new Vuex.Store({
     FETCH_TEMPS(state, temps) {
       state.temps.data = temps;
     },    
-    // FETCH_ARBORESCENCE(state, arborescence) {
-    //   state.arborescence.data = arborescence;
-    // }
   },
   actions: {
     async getRepositories({commit}, user) {
@@ -159,19 +152,12 @@ export default new Vuex.Store({
       console.log(groupID, repoID);
       axios.get(`/Items?repoID=${repoID}&grpID=${groupID}`)    
       .then( response =>{
-        // var arbo = []
         data = response.data.result;
         data.forEach(e => {
           if (e.type == "DIRECTORY"){
             e.children = []
           }
-          // arbo.push({
-          //   ID : e.id,
-          //   parentID : 0
-          // })
         })
-        // commit("FETCH_ARBORESCENCE", arbo)
-        // console.log(arbo);
         commit("FETCH_ITEMS", response.data.result);
       }).catch(error => {
         console.log(`Error retrieving items : ` + error.response.data.message);
@@ -332,9 +318,6 @@ export default new Vuex.Store({
     temps: state => {
       return state.temps.data;
     }, 
-    // arborescence : state => {
-    //   return state.arborescence.data;
-    // }
   },
   modules: {
   }

@@ -84,7 +84,16 @@
                 <a @click="teste(item)">{{ item.name }}</a>
             </template>
             </v-treeview>
-        </v-col>
+
+          </v-col>
+              <div id="iframe" v-if="this.metadataLink == true">
+                <iframe :src="'https://semaphore-vanilla-metadata.data4citizen.com/portail/'+this.metadataGroupName+'/'+this.metadataName" >
+                </iframe>
+              </div>
+              <div id="iframe" v-if="this.KPILink == true">
+                <iframe :src="'https://semaphore-vanilla-kpi.data4citizen.com/#/portail/System/PAAT%20à%20destination%20des%20ARS'" >
+                </iframe>
+              </div>
         </v-row>
     </v-card>
 </template>
@@ -121,53 +130,63 @@ export default {
         },
     
         teste(item) {
-              var data
-              console.log('ITEM ', item);
-              console.log('A LEAF', item.name)
-              console.log(item.type);
-              console.log(this.temps.data);
-              console.log(this.temps.data.repoName);
-              console.log(this.temps.data.groupName);
-              if (item.type == "DIRECTORY"){
-                data = {
-                  repoName : this.temps.data.repoName,
-                  groupName : this.temps.data.groupName,
-                  dirID : item
-                }
-                this.$store.dispatch('getItems', data)
-              } else if (item.type == 'PORTAL'){
-                window.open(
-                    'https://semaphore-vanilla-kpi.data4citizen.com/#/portail/System/PAAT%20à%20destination%20des%20ARS',
-                    '_blank' // <- This is what makes it open in a new window.
-                  );
-                } else if (item.type == 'FMDT'){
-                window.open(
-                    'https://semaphore-vanilla-metadata.data4citizen.com/portail/'+this.temps.data.groupName+'/'+item.name,
-                    '_blank' // <- This is what makes it open in a new window.
-                  );
-                }
-              else {
-                console.log(item.id);
-
-              }
-              },
-              reset(){
-                if (this.research == 0){
-                  var data
-                  data = {
-                  repoName : this.temps.data.repoName,
-                  groupName : this.temps.data.groupName,
-                }
-                this.$store.dispatch('getAllItems', data)
-                this.research = 1
-                } else {
-                  this.research = 0
-                }
-              },
-        }
+          var data
+          console.log('ITEM ', item);
+          console.log('A LEAF', item.name)
+          console.log(item.type);
+          console.log(this.temps.data);
+          console.log(this.temps.data.repoName);
+          console.log(this.temps.data.groupName);
+          var groupID = this.$store.state.groups.data.find(gr => gr.name === this.temps.data.groupName).id
+          if (item.type == "DIRECTORY"){
+            data = {
+              repoName : this.temps.data.repoName,
+              groupName : this.temps.data.groupName,
+              dirID : item
+            }
+            this.$store.dispatch('getItems', data)
+          } else if (item.type == "PORTAL"){
+          window.open(
+            'https://semaphore-vanilla-kpi.data4citizen.com/#/portail/'+groupID+'/'+item.portalID,
+            '_blank' // <- This is what makes it open in a new window.
+            );
+          } else if (item.type == "FMDT") {
+          console.log(groupID),
+          window.open(
+            
+            'https://semaphore-vanilla-metadata.data4citizen.com/portail/'+groupID+'/'+item.name,
+            '_blank' // <- This is what makes it open in a new window.
+            );
+          }
+          else {
+            console.log(item.id);
+          }
+        },
+        reset(){
+          if (this.research == 0){
+            var data
+            data = {
+            repoName : this.temps.data.repoName,
+            groupName : this.temps.data.groupName,
+          }
+          this.$store.dispatch('getAllItems', data)
+          this.research = 1
+          } else {
+            this.research = 0
+          }
+        },
+      }
 }
 </script>
 
 <style scoped>
-
+#app, #app iframe {
+  height: 70vh;
+  width: 70vw;
+  border: none;
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
 </style>
