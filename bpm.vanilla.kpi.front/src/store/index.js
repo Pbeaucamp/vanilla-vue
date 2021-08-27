@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import axios from 'axios'
 import config from '../config.json'
 
+
 axios.defaults.baseURL=config.baseURL;
 axios.defaults.headers.common['X-Gravitee-Api-Key'] = "f3510842-ef9b-4ee7-8877-4d59b5d63907";
 
@@ -120,19 +121,19 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    getObservatories({commit}, group) {
-      var groupID = this.groups.data.find(gr => gr.name === group).id
+    getObservatories({commit,getters}, group) {
+      var groupID = getters.groups.find(gr => gr.name === group).id
       var obsdata = [];
-        axios.get(`/group/${groupID}/observatories`)
-        .then( response => {
-          response.data.result.forEach(elements => {
-            if (!obsdata.some(e => e.id == elements.id)){
-              obsdata.push(elements)
-            }
-          });
-        }).catch(error => {
-            console.log(`Error retrieving repositories : ` + error.response.data.message);
-        })
+      axios.get(`/group/${groupID}/observatories`)
+      .then( response => {
+        response.data.result.forEach(elements => {
+          if (!obsdata.some(e => e.id == elements.id)){
+            obsdata.push(elements)
+          }
+        });
+      }).catch(error => {
+          console.log(`Error retrieving repositories : ` + error.response.data.message);
+      })
       commit("FETCH_OBSERVATORIES",obsdata);
       commit("FETCH_AXIS", [])
       commit("FETCH_BOOLNIVEAU", false)
@@ -153,22 +154,31 @@ export default new Vuex.Store({
       })
     },
 
-    getTheme({commit}, group) {
-      var groupID = this.groups.data.find(gr => gr.name === group).id
+    getTheme({commit,getters}, group) {
+
+      var groupID = getters.groups.find(gr => gr.name === group).id
       var thedata = [];
-      axios.get(`/group/${groupID}/themes`)
+      return new Promise((resolve, reject) => {
+        axios.get(`/group/${groupID}/themes`)
         .then( response => {
           response.data.result.forEach(elements => {
             if (!thedata.some(e => e.id == elements.id)){
               thedata.push(elements)
             }
           });
+          commit("FETCH_THEMES",thedata);
+          commit("FETCH_AXIS", [])
+          commit("FETCH_BOOLNIVEAU", false)
+          resolve();
+  
         }).catch(error => {
             console.log(`Error retrieving repositories : ` + error.response.data.message);
+            reject();
         })
-      commit("FETCH_THEMES",thedata);
-      commit("FETCH_AXIS", [])
-      commit("FETCH_BOOLNIVEAU", false)
+
+      })
+
+
     },
 
     getThemeByObs({commit, getters}, obs) {
@@ -192,8 +202,8 @@ export default new Vuex.Store({
       }
     },
     
-    getKPI({commit}, {group, theme, themes}) {
-      var groupID = this.groups.data.find(gr => gr.name === group).id
+    getKPI({commit,getters}, {group, theme, themes}) {
+      var groupID = getters.groups.find(gr => gr.name === group).id
       return new Promise( (resolve,reject) => {
 
       var KPIdata = [];
@@ -228,7 +238,7 @@ export default new Vuex.Store({
         });
 
         
-        console.log(KPIdata);
+
         commit("FETCH_KPI",KPIdata);
         commit("FETCH_KPI_OR_AXIS","KPI")
         commit("FETCH_BOOLNIVEAU", false)
@@ -253,7 +263,7 @@ export default new Vuex.Store({
         }
       });
       var promiseArray = [];
-      var groupID = this.groups.data.find(gr => gr.name === temp.group).id
+      var groupID = getters.groups.find(gr => gr.name === temp.group).id
       KPIdataa.forEach(el => {
         el.result = []
           promiseArray.push(axios.get(`/group/${groupID}/kpi/${el.kpiID}/values?date=${gooddate}`)      
@@ -296,7 +306,7 @@ export default new Vuex.Store({
       });
       
       var promiseArray = [];
-      var groupID = this.groups.data.find(gr => gr.name === temp.group).id
+      var groupID = getters.groups.find(gr => gr.name === temp.group).id
       KPIdata.forEach(el => {
         el.result = []
         promiseArray.push(axios.get(`/group/${groupID}/kpi/${el.kpiID}/value?date=${newdate}`)      
@@ -314,7 +324,7 @@ export default new Vuex.Store({
           e.result[0] = [];
           e.result[0].push(tem);
         });
-        console.log(KPIdata);
+
         commit("FETCH_KPI",KPIdata);
         commit("FETCH_KPI_OR_AXIS","KPI")
         commit("FETCH_BOOLNIVEAU", false)
@@ -357,7 +367,7 @@ export default new Vuex.Store({
       });
       
       var promiseArray = [];
-      var groupID = this.groups.data.find(gr => gr.name === temp.group).id
+      var groupID = getters.groups.find(gr => gr.name === temp.group).id
       KPIdata.forEach(el => {
         el.result = []
         promiseArray.push(axios.get(`/group/${groupID}/kpi/${el.kpiID}/value?date=${newdate1}`)      
@@ -417,7 +427,7 @@ export default new Vuex.Store({
           }
         })
       });
-      var groupID = this.groups.data.find(gr => gr.name === temp.group).id
+      var groupID = getters.groups.find(gr => gr.name === temp.group).id
       axios.get(`/group/${groupID}/kpi/${kpiID}/axis/${parentID}/value?date=${newdate}`)
       .then( response => {
         console.log("hello ", response.data.result);
@@ -431,7 +441,7 @@ export default new Vuex.Store({
               name : element.children[0].name
             })
             response.data.result.forEach(el => {
-              console.log(el.axis[0]);
+
               if (!element.children[0].children.find( o => o.name === el.axis[0].label)){
                   element.children[0].children.push({
                   id : el.axis[0].label,
@@ -442,7 +452,7 @@ export default new Vuex.Store({
           }
         });
 
-        console.log(axisdata);
+
         commit("FETCH_KPI_OR_AXIS","AXIS")
         commit("FETCH_BOOLNIVEAU", false)
       }).catch(error => {
@@ -456,16 +466,13 @@ export default new Vuex.Store({
     getTabNiveau({commit,getters}, id){
       var tab = getters.axisvalues
       var temp = []
-      console.log("ici ", tab);
       tab.forEach(el => {
         if (el.axis[0].label == id){
-          console.log(el.axis[0].label);
-          console.log(el.axis[1].label);
           temp.push(el)
         }
       }),
       commit("FETCH_TABNIVEAU", temp)
-      console.log(this.state.tabniveau);
+
     },
     getHideData({commit, getters}, {cacher, name, id}){
       var tab = getters.hidedata

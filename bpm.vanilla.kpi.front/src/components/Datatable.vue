@@ -230,7 +230,7 @@ data () {
             kpiID : id,
             date : this.picker,
           }
-          console.log(this.picker);
+          //console.log(this.picker);
           this.$store.dispatch('getOneKPI', data).then(
             this.$store.dispatch('getAxis', this.kpi.data[0].kpiID).then(
             )
@@ -253,12 +253,12 @@ data () {
       },
       teste(item) {
         if (typeof item.children == "object"){
-          console.log('Not a leaf', item)
+          //console.log('Not a leaf', item)
         } else {
           var data
-          console.log('A LEAF', item.name)
-          console.log("ID KPI : ", this.kpi.data[0].kpiID, ", NAME + ID AXIS :", item.name, " + ", item.id );
-          console.log(typeof(item.id));
+          // console.log('A LEAF', item.name)
+          //console.log("ID KPI : ", this.kpi.data[0].kpiID, ", NAME + ID AXIS :", item.name, " + ", item.id );
+          //console.log(typeof(item.id));
           if (typeof(item.id) == "number"){
             data = {
               kpiID : this.kpi.data[0].kpiID,
@@ -267,7 +267,7 @@ data () {
             }
             this.$store.dispatch('getAxisValue', data)
           } else {
-            console.log(item.id);
+            //console.log(item.id);
             this.$store.dispatch('niveaudeux', item.id).then(
               this.$store.dispatch('getTabNiveau', item.id)
             )
@@ -311,7 +311,7 @@ data () {
           this.items2 = [],
           // console.log(this.$store.state.kpi),
           this.tabvalueoneyear.data[0].result[0].forEach(el => {
-            console.log(el);
+            //console.log(el);
             if (!this.items2.includes({
               datee : this.parseDate(el.date),
               valeure : el.value,

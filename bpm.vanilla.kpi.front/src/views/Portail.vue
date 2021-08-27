@@ -51,34 +51,44 @@ import GroupChart from '../components/GroupChart.vue'
     },
     methods : {
       getTheme() {
-          console.log(this.$route.params.groupID);
-          console.log(this.$route.params.kpiID);
-          var groupName= this.$store.state.groups.data.find(gr => gr.id === this.$route.params.groupID).name
-          var kpiName= this.$store.state.kpi.data.find(gr => gr.kpiID === this.$route.params.kpiID).name
-          this.$store.dispatch('getObservatories',groupName)
-          this.$store.dispatch('getTheme',groupName)
-          console.log(this.$store.state.themes.data);
-          if ((this.$route.params.groupID != "") & (this.$route.params.kpiID != "")){
-            var data = {
-              group : groupName,
-              theme : kpiName,
-              themes : this.$store.state.themes.data
-            }
-            this.$store.dispatch('tempData', data).then(() => {
-              this.$store.dispatch('getKPI', data).then(() => {
-                setTimeout(() => {
-                  this.$store.dispatch('resetKPI').then(() =>{
-                    this.loaded = true;
-                  })
-                }, 4000)
 
+          var groupName= this.$store.state.groups.data.find(gr => gr.id == this.$route.params.groupID).name;
+
+          
+          this.$store.dispatch('getObservatories',groupName);
+          this.$store.dispatch('getTheme',groupName).then( () => {
+
+
+
+            var kpiName= this.$store.state.themes.data.find(el => el.id == this.$route.params.themeID).name;
+          
+            if ((this.$route.params.groupID != "") & (this.$route.params.themeID != "")){
+              var data = {
+                group : groupName,
+                theme : kpiName,
+                themes : this.$store.state.themes.data
+              }
+              this.$store.dispatch('tempData', data).then(() => {
+                this.$store.dispatch('getKPI', data).then(() => {
+                  setTimeout(() => {
+                    this.$store.dispatch('resetKPI').then(() =>{
+                      this.loaded = true;
+                    })
+                  }, 10)
+
+                })
               })
-            })
-            .catch(() =>{
-                this.loadingMsg = "Impossible d'établir la connexion au serveur, veuillez rafraichir la page ou contacter l'administrateur.";
-                this.loadingCircular = false;
+              .catch(() =>{
+                  this.loadingMsg = "Impossible d'établir la connexion au serveur, veuillez rafraichir la page ou contacter l'administrateur.";
+                  this.loadingCircular = false;
               })
             }
+
+
+
+          });
+
+
         }
       },
   }

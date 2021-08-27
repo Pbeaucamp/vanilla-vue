@@ -92,7 +92,7 @@
         changeType(type) {
             this.ChartType = type,
             this.$store.dispatch('getTypechart', type).then(
-              console.log(this.typechart.data)
+              //console.log(this.typechart.data)
             )
         }
     },
@@ -118,7 +118,7 @@
       },
       kpioraxis :{
         handler : function () {
-          console.log(this.kpioraxis.data);
+          //console.log(this.kpioraxis.data);
           if (this.kpioraxis.data == "KPI") {
             this.ChartType = "Gauge"  
           } else if (this.kpioraxis.data == "AXIS") {

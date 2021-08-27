@@ -53,13 +53,13 @@ export default {
       // console.log(this.axisvalues);
       // console.log(this.childrenid.data);
       this.axis.data.forEach(element => {
-        var id = element.children[0].id
+        //var id = element.children[0].id
         var compteur = 0
-        console.log(id);
+        //console.log(id);
         element.children.forEach(el => {
-          console.log(el);
+          //console.log(el);
           if (el.id == this.childrenid.data){
-            console.log("CA FONCTIONNE REELLEMENT ");
+            //console.log("CA FONCTIONNE REELLEMENT ");
             i = compteur
           }
           compteur = compteur +1
@@ -119,7 +119,7 @@ export default {
           c = c+1
         }
       })
-      console.log(dataset);
+      //console.log(dataset);
       if (c > 0){
         dataset2.push(
           {
@@ -129,7 +129,7 @@ export default {
           }
         )
       }
-      console.log(dataset2);
+      //console.log(dataset2);
       return {
         labels : labels,
         datasets:
@@ -170,7 +170,7 @@ export default {
   watch : {
     kpi :{
       handler :function () {
-          console.log(this.kpioraxis.data);
+          //console.log(this.kpioraxis.data);
           this.renderChart( this.chartData,{ responsive: true, maintainAspectRatio: false,
             legend: {
               display: this.bool()
@@ -189,7 +189,7 @@ export default {
   },
     axisvalues : {
       handler :function () {
-        console.log(this.kpioraxis.data);
+        //console.log(this.kpioraxis.data);
         this.renderChart(this.chartDataAxis,{ responsive: true, maintainAspectRatio: false,
           legend: {
             display: this.bool()

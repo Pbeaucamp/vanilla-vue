@@ -11,7 +11,6 @@ export default {
       var Adata = []
       var dataset = []
       // var c = 0
-      console.log("tabniveau ", this.tabniveau.data);
       this.tabniveau.data.forEach(element => {
         Adata = []
         var returnedDate = element.date.split('T')

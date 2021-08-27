@@ -47,17 +47,13 @@ export default {
       var Adata = []
       var background = []
       var i = 0
-      console.log("coucou ", this.axis.data);
-      console.log(this.axisvalues);
-      console.log(this.childrenid.data);
       this.axis.data.forEach(element => {
-        var id = element.children[0].id
+
         var compteur = 0
-        console.log(id);
+
         element.children.forEach(el => {
-          console.log(el);
+
           if (el.id == this.childrenid.data){
-            console.log("CA FONCTIONNE REELLEMENT ");
             i = compteur
           }
           compteur = compteur +1
