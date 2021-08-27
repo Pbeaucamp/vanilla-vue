@@ -74,7 +74,7 @@ export default {
     return {
       drawer: false,
       links: [
-        { icon: 'mdi-view-dashboard', text: 'Home', route: '/' },
+        { icon: 'mdi-content-paste', text: 'Rapports', route: '/' },
 
 
       ]

@@ -12,7 +12,7 @@
       
         <v-select
           v-model="group"
-          :items="this.groups"
+          :items="this.userGroups"
           item-text="name"
           label="Groupes"
           outlined
@@ -107,7 +107,7 @@ export default {
     loadingCircular: true,
   }),
   computed : {
-    ...mapState(['snackbars','groups','selectedGroup'])
+    ...mapState(['snackbars','groups','selectedGroup','userGroups'])
   },
 
   beforeMount() {
@@ -189,7 +189,14 @@ export default {
                 promiseArray.push(this.$store.dispatch('removeUserFromGroup',{ userLogin: userLogin, group: group }));
               }
             }
-            Promise.all(promiseArray).then( () => { resolve();});
+            
+
+            Promise.all(promiseArray).then( () => { 
+
+              this.$store.dispatch("getUserGroups", {userLogin : userLogin}).then( () => {
+                resolve();
+              });
+            });
           
           })
           .catch( reject => {
@@ -208,7 +215,11 @@ export default {
                   promiseArray.push(this.$store.dispatch('addUserToGroup',{ userLogin: userLogin, group: groups.find(el => el.name == groupName) }));
                 }
               })
-              Promise.all(promiseArray).then( () => { resolve();});       
+              Promise.all(promiseArray).then( () => { 
+                this.$store.dispatch("getUserGroups", {userLogin : userLogin}).then( () => {
+                  resolve();
+                });
+              });       
             }
           })
         })

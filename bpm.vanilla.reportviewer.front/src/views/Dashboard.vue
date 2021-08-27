@@ -3,13 +3,7 @@
     <v-container class="my-5">
 
 
-
-
-
-
-
-
-      <v-row align="center" justify="center">
+      <v-row align="start" justify="center">
         <v-col xs="12" sm="6" md="6" lg="6">
           <v-card class="mx-auto" max-width="500">    
             <v-sheet class="pa-4 primary lighten-1">
@@ -40,25 +34,26 @@
               </v-container>
             </v-sheet>
             <v-card-text>
-              <v-treeview v-model="selectedReport" :items="reports" item-key="id" return-object
+              <v-treeview :active="selectedReport" :items="reports" item-key="id" return-object
                 :search="search"
                 :filter="filter"
-                hoverable 
+                 
                 open-on-click
                 rounded
                 activatable
                 selected-color="primary">
 
                 
-                <template v-slot:prepend="{ }">
+                <template v-slot:prepend="{}">
                   <v-icon >
                     mdi-content-paste
                   </v-icon>
                 </template>
                 
                 <template v-slot:label="{ item }">
-                  <span>{{item.name}}</span>
+                  <span @click="getReport(item)" >{{item.name}}</span>
                 </template>   
+
 
 
                 
@@ -66,6 +61,14 @@
             </v-card-text>
           </v-card>
         </v-col>
+
+        <v-col xs="12" sm="6" md="6" lg="6">
+          <div v-html="reportHTML">
+
+          </div>
+          
+        </v-col>
+
       </v-row>        
        
 
@@ -75,7 +78,7 @@
 
 <script>
 import {mapState} from 'vuex'
-
+import Vue from 'vue'
 
 export default {
     name: 'Dashboard',
@@ -85,15 +88,29 @@ export default {
         selectedReport: [],
         search : "",
     }),
+    methods : {
+      getReport(item) {
+        this.$store.dispatch("openReport", {userLogin :  Vue.$keycloak.tokenParsed.preferred_username, reportID: item.id})
+      }
+    },
 
     computed: {
-      ...mapState(["reports"]),
+      ...mapState(["reports","reportHTML"]),
       filter () {
         return this.caseSensitive
           ? (item, search, textKey) => item[textKey].indexOf(search) > -1
           : undefined
       },   
     },
+    /*
+    watch : {
+      selectedReport : function() {
+        if (this.selectedReport.length > 0 ) {
+          this.$store.dispatch("openReport", {userLogin :  Vue.$keycloak.tokenParsed.preferred_username, reportID: this.selectedReport.id})
+          
+        }
+      }
+    }*/
 
 }
 </script>

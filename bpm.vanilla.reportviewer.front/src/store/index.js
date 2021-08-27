@@ -24,7 +24,7 @@ export default new Vuex.Store({
       id: 0,
       data : []
     },
-
+    reportHTML : null,
   },
   mutations: {
     SET_REPORTS(state,reports) {
@@ -44,11 +44,28 @@ export default new Vuex.Store({
     },
     SELECT_GROUP(state,group) {
       state.selectedGroup = group;
+    },
+    SET_REPORT(state,report) {
+      state.reportHTML = report;
     }
 
 
   },
   actions: {
+
+    openReport({commit,getters}, {userLogin, reportID}) {
+      return new Promise( (resolve,reject) => {
+        axios.get("/view", { params : {repositoryID : 1 , groupID : getters.selectedGroup.id, userLogin : userLogin, reportID: reportID, format: "html" }}).then((response) => {
+          commit("SET_REPORT",response.data);
+          //console.log("Result : " + JSON.stringify(response.data));
+        })
+        .catch(error => {
+          console.log("Error : " +error);
+          reject();
+        });
+      })
+    },
+
     GetReports({commit,getters}) {
       return new Promise( (resolve,reject) => {
         axios.get("/reports", { params : {repositoryID : 1 , groupID : getters.selectedGroup.id}}).then((response) => {
