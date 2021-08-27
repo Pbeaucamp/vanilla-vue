@@ -121,8 +121,9 @@ export default new Vuex.Store({
   },
   actions: {
     getObservatories({commit}, group) {
+      var groupID = this.groups.data.find(gr => gr.name === group).id
       var obsdata = [];
-        axios.get(`/group/${group}/observatories`)
+        axios.get(`/group/${groupID}/observatories`)
         .then( response => {
           response.data.result.forEach(elements => {
             if (!obsdata.some(e => e.id == elements.id)){
@@ -153,8 +154,9 @@ export default new Vuex.Store({
     },
 
     getTheme({commit}, group) {
+      var groupID = this.groups.data.find(gr => gr.name === group).id
       var thedata = [];
-      axios.get(`/group/${group}/themes`)
+      axios.get(`/group/${groupID}/themes`)
         .then( response => {
           response.data.result.forEach(elements => {
             if (!thedata.some(e => e.id == elements.id)){
@@ -191,7 +193,7 @@ export default new Vuex.Store({
     },
     
     getKPI({commit}, {group, theme, themes}) {
-
+      var groupID = this.groups.data.find(gr => gr.name === group).id
       return new Promise( (resolve,reject) => {
 
       var KPIdata = [];
@@ -208,7 +210,7 @@ export default new Vuex.Store({
 
       KPIdata.forEach(el => {
         el.result = []
-        promiseArray.push(axios.get(`/group/${group}/kpi/${el.kpiID}/values`)      
+        promiseArray.push(axios.get(`/group/${groupID}/kpi/${el.kpiID}/values`)      
           .then(response => {
           el.result.push(response.data.result)
         }).catch(error => {
@@ -251,10 +253,10 @@ export default new Vuex.Store({
         }
       });
       var promiseArray = [];
-
+      var groupID = this.groups.data.find(gr => gr.name === temp.group).id
       KPIdataa.forEach(el => {
         el.result = []
-          promiseArray.push(axios.get(`/group/${temp.group}/kpi/${el.kpiID}/values?date=${gooddate}`)      
+          promiseArray.push(axios.get(`/group/${groupID}/kpi/${el.kpiID}/values?date=${gooddate}`)      
           .then(response => {
           el.result.push(response.data.result)
         }).catch(error => {
@@ -294,10 +296,10 @@ export default new Vuex.Store({
       });
       
       var promiseArray = [];
-
+      var groupID = this.groups.data.find(gr => gr.name === temp.group).id
       KPIdata.forEach(el => {
         el.result = []
-        promiseArray.push(axios.get(`/group/${temp.group}/kpi/${el.kpiID}/value?date=${newdate}`)      
+        promiseArray.push(axios.get(`/group/${groupID}/kpi/${el.kpiID}/value?date=${newdate}`)      
           .then(response => {
           el.result.push(response.data.result)
         }).catch(error => {
@@ -355,10 +357,10 @@ export default new Vuex.Store({
       });
       
       var promiseArray = [];
-
+      var groupID = this.groups.data.find(gr => gr.name === temp.group).id
       KPIdata.forEach(el => {
         el.result = []
-        promiseArray.push(axios.get(`/group/${temp.group}/kpi/${el.kpiID}/value?date=${newdate1}`)      
+        promiseArray.push(axios.get(`/group/${groupID}/kpi/${el.kpiID}/value?date=${newdate1}`)      
           .then(response => {
           el.result.push(response.data.result)
         }).catch(error => {
@@ -415,7 +417,8 @@ export default new Vuex.Store({
           }
         })
       });
-      axios.get(`/group/${temp.group}/kpi/${kpiID}/axis/${parentID}/value?date=${newdate}`)
+      var groupID = this.groups.data.find(gr => gr.name === temp.group).id
+      axios.get(`/group/${groupID}/kpi/${kpiID}/axis/${parentID}/value?date=${newdate}`)
       .then( response => {
         console.log("hello ", response.data.result);
         this.commit("FETCH_AXIS_VALUES", response.data.result);

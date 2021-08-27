@@ -51,15 +51,17 @@ import GroupChart from '../components/GroupChart.vue'
     },
     methods : {
       getTheme() {
-          console.log(this.$route.params.groupName);
-          console.log(this.$route.params.kpiName);
-          this.$store.dispatch('getObservatories',this.$route.params.groupName)
-          this.$store.dispatch('getTheme',this.$route.params.groupName)
+          console.log(this.$route.params.groupID);
+          console.log(this.$route.params.kpiID);
+          var groupName= this.$store.state.groups.data.find(gr => gr.id === this.$route.params.groupID).name
+          var kpiName= this.$store.state.kpi.data.find(gr => gr.kpiID === this.$route.params.kpiID).name
+          this.$store.dispatch('getObservatories',groupName)
+          this.$store.dispatch('getTheme',groupName)
           console.log(this.$store.state.themes.data);
-          if ((this.$route.params.groupName != "") & (this.$route.params.kpiName != "")){
+          if ((this.$route.params.groupID != "") & (this.$route.params.kpiID != "")){
             var data = {
-              group : this.$route.params.groupName,
-              theme : this.$route.params.kpiName,
+              group : groupName,
+              theme : kpiName,
               themes : this.$store.state.themes.data
             }
             this.$store.dispatch('tempData', data).then(() => {

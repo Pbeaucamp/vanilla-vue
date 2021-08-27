@@ -24,7 +24,7 @@ const routes = [
       component: () => import('../views/Unauthorized.vue')
     },
     {
-      path: '/portail/:groupName/:kpiName',
+      path: '/portail/:groupID/:kpiID',
       name: 'portail',
       meta: {
         isAuthenticated: true
