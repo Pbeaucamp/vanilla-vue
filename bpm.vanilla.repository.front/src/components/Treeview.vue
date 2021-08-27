@@ -86,14 +86,6 @@
             </v-treeview>
 
           </v-col>
-              <div id="iframe" v-if="this.metadataLink == true">
-                <iframe :src="'https://semaphore-vanilla-metadata.data4citizen.com/portail/'+this.metadataGroupName+'/'+this.metadataName" >
-                </iframe>
-              </div>
-              <div id="iframe" v-if="this.KPILink == true">
-                <iframe :src="'https://semaphore-vanilla-kpi.data4citizen.com/#/portail/System/PAAT%20à%20destination%20des%20ARS'" >
-                </iframe>
-              </div>
         </v-row>
     </v-card>
 </template>
@@ -131,12 +123,6 @@ export default {
     
         teste(item) {
           var data
-          console.log('ITEM ', item);
-          console.log('A LEAF', item.name)
-          console.log(item.type);
-          console.log(this.temps.data);
-          console.log(this.temps.data.repoName);
-          console.log(this.temps.data.groupName);
           var groupID = this.$store.state.groups.data.find(gr => gr.name === this.temps.data.groupName).id
           if (item.type == "DIRECTORY"){
             data = {
@@ -151,9 +137,7 @@ export default {
             '_blank' // <- This is what makes it open in a new window.
             );
           } else if (item.type == "FMDT") {
-          console.log(groupID),
           window.open(
-            
             'https://semaphore-vanilla-metadata.data4citizen.com/portail/'+groupID+'/'+item.name,
             '_blank' // <- This is what makes it open in a new window.
             );
