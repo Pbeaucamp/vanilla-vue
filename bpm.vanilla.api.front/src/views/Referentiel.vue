@@ -104,12 +104,12 @@ export default {
     },     
     methods: {
         addUserTo(login) {
-            var repoName = this.repo.name;
+            
             this.loading_add_btns.push(login);
             this.$store.dispatch('addUserTo', {
                 "dataType": "repository",
                 "userLogin": login,
-                "name" : repoName
+                "item" : this.repo
             })
             .then( response => {
                 var indexOflogin = this.loading_add_btns.indexOf(login); 

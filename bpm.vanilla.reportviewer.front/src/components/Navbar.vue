@@ -4,7 +4,7 @@
       <v-app-bar-nav-icon class="white--text" @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title class="text-uppercase white--text">
         <span class="font-weight-light">VANILLA</span>
-        <span> USER</span>
+        <span> REPORT VIEWER</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn class="mx-3" text rounded target="_blank" rel="noopener noreferrer" href="https://semaphore-vanilla.data4citizen.com/vanilla">
@@ -74,10 +74,7 @@ export default {
     return {
       drawer: false,
       links: [
-        { icon: 'mdi-view-dashboard', text: 'Dashboard', route: '/' },
-        { icon: 'mdi-account-box-multiple', text: 'Utilisateurs', route: '/users' },
-        { icon: 'mdi-account-group',  text: 'Groupes', route:'/groups' },  
-        { icon: 'mdi-database', text: 'Référentiels', route:'/repositories'},     
+        { icon: 'mdi-content-paste', text: 'Rapports', route: '/' },
 
 
       ]
