@@ -18,11 +18,6 @@
                     <horizontal-bar-example/>
                 </div>
 
-                <div class="Chart" v-if="ChartType == 'Linechart'">
-                <h2 style="text-align:center;">{{Titre}}</h2>
-                <line-example/>
-                </div>
-
                 <div class="Chart" v-if="ChartType == 'Doughnutchart'">
                 <h2 style="text-align:center;">{{Titre}}</h2>
                 <doughnut-example/>
@@ -33,10 +28,11 @@
                 <pie-example/>
                 </div>
 
-                <div class="Chart" v-if="ChartType == 'Gauge'">
+                <div class="Chart" v-if="ChartType == 'Linechart'">
                 <h2 style="text-align:center;">{{Titre}}</h2>
-                <gauge />
+                <line-example/>
                 </div>
+
             </v-flex>
             </v-layout>
     </v-container>
@@ -45,101 +41,61 @@
 
 <script>
   import {mapState} from 'vuex'
-  import BarExample from '../example/BarExample'
-  import LineExample from '../example/LineExample'
-  import DoughnutExample from '../example/DoughnutExample'
-  import PieExample from '../example/PieExample'
-  import HorizontalBarExample from '../example/HorizontalBarExample'
-  import Gauge from './Gauge.vue'
+  import BarExample from '../example/BarExample3'
+  import DoughnutExample from '../example/DoughnutExample3'
+  import PieExample from '../example/PieExample3'
+  import HorizontalBarExample from '../example/HorizontalBarExample3'
+  import LineExample from '../example/LineExample3'
   
   export default {
     components: {
       BarExample,
-      LineExample,
       DoughnutExample,
       PieExample,
       HorizontalBarExample,
-      Gauge
+      LineExample
     },
     computed: {
-    ...mapState(['kpioraxis']),
-    ...mapState(['kpi']),
-    ...mapState(['axis']),
-    ...mapState(['childrenid']),
-    ...mapState(['typechart']),
+    ...mapState(['tabvalueoneyear']),
+
     },
     data() {
         return {
             TabType : [
             {Type : "Barchart",
             Icon : "mdi-chart-bar"},
-            {Type : "Linechart",
-            Icon : "mdi-chart-line"},
             {Type : "Doughnutchart",
             Icon : "mdi-chart-donut"},
             {Type : "Piechart",
             Icon : "mdi-chart-pie"},
             {Type : "Horizontal Barchart",
             Icon : "mdi-align-horizontal-left"},
-            {Type : "Gauge",
-            Icon : "mdi-gauge"},
+            {Type : "Linechart",
+            Icon : "mdi-chart-line"},
             ],
-            ChartType : "Barchart",
+            ChartType : "Linechart",
             Titre : "Graph"
         }
     },
     methods : {
         changeType(type) {
-            this.ChartType = type,
-            this.$store.dispatch('getTypechart', type).then(
-              //console.log(this.typechart.data)
-            )
+            this.ChartType = type
         }
     },
-    mounted(){
-      this.ChartType = this.typechart.data
-    },
     watch : {
-      childrenid :{
+      tabvalueoneyear :{
         handler : function () {
-            var children = this.$store.state.childrenid.data
-            var axistemp = this.$store.state.axis.data;
-            var parentName
-            axistemp.forEach(element => {
-              element.children.forEach(el => {
-                if (el.id == children){
-                  parentName = element.name
-                }
-              })
-            });
-            this.Titre = this.kpi.data[0].name + " pour " + parentName + ", " + this.kpi.data[0].result[0][0].date.split(['T'])[0]
+            var nom = this.tabvalueoneyear.data[0].name
+            var date = this.tabvalueoneyear.data[0].result[0][0].date.split("-")[0]
+            this.Titre = "Evolution de "+ nom + " pour l'année " + date
         },
         deep : true
       },
-      kpioraxis :{
-        handler : function () {
-          //console.log(this.kpioraxis.data);
-          if (this.kpioraxis.data == "KPI") {
-            this.ChartType = "Gauge"  
-          } else if (this.kpioraxis.data == "AXIS") {
-            this.ChartType = "Barchart"
-          }
-        },
-        deep : true
-      },
-
-      kpi : {
-        handler : function () {
-          if (this.kpi.data.length == 1) {
-            this.ChartType = "Gauge"
-            this.Titre = this.kpi.data[0].name + ", " + this.kpi.data[0].result[0][0].date.split(['T'])[0]
-          } else {
-            this.ChartType = this.typechart.data
-            this.Titre = "Indicateurs de " + this.$store.state.temp.data.theme
-          }
-        },
-        deep : true
-      },
+    }, 
+    mounted() {
+        var nom = this.tabvalueoneyear.data[0].name
+        var date = this.tabvalueoneyear.data[0].result[0][0].date.split("-")[0]
+        this.Titre = "Evolution de "+ nom + " pour l'année " + date
     }
   }
 </script>

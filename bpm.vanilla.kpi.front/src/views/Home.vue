@@ -5,7 +5,10 @@
         <list />
         <v-row cols="2">
           <datatable />
-          <group-chart />
+          <v-col>
+            <group-chart />
+            <group-chart2 v-if="this.$store.state.boolniveau.data == true"/>
+          </v-col>
         </v-row>
       </v-col>
     </v-layout>
@@ -15,6 +18,7 @@
 <script>
 import Datatable from '../components/Datatable.vue'
 import GroupChart from '../components/GroupChart.vue'
+import GroupChart2 from '../components/GroupChart2.vue'
 import List from '../components/List.vue'
 
   export default {
@@ -22,8 +26,10 @@ import List from '../components/List.vue'
 
     components: {
         GroupChart,
+        GroupChart2,
         Datatable,
-        List},
+        List
+      },
   }
 </script>
 <style>

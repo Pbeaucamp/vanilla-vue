@@ -11,22 +11,66 @@
 
                 <v-spacer></v-spacer>
 
-            <v-dialog v-model="dialog" max-width="500">
+            <v-dialog max-width="500" v-model="dialog">
             <template v-slot:activator="{ on, attrs }">
-            <v-btn v-on="on" v-bind="attrs">
-                    Choisir la date
+              <v-btn v-on="on" v-bind="attrs">
+                      Choisir la date
+              </v-btn>
+              <v-btn @click="reset()" class="mx-2">
+                      Aujourd'hui
               </v-btn>
             </template>
-              <v-date-picker
-                    @click:date="loaddatadate()"
-                    v-model="picker"
-                    color="indigo">     
-              </v-date-picker>
-            </v-dialog>                     
+            <template>
+                  <v-date-picker
+                        @click:date="loaddatadate()"
+                        v-model="picker"
+                        color="indigo"
+                        locale="fr-FR">     
+                  </v-date-picker>
+                  <v-btn dark class='indigo' @click="dialog = false">Valider</v-btn>
+            </template>
+            </v-dialog> 
+
+            <v-dialog max-width="auto" v-model="dialogb" persistent>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn @click="appelcalendar()" v-on="on" v-bind="attrs" class="ml-2">
+                  <v-icon> mdi-calendar </v-icon>
+              </v-btn>
+            </template>
+            <template>
+              <v-row row="12">
+                <v-col cols="6">
+                  <template>
+                    <v-card>
+                      <v-data-table
+                        :headers="headers2"
+                        :items="items2"
+                        class="elevation-1"
+                        :items-per-page="12"
+                      >
+                        <template v-slot:top>
+                        <v-toolbar flat class="indigo">
+                            <v-toolbar-title class="white--text display-1 text-decoration-underline">Valeurs KPI pour l'année</v-toolbar-title> 
+                            <v-spacer></v-spacer>
+                            <v-btn class='mx-2' @click="dialogb = false & resetwithoutid()" >Quitter</v-btn>
+                        </v-toolbar>
+                        </template>
+                      </v-data-table>
+                    </v-card>
+                  </template>
+                </v-col>
+                <v-col cols="6">
+                  <v-card class="ma-5">
+                    <group-chart-3/>
+                  </v-card>
+                </v-col>
+              </v-row>
+            </template>            
+            </v-dialog>  
             </v-toolbar>
         </template>
         <template v-slot:[`item.name`]="{ item }">
-            <div v-if="item" @click="test(item.kpiID)">{{item.name}}</div>
+            <div v-if="item" @click="test(item.kpiID)" >{{item.name}}</div>
         </template>
         <template v-slot:[`item.result.0.0.date`]="{ item }">
             <div v-if="item">{{parseDate(item.result[0][0].date)}}</div>
@@ -36,6 +80,13 @@
         </template>
         <template v-slot:[`item.result.0.0.health`]="{ item }">
             <v-icon v-if="item">{{health(item.result[0][0].health)}}</v-icon>
+        </template>
+        <template v-slot:[`item.cacher`]="{ item }">
+          <v-simple-checkbox
+            v-model="item.Cacher"
+            :ripple="false"
+            @click="tabcacher()"
+          ></v-simple-checkbox>
         </template>
         </v-data-table>
 
@@ -53,13 +104,18 @@
                 dense
                 hoverable
                 :items="this.KPIdata()"
-                activatable
                 open-on-click
                 transition
               >
                 <template v-slot:prepend="{ item }">
-                  <v-icon v-if="!item.children">
-                    mdi-account
+                    <v-icon v-if="item.id == 'Rien'">
+                    mdi-cancel
+                  </v-icon>
+                  <v-icon v-else-if="!item.children">
+                    mdi-file
+                  </v-icon>
+                  <v-icon v-else-if="item.id != 'Rien'">
+                    mdi-axis-arrow
                   </v-icon>
                 </template>
                 <template slot="label" slot-scope="{ item }">
@@ -75,7 +131,9 @@
 
 <script>
 import {mapState} from 'vuex'
+import GroupChart3 from './GroupChart3.vue'
 export default {
+  components: { GroupChart3 },
     name: 'Datatable',
 data () {
       return {
@@ -83,21 +141,33 @@ data () {
           { text: 'Nom', align: 'start', value: 'name',},
           { text: 'Santé', value: 'result.0.0.health'},
           { text: 'Tendance', value: 'result.0.0.tendancy'},
-          { text: 'Date', value: 'result.0.0.date'},
+          { text: 'Date la plus proche', value: 'result.0.0.date'},
           { text: 'Valeur', value: 'result.0.0.value'},
           { text: 'Minimum', value: 'result.0.0.minimum'},
           { text: 'Maximum', value: 'result.0.0.maximum'},
-          { text: 'Objectif', value: 'result.0.0.objective'}
+          { text: 'Objectif', value: 'result.0.0.objective'},
+          { text: 'Cacher', value: 'cacher'}
         ],
+        headers2: [
+          { text: 'Date', align: 'start',  value: 'datee'},
+          { text: 'Valeur', value: 'valeure'},
+          { text: 'Objectif', value: 'objectife'},
+          { text: 'Minimum', value: 'minimume'},
+          { text: 'Maximum', value: 'maximume'},
+        ],
+        items2 : [],
         picker: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
         c : 0,
         idt : "",
-        chdate : "",
+        chdate : "0",
+        dialog : false,
+        dialogb : false,
       }
     },
     computed: {
       ...mapState(['kpi']),
       ...mapState(['axis']),
+      ...mapState(['tabvalueoneyear']),
     },
     methods : {
       parseDate(date){
@@ -138,6 +208,21 @@ data () {
           this.$store.dispatch('getKPIDate', this.picker)
         }
       },
+      loaddatadatecacher(datetemp){
+        if (this.c%2 != 0){ 
+          var data = {
+            kpiID : this.idt,
+            date : datetemp,
+          }
+          this.$store.dispatch('getOneKPI', data).then(() => {
+            this.picker = datetemp
+          })
+        } else {
+          this.$store.dispatch('getKPIDate', datetemp).then(() => {
+            this.picker = datetemp
+          })
+        }
+      },
       test(id){
         this.idt = id
         if (this.c%2 == 0){ 
@@ -145,9 +230,12 @@ data () {
             kpiID : id,
             date : this.picker,
           }
+          //console.log(this.picker);
           this.$store.dispatch('getOneKPI', data).then(
-            this.$store.dispatch('getAxis', this.kpi.data[0].kpiID)
+            this.$store.dispatch('getAxis', this.kpi.data[0].kpiID).then(
+            )
           )
+          
           this.c = this.c+1
         } else {
           if (this.chdate == 0){
@@ -159,25 +247,36 @@ data () {
           }
         }
       },
+      resetwithoutid(){
+        this.c = this.c+1
+        this.test(this.idt)
+      },
       teste(item) {
         if (typeof item.children == "object"){
-        console.log('Not a leaf', item.name)
+          //console.log('Not a leaf', item)
         } else {
-        console.log('A LEAF', item.name)
-        console.log("ID KPI : ", this.kpi.data[0].kpiID, ", NAME + ID AXIS :", item.name, " + ", item.id );
-        var data = {
-          kpiID : this.kpi.data[0].kpiID,
-          childrenID : item.id,
-          date : this.picker
-        }
-        this.$store.dispatch('getAxisValue', data).then(
-          console.log(this.$store.state.axisvalues.data)
-        )
+          var data
+          // console.log('A LEAF', item.name)
+          //console.log("ID KPI : ", this.kpi.data[0].kpiID, ", NAME + ID AXIS :", item.name, " + ", item.id );
+          //console.log(typeof(item.id));
+          if (typeof(item.id) == "number"){
+            data = {
+              kpiID : this.kpi.data[0].kpiID,
+              childrenID : item.id,
+              date : this.picker
+            }
+            this.$store.dispatch('getAxisValue', data)
+          } else {
+            //console.log(item.id);
+            this.$store.dispatch('niveaudeux', item.id).then(
+              this.$store.dispatch('getTabNiveau', item.id)
+            )
+          }
+
           }
         },
       KPIdata() {
         if (typeof this.axis.data[0] == "object"){
-          console.log(this.axis.data);
           return this.axis.data
 
         } else {
@@ -186,8 +285,52 @@ data () {
             id : "Rien"
             }]
         } 
+      },
+      reset(){
+        this.chdate = 0
+        this.picker = new Date().toISOString().split('T')[0]
+        this.$store.dispatch('resetKPI')
+        this.c = 0
+      },
+      appelcalendar(){
+          var data = {
+            kpiID : this.idt,
+            date : this.picker,
+          }
+        this.$store.dispatch('getTabValueOneYear', data)   
+      },
+      tabcacher(){
+        if (this.chdate != 0){
+          this.loaddatadate()
+        }
       }
-    }
+    },
+    watch : {
+      tabvalueoneyear : {
+        handler : function () {
+          this.items2 = [],
+          // console.log(this.$store.state.kpi),
+          this.tabvalueoneyear.data[0].result[0].forEach(el => {
+            //console.log(el);
+            if (!this.items2.includes({
+              datee : this.parseDate(el.date),
+              valeure : el.value,
+              objectife : el.objective,
+              minimume : el.minimum,
+              maximume : el.maximum
+            })){
+            this.items2.push({
+              datee : this.parseDate(el.date),
+              valeure : el.value,
+              objectife : el.objective,
+              minimume : el.minimum,
+              maximume : el.maximum
+            })}
+          })
+        },
+        deep : true
+      }, 
+    },
 }
 </script>
 <style scoped>
