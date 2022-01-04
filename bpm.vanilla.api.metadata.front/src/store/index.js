@@ -7,7 +7,7 @@ import config from '../config.json'
 
 
 axios.defaults.baseURL=config.baseURL;
-axios.defaults.headers.common['X-Gravitee-Api-Key'] = "f3510842-ef9b-4ee7-8877-4d59b5d63907";
+//axios.defaults.headers.common['X-Gravitee-Api-Key'] = "f3510842-ef9b-4ee7-8877-4d59b5d63907";
 //X-Gravitee-Api-Key
 
 //console.log("Config baseURL = "+config.baseURL);
